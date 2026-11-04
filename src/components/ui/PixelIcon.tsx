@@ -1,0 +1,222 @@
+/**
+ * Íconos pixel dibujados en código: cada fila es una cadena y cada letra un color.
+ * Se ven nítidos a cualquier tamaño y pesan casi nada.
+ */
+
+const COLORS: Record<string, string> = {
+  k: "var(--ink)",
+  W: "#ffffff",
+  C: "var(--cream)",
+  R: "var(--cherry)",
+  r: "#a8243f",
+  Y: "var(--gold)",
+  O: "#c98a1e",
+  G: "var(--pine)",
+  g: "#7fd6a8",
+  B: "#9a5b34",
+  b: "#6b3a22",
+  L: "var(--lavender)",
+  S: "var(--sky)",
+  P: "var(--rose)",
+};
+
+export const ICONS = {
+  home: [
+    ".....kk.....",
+    "....kRRk....",
+    "...kRRRRk...",
+    "..kRRRRRRk..",
+    ".kRRRRRRRRk.",
+    "kkkkkkkkkkkk",
+    ".kCCCCCCCCk.",
+    ".kCkkCCYYCk.",
+    ".kCkkCCYYCk.",
+    ".kCkkCCCCCk.",
+    ".kCkkCCCCCk.",
+    ".kkkkkkkkkk.",
+  ],
+  mission: [
+    ".....kk.....",
+    "....kYYk....",
+    "....kYYk....",
+    "kkkkkYYkkkkk",
+    "kYYYYWYYYYYk",
+    ".kYYYYYYYYk.",
+    "..kYYYYYYk..",
+    "..kYYYYYYk..",
+    ".kYYYkkYYYk.",
+    ".kYYk..kYYk.",
+    "kYkk....kkYk",
+    "kk........kk",
+  ],
+  ranking: [
+    ".kkkkkkkkkk.",
+    "kkYYYYYYYYkk",
+    "kYkYWYYYYkYk",
+    "kYkYWYYYYkYk",
+    ".kkYYYYYYkk.",
+    "...kYYYOk...",
+    "....kYOk....",
+    ".....kk.....",
+    "....kYOk....",
+    "...kkkkkk...",
+    "..kBBBBBBk..",
+    "..kkkkkkkk..",
+  ],
+  friend: [
+    "............",
+    "kkkkkkkkkkkk",
+    "kWkCCCCCCkWk",
+    "kCCkCCCCkCCk",
+    "kCCCkCCkCCCk",
+    "kCCCCkkCCCCk",
+    "kCCCCRRCCCCk",
+    "kCCCCRRCCCCk",
+    "kCCCCCCCCCCk",
+    "kkkkkkkkkkkk",
+    "............",
+    "............",
+  ],
+  chest: [
+    "............",
+    "..kkkkkkkk..",
+    ".kBBBBBBBBk.",
+    "kBBYBBBBYBBk",
+    "kkkkkYYkkkkk",
+    "kbbbkYYkbbbk",
+    "kBBBBkkBBBBk",
+    "kBBYBBBBYBBk",
+    "kBBYBBBBYBBk",
+    "kkkkkkkkkkkk",
+    "............",
+    "............",
+  ],
+  coin: [
+    "..kkkk..",
+    ".kYYYYk.",
+    "kYYWYYOk",
+    "kYWYYYOk",
+    "kYYYYYOk",
+    "kYYYYOOk",
+    ".kOOOOk.",
+    "..kkkk..",
+  ],
+  lock: [
+    "..kkkkkk..",
+    ".k......k.",
+    ".k......k.",
+    "kkkkkkkkkk",
+    "kYYYYYYYYk",
+    "kYYYkkYYYk",
+    "kYYYkkYYYk",
+    "kOOOOOOOOk",
+    "kkkkkkkkkk",
+  ],
+  check: [
+    "..........kk",
+    ".........kGk",
+    "........kGk.",
+    ".kk....kGk..",
+    "kGGk..kGk...",
+    ".kGGkkGk....",
+    "..kGGGk.....",
+    "...kGk......",
+    "....k.......",
+  ],
+  bang: [
+    "kkkk",
+    "kRRk",
+    "kRRk",
+    "kRRk",
+    "kRRk",
+    "kkkk",
+    "....",
+    "kkkk",
+    "kRRk",
+    "kkkk",
+  ],
+  share: [
+    "....kkkk....",
+    "..kkGGGGkk..",
+    ".kGGGGGGGGk.",
+    ".kGGWWGGGGk.",
+    "kGGWWGGGGGGk",
+    "kGGWWWGGGGGk",
+    "kGGGWWWGWWGk",
+    "kGGGGWWWWWGk",
+    ".kGGGGWWWGk.",
+    ".kWGGGGGGGk.",
+    "kWkkGGGGkk..",
+    "kk..kkkk....",
+  ],
+  clock: [
+    "...kkkkkk...",
+    "..kCCCCCCk..",
+    ".kCCCCkCCCk.",
+    "kCCCCCkCCCCk",
+    "kCCCCCkCCCCk",
+    "kCCCCCkkkCCk",
+    "kCCCCCCCCCCk",
+    "kCCCCCCCCCCk",
+    ".kCCCCCCCCk.",
+    "..kCCCCCCk..",
+    "...kkkkkk...",
+  ],
+  sparkle: [
+    "...k...",
+    "..kYk..",
+    "kkYWYkk",
+    "kYWWWYk",
+    "kkYWYkk",
+    "..kYk..",
+    "...k...",
+  ],
+} as const;
+
+export type IconName = keyof typeof ICONS;
+
+export function PixelIcon({
+  name,
+  size = 24,
+  className,
+  title,
+}: {
+  name: IconName;
+  size?: number;
+  className?: string;
+  title?: string;
+}) {
+  const rows = ICONS[name];
+  const w = Math.max(...rows.map((r) => r.length));
+  const h = rows.length;
+  const rects: React.ReactNode[] = [];
+  rows.forEach((row, y) => {
+    let x = 0;
+    while (x < row.length) {
+      const c = row[x];
+      if (c === ".") {
+        x++;
+        continue;
+      }
+      // Agrupa celdas contiguas del mismo color en un solo rect.
+      let run = 1;
+      while (row[x + run] === c) run++;
+      rects.push(<rect key={`${x}-${y}`} x={x} y={y} width={run} height={1} fill={COLORS[c] ?? c} />);
+      x += run;
+    }
+  });
+  return (
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      width={size}
+      height={(size * h) / w}
+      shapeRendering="crispEdges"
+      className={className}
+      role={title ? "img" : undefined}
+      aria-label={title}
+      aria-hidden={title ? undefined : true}
+    >
+      {rects}
+    </svg>
+  );
+}

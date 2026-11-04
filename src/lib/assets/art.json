@@ -1,0 +1,66 @@
+{
+  "sprites": {
+    "casa-misiones": {
+      "src": "/art/sprites/casa-misiones.png",
+      "w": 117,
+      "h": 111
+    },
+    "muro-fotos": {
+      "src": "/art/sprites/muro-fotos.png",
+      "w": 85,
+      "h": 95
+    },
+    "buzon": {
+      "src": "/art/sprites/buzon.png",
+      "w": 65,
+      "h": 97
+    },
+    "arbol": {
+      "src": "/art/sprites/arbol.png",
+      "w": 75,
+      "h": 110
+    },
+    "cofre": {
+      "src": "/art/sprites/cofre.png",
+      "w": 81,
+      "h": 71
+    },
+    "tablero-plaza": {
+      "src": "/art/sprites/tablero-plaza.png",
+      "w": 64,
+      "h": 99
+    },
+    "tienda": {
+      "src": "/art/sprites/tienda.png",
+      "w": 98,
+      "h": 91
+    },
+    "mascota": {
+      "src": "/art/sprites/mascota.png",
+      "w": 65,
+      "h": 87
+    }
+  },
+  "layers": {
+    "mountains": {
+      "src": "/art/layers/mountains.png",
+      "w": 704,
+      "h": 118
+    },
+    "hills": {
+      "src": "/art/layers/hills.png",
+      "w": 792,
+      "h": 120
+    },
+    "ground": {
+      "src": "/art/layers/ground.png",
+      "w": 906,
+      "h": 122
+    },
+    "foreground": {
+      "src": "/art/layers/foreground.png",
+      "w": 792,
+      "h": 125
+    }
+  }
+}
