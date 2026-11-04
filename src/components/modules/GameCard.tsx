@@ -101,6 +101,9 @@ export function GameCard({ card, index, dark }: { card: GameCardDef; index: numb
               <PixelIcon name="lock" size={30} />
             </span>
             <span className="px-chip">Se abre el día {card.unlockDay}</span>
+            <span className="px-chip" style={{ ["--chip" as string]: "var(--gold)" }}>
+              🧪 Toca para probarlo
+            </span>
           </div>
         )}
       </div>
@@ -155,12 +158,10 @@ export function GameCard({ card, index, dark }: { card: GameCardDef; index: numb
   return (
     <Link
       ref={ref}
-      href={locked ? "#" : card.href}
-      aria-disabled={locked}
-      onClick={(e) => locked && e.preventDefault()}
+      href={`/prueba?juego=${card.id}`}
       onPointerMove={onMove}
       onPointerLeave={onLeave}
-      className={`game-card px-box block ${locked ? "cursor-not-allowed" : ""}`}
+      className="game-card px-box block"
       style={{ ["--bg" as string]: "var(--cream)" }}
     >
       {body}

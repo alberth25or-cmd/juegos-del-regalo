@@ -8,6 +8,7 @@ import { Modules } from "@/components/modules/Modules";
 import { ZoneNav } from "@/components/modules/ZoneNav";
 import { HomeHeader, MissionPill, SwipeHint } from "./HomeHud";
 import { useYo } from "./useYo";
+import { Guia } from "./Guia";
 import { APP_NAME, APP_TAGLINE } from "@/lib/config";
 import { mockGroup } from "@/lib/mock";
 
@@ -198,6 +199,7 @@ export function HomeStage() {
         <MissionPill yo={yo} />
       </div>
       {hud && inVillage && <SwipeHint />}
+      <Guia autoAbrir={hud} />
     </>
   );
 }

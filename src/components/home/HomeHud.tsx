@@ -124,7 +124,15 @@ export function MissionPill({ yo }: { yo: Yo }) {
   return (
     <div className="mx-auto w-full max-w-md px-4">
       {/* Pestaña: baja a las zonas de juegos */}
-      <div className="flex justify-center">
+      <div className="flex justify-center gap-2">
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent("abrir-guia"))}
+          className="px-chip -mb-1 !px-3 !py-1 !text-[0.72rem]"
+          style={{ ["--chip" as string]: "var(--gold)" }}
+        >
+          📖 ¿Cómo se juega?
+        </button>
         <button
           type="button"
           onClick={() => {
@@ -134,7 +142,7 @@ export function MissionPill({ yo }: { yo: Yo }) {
           className="px-chip -mb-1 gap-1.5 !px-3 !py-1 !text-[0.72rem]"
           style={{ ["--chip" as string]: "var(--ink)", color: "var(--cream)" }}
         >
-          <span className="scroll-cue">▼</span> {MODULES.length} zonas de juegos
+          <span className="scroll-cue">▼</span> {MODULES.length} zonas
         </button>
       </div>
       {!yo.cargando && !agente && (

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { MODULES, type ModuleDef } from "@/lib/modules";
 import { GameCard } from "./GameCard";
@@ -154,6 +155,17 @@ export function Modules() {
 
   return (
     <div ref={ref} className="relative z-10 pb-28">
+      <div className="relative z-10 mx-auto -mb-4 max-w-md px-4 pt-6">
+        <Link href="/prueba" className="px-box flex items-center gap-3 px-3 py-2" style={{ ["--bg" as string]: "var(--gold)" }}>
+          <span className="text-2xl" aria-hidden>
+            🧪
+          </span>
+          <span className="leading-tight">
+            <span className="block font-pixel">Modo prueba</span>
+            <span className="block text-[0.78rem]">Toca cualquier juego para probarlo, todo desbloqueado y con amigos simulados.</span>
+          </span>
+        </Link>
+      </div>
       {MODULES.map((m, i) => (
         <div key={m.id}>
           <Divider color={m.bg} />

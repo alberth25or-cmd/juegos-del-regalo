@@ -65,13 +65,13 @@ function rowsToRects(rows: string[], colors: Record<string, string>) {
 }
 
 /** Ogro Panetonero. `awake` controla los ojos; `blink` los anima solos. */
-export function Ogre({ size = 160, blink = true }: { size?: number; blink?: boolean }) {
+export function Ogre({ size = 160, blink = true, ojos }: { size?: number; blink?: boolean; ojos?: "abiertos" | "cerrados" }) {
   const h = OGRE.length;
   return (
     <svg viewBox={`0 0 ${OGRE_W} ${h}`} width={size} height={(size * h) / OGRE_W} shapeRendering="crispEdges" aria-hidden style={{ display: "block" }}>
       {rowsToRects(OGRE, OGRE_COLORS)}
       {/* ojos abiertos: aparecen de vez en cuando */}
-      <g style={blink ? { animation: "ogre-eye 6s steps(1) infinite" } : { opacity: 0 }}>
+      <g style={ojos ? { opacity: ojos === "abiertos" ? 1 : 0 } : blink ? { animation: "ogre-eye 6s steps(1) infinite" } : { opacity: 0 }}>
         <rect x={6} y={5} width={4} height={3} fill="#2a2342" />
         <rect x={7} y={5} width={2} height={2} fill="#fff6e5" />
         <rect x={8} y={6} width={1} height={1} fill="#e2445c" />
