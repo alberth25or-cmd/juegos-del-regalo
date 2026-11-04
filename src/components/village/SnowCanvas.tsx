@@ -38,7 +38,7 @@ export function SnowCanvas({ count = 70 }: { count?: number }) {
       { size: 2, v: 0.17, a: 0.8, sway: 0.09 },
       { size: 3, v: 0.36, a: 0.95, sway: 0.16 },
     ];
-    const total = reduced ? 16 : ligero ? Math.round(count * 0.35) : count;
+    const total = reduced ? 16 : ligero ? Math.round(count * 0.6) : count;
     const flakes = Array.from({ length: total }, (_, i) => {
       const r = i / total;
       const d = r < 0.5 ? 0 : r < 0.85 ? 1 : 2;

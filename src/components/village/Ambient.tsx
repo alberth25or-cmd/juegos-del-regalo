@@ -21,7 +21,7 @@ export const Fireflies = memo(function Fireflies({ worldW, sceneH, floor, count 
 
   const colors = ["#ffd166", "#fff1b8", "#ffb3c7"];
   return (
-    <div aria-hidden className="fx-extra pointer-events-none absolute inset-0" style={{ opacity: "calc(0.15 + var(--lights) * 0.85)" }}>
+    <div aria-hidden className="pointer-events-none absolute inset-0" style={{ opacity: "calc(0.15 + var(--lights) * 0.85)" }}>
       {flies.map((f) => (
         <span key={f.key} className="absolute" style={{ left: f.x, bottom: f.y, animation: `float-fly ${f.dur}s ease-in-out ${f.delay}s infinite` }}>
           <span
@@ -62,7 +62,7 @@ export function Birds() {
     { top: "35.5%", dur: 38, delay: -19.4, s: 0.5 },
   ];
   return (
-    <div aria-hidden className="fx-extra pointer-events-none absolute inset-0" style={{ opacity: "calc((1 - var(--lights)) * 0.7)" }}>
+    <div aria-hidden className="pointer-events-none absolute inset-0" style={{ opacity: "calc((1 - var(--lights)) * 0.7)" }}>
       {birds.map((b, i) => (
         <span key={i} className="absolute left-0" style={{ top: b.top, animation: `fly-across ${b.dur}s linear ${b.delay}s infinite` }}>
           <span
@@ -80,7 +80,7 @@ export function Birds() {
 /** Aurora de colores en la noche, en franjas pixeladas. */
 export function Aurora() {
   return (
-    <div aria-hidden className="fx-extra pointer-events-none absolute inset-x-0 top-0 h-[48%] overflow-hidden" style={{ opacity: "calc(var(--stars) * 0.6)" }}>
+    <div aria-hidden className="fx-pesado pointer-events-none absolute inset-x-0 top-0 h-[48%] overflow-hidden" style={{ opacity: "calc(var(--stars) * 0.6)" }}>
       {[
         { top: "6%", h: "42%", c: "#9fe3cf", c2: "#b9a7f5", d: 0, dur: 14 },
         { top: "18%", h: "36%", c: "#b9a7f5", c2: "#ffb3c7", d: -6, dur: 18 },
@@ -111,7 +111,7 @@ export function SunRays() {
   return (
     <div
       aria-hidden
-      className="fx-extra pointer-events-none absolute"
+      className="fx-pesado pointer-events-none absolute"
       style={{
         left: "var(--sun-x)",
         top: "var(--sun-y)",

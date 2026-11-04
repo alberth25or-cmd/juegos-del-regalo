@@ -172,7 +172,7 @@ function Mist({
   return (
     <div
       aria-hidden
-      className="fx-extra pointer-events-none absolute left-0 overflow-hidden will-change-transform"
+      className="fx-pesado pointer-events-none absolute left-0 overflow-hidden will-change-transform"
       style={{
         bottom: floor + bottom * sceneH,
         height: height * sceneH,
@@ -268,9 +268,10 @@ export function Village() {
     const loop = (now: number) => {
       raf = requestAnimationFrame(loop);
       // A ~30 cuadros por segundo basta, y nada si la aldea no está a la vista o en modo ligero.
-      if (now - prev < 32) return;
+      const ligero = document.documentElement.dataset.ligero === "1";
+      if (now - prev < (ligero ? 50 : 32)) return;
       prev = now;
-      if (document.documentElement.dataset.ligero === "1" || window.scrollY > window.innerHeight * 2.4) return;
+      if (window.scrollY > window.innerHeight * 2.4) return;
       if (now - lastInput > 2500) {
         const t = now / 1000;
         tx = Math.sin(t * 0.23) * 0.45;

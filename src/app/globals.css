@@ -339,11 +339,14 @@ body {
 }
 .sparkle {
   position: absolute;
-  width: calc(var(--px) * 3);
-  height: calc(var(--px) * 3);
+  width: calc(var(--px) * 6);
+  height: calc(var(--px) * 6);
+  margin: calc(var(--px) * -1.5) 0 0 calc(var(--px) * -1.5);
+  /* cruz blanca + halo dorado dibujado con degradados (sin filter: barato) */
   background:
-    linear-gradient(#fff, #fff) center / 100% 33% no-repeat,
-    linear-gradient(#fff, #fff) center / 33% 100% no-repeat;
+    linear-gradient(#fff, #fff) center / 50% 17% no-repeat,
+    linear-gradient(#fff, #fff) center / 17% 50% no-repeat,
+    radial-gradient(circle, rgb(255 240 190 / 0.95) 0, rgb(255 220 140 / 0.45) 30%, rgb(255 220 140 / 0) 65%) center / 100% 100% no-repeat;
   animation: sparkle 1.8s steps(6) infinite;
   pointer-events: none;
 }
@@ -842,31 +845,34 @@ body {
   contain-intrinsic-size: auto 1500px;
 }
 
-/* Modo ligero: para celulares básicos (automático o a mano). */
-:root[data-ligero="1"] .fx-extra,
-:root[data-ligero="1"] .sparkle,
-:root[data-ligero="1"] .shooting-star {
+/* Modo ligero: solo quita lo más pesado para la tarjeta gráfica (aurora,
+   rayos de sol y neblina). Todo el movimiento de la aldea y las zonas se mantiene. */
+:root[data-ligero="1"] .fx-pesado {
   display: none !important;
 }
-:root[data-ligero="1"] .fx-filtro {
-  filter: none !important;
-}
-:root[data-ligero="1"] .card-float,
-:root[data-ligero="1"] .card-bob,
-:root[data-ligero="1"] .anim-bob,
-:root[data-ligero="1"] .bulb,
-:root[data-ligero="1"] .shine::after {
-  animation: none !important;
-}
-:root[data-ligero="1"] .shine::after {
-  display: none;
-}
-:root[data-ligero="1"] .game-card {
-  transform: none !important;
+
+
+/* Patrón de las tarjetas: se mueve con transform (sin repintar) */
+@keyframes pattern-move {
+  from { transform: translate(0, 0); }
+  to { transform: translate(18px, 18px); }
 }
 
-/* En modo ligero las escenas de las zonas quedan quietas y los trenes no giran ruedas. */
-:root[data-ligero="1"] .scene-scale *,
-:root[data-ligero="1"] .tren-rueda {
-  animation-play-state: paused !important;
+/* Polvo de luz que flota en cada zona */
+@keyframes polvo-luz {
+  0% { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 0.9; }
+  100% { transform: translate3d(var(--dx, 20px), -180px, 0) scale(1.1); opacity: 0; }
+}
+.polvo-luz {
+  position: absolute;
+  bottom: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 246 210 / 0.95) 0, rgb(255 220 140 / 0.5) 35%, rgb(255 220 140 / 0) 70%);
+  animation: polvo-luz var(--dur, 7s) ease-in-out var(--delay, 0s) infinite;
+  pointer-events: none;
+  will-change: transform, opacity;
 }

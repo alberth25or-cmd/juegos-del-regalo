@@ -43,7 +43,7 @@ export function Sleigh() {
   const cuy = SPRITES["mascota"];
   const s = 3; // pixeles por pixel de arte
   return (
-    <div aria-hidden className="fx-extra pointer-events-none absolute inset-0 overflow-hidden" style={{ opacity: "var(--lights)" }}>
+    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden" style={{ opacity: "var(--lights)" }}>
       <div className="absolute left-0 top-[11%]" style={{ animation: "sleigh-fly 30s linear 4s infinite" }}>
         <div style={{ animation: "sleigh-wave 3.2s ease-in-out infinite" }}>
           <div className="relative flex items-end" style={{ gap: 2 * s }}>

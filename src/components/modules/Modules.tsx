@@ -12,6 +12,37 @@ import { InterruptorLigero } from "@/components/rendimiento/InterruptorLigero";
  * <ZonasEfectos/>, un componente cliente pequeñito.
  */
 
+/** Partículas de luz flotante de cada zona (posiciones fijas: mismo HTML en servidor y cliente). */
+const POLVO = Array.from({ length: 12 }, (_, i) => ({
+  left: (i * 37 + 7) % 100,
+  dur: 6 + (i % 4) * 1.3,
+  delay: -(i * 0.85),
+  dx: ((i % 2 ? 1 : -1) * (12 + (i % 3) * 14)),
+  size: 8 + (i % 3) * 4,
+}));
+
+function PolvoDeLuz({ dark }: { dark?: boolean }) {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 top-[18%] overflow-hidden" style={{ opacity: dark ? 0.95 : 0.75 }}>
+      {POLVO.map((p, i) => (
+        <span
+          key={i}
+          className="polvo-luz"
+          style={{
+            left: `${p.left}%`,
+            width: p.size,
+            height: p.size,
+            bottom: `${(i * 13) % 60}%`,
+            ["--dur" as string]: `${p.dur}s`,
+            ["--delay" as string]: `${p.delay}s`,
+            ["--dx" as string]: `${p.dx}px`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 /** Divisor de nieve escalonado entre zonas (como un borde pixel). */
 function Divider({ color }: { color: string }) {
   return (
@@ -69,6 +100,8 @@ function ModuleSection({ mod, index }: { mod: ModuleDef; index: number }) {
           WebkitMaskImage: "linear-gradient(#000 40%, transparent)",
         }}
       />
+
+      <PolvoDeLuz dark={mod.dark} />
 
       <div className="relative mx-auto max-w-5xl px-4">
         {/* Encabezado de la zona: entra desde un lado */}

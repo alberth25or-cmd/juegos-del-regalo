@@ -49,11 +49,10 @@ export const Garland = memo(function Garland({
         return (
           <g key={b.i} transform={`translate(${Math.round(b.x)}, ${Math.round(b.y)})`}>
             {on && (
-              <circle
-                r={11}
-                fill={c}
-                className="fx-extra" style={{ opacity: "calc(0.08 + var(--lights) * 0.3)" }}
-              />
+              <>
+                <circle r={14} fill={c} style={{ opacity: "calc(0.06 + var(--lights) * 0.18)" }} />
+                <circle r={8} fill={c} style={{ opacity: "calc(0.12 + var(--lights) * 0.32)" }} />
+              </>
             )}
             <rect x={-2} y={0} width={4} height={3} fill="#2a2342" />
             <rect

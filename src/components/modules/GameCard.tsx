@@ -23,8 +23,9 @@ export function GameCard({ card, index, dark }: { card: GameCardDef; index: numb
         {/* patrón pixel de fondo */}
         <div
           aria-hidden
-          className="absolute inset-0 opacity-25"
+          className="absolute -inset-[18px] opacity-25"
           style={{
+            animation: "pattern-move 9s linear infinite",
             backgroundImage:
               "linear-gradient(45deg, rgb(255 255 255 / .5) 25%, transparent 25%, transparent 75%, rgb(255 255 255 / .5) 75%), linear-gradient(45deg, rgb(255 255 255 / .5) 25%, transparent 25%, transparent 75%, rgb(255 255 255 / .5) 75%)",
             backgroundSize: "18px 18px",
@@ -34,7 +35,7 @@ export function GameCard({ card, index, dark }: { card: GameCardDef; index: numb
         {/* rayos que giran detrás */}
         <div
           aria-hidden
-          className="fx-extra absolute left-1/2 top-[62%] h-[260%] w-[260%] -translate-x-1/2 -translate-y-1/2"
+          className="absolute left-1/2 top-[62%] h-[260%] w-[260%] -translate-x-1/2 -translate-y-1/2"
           style={{
             background: "repeating-conic-gradient(rgb(255 255 255 / .28) 0deg 10deg, transparent 10deg 24deg)",
             animation: "spin 24s linear infinite",

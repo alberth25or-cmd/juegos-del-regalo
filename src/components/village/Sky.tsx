@@ -73,10 +73,10 @@ function PixelDisc({ rows, colors }: { rows: string[]; colors: Record<string, st
   );
 }
 
-/** Estrellas en 3 grupos (cada grupo = 1 elemento con muchas sombras), titilan por grupo. */
+/** Estrellas en 5 grupos (cada grupo = 1 elemento con muchas sombras), titilan por grupo. */
 const STAR_GROUPS = (() => {
   const r = rng(42);
-  return [0, 1, 2].map((g) => {
+  return [0, 1, 2, 3, 4].map((g) => {
     const shadows: string[] = [];
     for (let i = 0; i < 14; i++) {
       const x = (r() * 100).toFixed(1);
@@ -84,7 +84,7 @@ const STAR_GROUPS = (() => {
       const big = r() > 0.85;
       shadows.push(`${x}vw ${y}vh 0 ${big ? "1px" : "0"} #fff`);
     }
-    return { shadow: shadows.join(","), dur: 2.4 + g * 0.9, delay: g * 0.7 };
+    return { shadow: shadows.join(","), dur: 2 + g * 0.7, delay: g * 0.55 };
   });
 })();
 

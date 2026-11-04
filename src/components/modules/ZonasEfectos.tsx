@@ -33,7 +33,6 @@ export function ZonasEfectos() {
 
     let raf = 0;
     const update = () => {
-      if (ligero()) return;
       const vh = window.innerHeight;
       for (const s of sections) {
         const r = s.getBoundingClientRect();

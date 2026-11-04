@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 /**
- * Modo ligero: apaga los efectos más pesados en celulares básicos.
+ * Modo ligero: en celulares MUY básicos quita solo lo más pesado para la
+ * tarjeta gráfica (aurora, rayos de sol y neblina). Todo el movimiento se mantiene.
  * - Preferencia guardada (`jdr:ligero` = "1" / "0") manda siempre.
- * - Si no hay preferencia, se decide solo: poca memoria, pocos núcleos,
- *   ahorro de datos, "reducir movimiento" o si la página va lenta al cargar.
+ * - Sin preferencia: ahorro de datos, "reducir movimiento", ≤ 2 GB de RAM o
+ *   ≤ 2 núcleos, o si la aldea va realmente lenta DESPUÉS de la intro.
  */
 export const CLAVE_LIGERO = "jdr:ligero";
+const CLAVE_LENTO = "jdr:lento-v2";
 
-/** Script que corre antes de pintar, para no mostrar efectos pesados ni un instante. */
-export const SCRIPT_LIGERO = `(function(){try{var p=localStorage.getItem("${CLAVE_LIGERO}");var n=navigator,l=false;if(p==="1")l=true;else if(p!=="0"){var m=n.deviceMemory,c=n.hardwareConcurrency,s=n.connection&&n.connection.saveData;l=(m&&m<=4)||(c&&c<=4)||s||matchMedia("(prefers-reduced-motion: reduce)").matches||sessionStorage.getItem("jdr:lento")==="1";}document.documentElement.dataset.ligero=l?"1":"0";}catch(e){}})();`;
+/** Script que corre antes de pintar. */
+export const SCRIPT_LIGERO = `(function(){try{var p=localStorage.getItem("${CLAVE_LIGERO}");var n=navigator,l=false;if(p==="1")l=true;else if(p!=="0"){var m=n.deviceMemory,c=n.hardwareConcurrency,s=n.connection&&n.connection.saveData;l=(m&&m<=2)||(c&&c<=2)||s||matchMedia("(prefers-reduced-motion: reduce)").matches||sessionStorage.getItem("${CLAVE_LENTO}")==="1";}document.documentElement.dataset.ligero=l?"1":"0";}catch(e){}})();`;
 
 export function aplicarLigero(activo: boolean) {
   document.documentElement.dataset.ligero = activo ? "1" : "0";
@@ -19,6 +21,8 @@ export function aplicarLigero(activo: boolean) {
 }
 
 export function ModoLigero() {
+  const [aviso, setAviso] = useState(false);
+
   useEffect(() => {
     let pref: string | null = null;
     try {
@@ -26,33 +30,66 @@ export function ModoLigero() {
     } catch {}
     if (pref !== null || document.documentElement.dataset.ligero === "1") return;
 
-    // Medimos ~1,5 s de fluidez después de cargar. Si va lento, pasamos a ligero.
     let raf = 0;
-    let frames = 0;
-    let lentos = 0;
-    let last = 0;
-    const inicio = window.setTimeout(() => {
+    let timer = 0;
+    // Medimos 2 s de fluidez, pero solo cuando ya terminó la intro del cielo.
+    const medir = () => {
+      let frames = 0;
+      let lentos = 0;
       const t0 = performance.now();
-      last = t0;
+      let last = t0;
       const paso = (now: number) => {
         const dt = now - last;
         last = now;
         frames++;
-        if (dt > 34) lentos++;
-        if (now - t0 < 1500) raf = requestAnimationFrame(paso);
-        else if (frames > 10 && lentos / frames > 0.35) {
+        if (dt > 45) lentos++;
+        if (now - t0 < 2000) raf = requestAnimationFrame(paso);
+        else if (frames > 12 && lentos / frames > 0.5) {
           try {
-            sessionStorage.setItem("jdr:lento", "1");
+            sessionStorage.setItem(CLAVE_LENTO, "1");
           } catch {}
           aplicarLigero(true);
+          setAviso(true);
         }
       };
       raf = requestAnimationFrame(paso);
-    }, 2500);
+    };
+    const cuandoLlegue = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => document.visibilityState === "visible" && medir(), 2500);
+    };
+    if (document.documentElement.dataset.arrived === "1") cuandoLlegue();
+    window.addEventListener("aldea-llegada", cuandoLlegue);
     return () => {
-      window.clearTimeout(inicio);
+      window.removeEventListener("aldea-llegada", cuandoLlegue);
+      window.clearTimeout(timer);
       cancelAnimationFrame(raf);
     };
   }, []);
-  return null;
+
+  if (!aviso) return null;
+  return (
+    <div className="fixed inset-x-0 z-[70] flex justify-center px-4" style={{ top: "calc(max(12px, env(safe-area-inset-top)) + 100px)" }} role="status">
+      <div className="px-box anim-pop flex max-w-md items-center gap-3 px-3 py-2 text-[0.85rem]" style={{ ["--bg" as string]: "var(--mint)" }}>
+        <span>⚡ Activamos el modo ligero porque tu celular iba un poco lento.</span>
+        <button
+          type="button"
+          className="px-chip shrink-0"
+          onClick={() => {
+            try {
+              localStorage.setItem(CLAVE_LIGERO, "0");
+              sessionStorage.removeItem(CLAVE_LENTO);
+            } catch {}
+            aplicarLigero(false);
+            setAviso(false);
+          }}
+        >
+          Desactivar
+        </button>
+        <button type="button" className="font-pixel" aria-label="Cerrar aviso" onClick={() => setAviso(false)}>
+          ✕
+        </button>
+      </div>
+    </div>
+  );
 }
