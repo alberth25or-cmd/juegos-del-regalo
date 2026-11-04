@@ -23,7 +23,9 @@ Registro de lo acordado con Luis. Fecha de inicio del registro: 2026-11-04.
 - Código en GitHub, repo **privado** `alberth25or-cmd/juegos-del-regalo` (rama `main`).
 - Hosting en **Vercel**, proyecto `juegos-del-regalo` enlazado al repo: cada push a `main` se publica solo.
 - En línea en **https://juegos-del-regalo.vercel.app** (publicado 2026-11-04). Producción pública; las versiones de prueba (previews) piden login de Vercel.
-- **Supabase aún no está creado.** Plan: instalarlo desde Vercel (Storage → Supabase, región São Paulo) para que las claves lleguen solas.
+- **Supabase** instalado desde Vercel (2026-11-04): base `supabase-almond-desert`, plan gratuito, región **São Paulo**. Sus 16 variables llegaron a Vercel como sensibles (producción y previews).
+- Funciones de Vercel en **São Paulo (`gru1`)**, la misma región que la base de datos.
+- Para desarrollo local, las claves van en `.env.local` (lo crea Luis copiando el snippet de Supabase; nunca se sube a git).
 
 ## Pendientes
 - Fecha de inicio y fecha exacta de entrega.
