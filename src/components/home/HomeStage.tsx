@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Sky } from "@/components/village/Sky";
 import { Village } from "@/components/village/Village";
 import { SnowCanvas } from "@/components/village/SnowCanvas";
-import { Modules } from "@/components/modules/Modules";
 import { ZoneNav } from "@/components/modules/ZoneNav";
 import { HomeHeader, MissionPill, SwipeHint } from "./HomeHud";
 import { useYo } from "./useYo";
@@ -29,12 +28,13 @@ export function HomeStage() {
   const [inVillage, setInVillage] = useState(true);
   const arrivedRef = useRef(false);
   const autoRef = useRef(0);
+  const stageRef = useRef<HTMLElement>(null);
   /** Se decide una sola vez (el modo estricto ejecuta los efectos dos veces). */
   const introRef = useRef<boolean | null>(null);
 
   const range = () => window.innerHeight * RANGE;
 
-  const descend = useCallback((duration = 2600) => {
+  const descend = useCallback((duration = 1800) => {
     cancelAnimationFrame(autoRef.current);
     const from = window.scrollY;
     const to = range();
@@ -49,12 +49,14 @@ export function HomeStage() {
 
   useEffect(() => {
     const root = document.documentElement;
+    const stage = stageRef.current;
     root.dataset.arrived = arrivedRef.current ? "1" : "0";
     let raf = 0;
     const update = () => {
       const r = range();
       const p = Math.max(0, Math.min(1, window.scrollY / r));
-      root.style.setProperty("--p", p.toFixed(4));
+      // --p solo en el escenario (no en <html>): así no se recalcula toda la página al hacer scroll
+      stage?.style.setProperty("--p", p.toFixed(3));
       setHud(p > 0.82);
       setInVillage(window.scrollY < r + window.innerHeight * 0.35);
       if (p > 0.9 && root.dataset.arrived !== "1") {
@@ -81,11 +83,11 @@ export function HomeStage() {
       introRef.current = !seen;
     }
     let introTimer = 0;
-    if (!introRef.current || reduced) {
+    if (!introRef.current || reduced || root.dataset.ligero === "1") {
       window.scrollTo(0, range());
     } else {
       window.scrollTo(0, 0);
-      introTimer = window.setTimeout(() => descend(), 900);
+      introTimer = window.setTimeout(() => descend(), 400);
     }
     update();
 
@@ -105,14 +107,14 @@ export function HomeStage() {
       window.removeEventListener("wheel", stop);
       window.removeEventListener("touchstart", stop);
       window.removeEventListener("keydown", stop);
-      root.style.setProperty("--p", "1");
+      stage?.style.setProperty("--p", "1");
       root.dataset.arrived = "1";
     };
   }, [descend]);
 
   return (
     <>
-      <main className="stage relative w-full" style={{ height: `calc(100svh + ${RANGE * 100}svh)` }}>
+      <main ref={stageRef} className="stage relative w-full" style={{ height: `calc(100svh + ${RANGE * 100}svh)` }}>
         <div className="sticky top-0 h-[100svh] w-full overflow-hidden">
           <Sky />
           <div className="absolute inset-0 origin-bottom will-change-transform" style={{ transform: "scale(calc(1 + (1 - var(--p, 1)) * 0.08))" }}>
@@ -154,7 +156,6 @@ export function HomeStage() {
         </div>
       </main>
 
-      <Modules />
 
       {/* Nieve sobre toda la página (aldea y zonas) */}
       <SnowCanvas />

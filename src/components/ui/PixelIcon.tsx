@@ -1,3 +1,5 @@
+import { pixelPaths } from "./pixelPaths";
+
 /**
  * Íconos pixel dibujados en código: cada fila es una cadena y cada letra un color.
  * Se ven nítidos a cualquier tamaño y pesan casi nada.
@@ -189,22 +191,7 @@ export function PixelIcon({
   const rows = ICONS[name];
   const w = Math.max(...rows.map((r) => r.length));
   const h = rows.length;
-  const rects: React.ReactNode[] = [];
-  rows.forEach((row, y) => {
-    let x = 0;
-    while (x < row.length) {
-      const c = row[x];
-      if (c === ".") {
-        x++;
-        continue;
-      }
-      // Agrupa celdas contiguas del mismo color en un solo rect.
-      let run = 1;
-      while (row[x + run] === c) run++;
-      rects.push(<rect key={`${x}-${y}`} x={x} y={y} width={run} height={1} fill={COLORS[c] ?? c} />);
-      x += run;
-    }
-  });
+  const paths = pixelPaths(rows, COLORS);
   return (
     <svg
       viewBox={`0 0 ${w} ${h}`}
@@ -216,7 +203,9 @@ export function PixelIcon({
       aria-label={title}
       aria-hidden={title ? undefined : true}
     >
-      {rects}
+      {paths.map((p, i) => (
+        <path key={i} d={p.d} fill={p.fill} />
+      ))}
     </svg>
   );
 }

@@ -1,7 +1,5 @@
-"use client";
-
-import { useMemo } from "react";
 import { rng } from "./procedural";
+import { pixelPaths } from "@/components/ui/pixelPaths";
 import { Aurora, Birds, SunRays } from "./Ambient";
 import { Sleigh } from "./Sleigh";
 
@@ -21,25 +19,17 @@ const CLOUD_2 = [
   ".SSSSSSSSSSSS.",
 ];
 
+const CLOUD_COLORS = {
+  W: "color-mix(in srgb, #ffffff 72%, var(--glow))",
+  S: "color-mix(in srgb, var(--sky-mid) 55%, #ffffff)",
+};
+
 function PixelCloud({ rows }: { rows: string[] }) {
-  const w = rows[0].length;
-  const h = rows.length;
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} width="100%" height="100%" shapeRendering="crispEdges" aria-hidden>
-      {rows.flatMap((row, y) =>
-        [...row].map((c, x) =>
-          c === "." ? null : (
-            <rect
-              key={`${x}-${y}`}
-              x={x}
-              y={y}
-              width={1}
-              height={1}
-              fill={c === "W" ? "color-mix(in srgb, #ffffff 72%, var(--glow))" : "color-mix(in srgb, var(--sky-mid) 55%, #ffffff)"}
-            />
-          ),
-        ),
-      )}
+    <svg viewBox={`0 0 ${rows[0].length} ${rows.length}`} width="100%" height="100%" shapeRendering="crispEdges" aria-hidden>
+      {pixelPaths(rows, CLOUD_COLORS).map((p, i) => (
+        <path key={i} d={p.d} fill={p.fill} />
+      ))}
     </svg>
   );
 }
@@ -76,36 +66,37 @@ const MOON = [
 function PixelDisc({ rows, colors }: { rows: string[]; colors: Record<string, string> }) {
   return (
     <svg viewBox="0 0 12 12" width="100%" height="100%" shapeRendering="crispEdges" aria-hidden>
-      {rows.flatMap((row, y) =>
-        [...row].map((c, x) => (c === "." ? null : <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={colors[c]} />)),
-      )}
+      {pixelPaths(rows, colors).map((p, i) => (
+        <path key={i} d={p.d} fill={p.fill} />
+      ))}
     </svg>
   );
 }
 
+/** Estrellas en 3 grupos (cada grupo = 1 elemento con muchas sombras), titilan por grupo. */
+const STAR_GROUPS = (() => {
+  const r = rng(42);
+  return [0, 1, 2].map((g) => {
+    const shadows: string[] = [];
+    for (let i = 0; i < 14; i++) {
+      const x = (r() * 100).toFixed(1);
+      const y = (r() * 62).toFixed(1);
+      const big = r() > 0.85;
+      shadows.push(`${x}vw ${y}vh 0 ${big ? "1px" : "0"} #fff`);
+    }
+    return { shadow: shadows.join(","), dur: 2.4 + g * 0.9, delay: g * 0.7 };
+  });
+})();
+
+const CLOUDS = [
+  { top: "10%", w: 30, dur: 160, delay: -40, rows: CLOUD, o: 0.95 },
+  { top: "22%", w: 18, dur: 210, delay: -150, rows: CLOUD_2, o: 0.8 },
+  { top: "6%", w: 14, dur: 260, delay: -90, rows: CLOUD_2, o: 0.6 },
+  { top: "30%", w: 24, dur: 190, delay: -10, rows: CLOUD, o: 0.7 },
+];
+
 export function Sky() {
-  const stars = useMemo(() => {
-    const r = rng(42);
-    return Array.from({ length: 70 }, (_, i) => ({
-      x: r() * 100,
-      y: r() * 62,
-      s: r() > 0.85 ? 2 : 1,
-      d: r() * 4,
-      dur: 2 + r() * 3,
-      key: i,
-    }));
-  }, []);
-
-  const clouds = useMemo(
-    () => [
-      { top: "10%", w: 30, dur: 160, delay: -40, rows: CLOUD, o: 0.95 },
-      { top: "22%", w: 18, dur: 210, delay: -150, rows: CLOUD_2, o: 0.8 },
-      { top: "6%", w: 14, dur: 260, delay: -90, rows: CLOUD_2, o: 0.6 },
-      { top: "30%", w: 24, dur: 190, delay: -10, rows: CLOUD, o: 0.7 },
-    ],
-    [],
-  );
-
+  const clouds = CLOUDS;
   return (
     <div className="pointer-events-none fixed inset-0 -z-0 overflow-hidden" aria-hidden>
       {/* Degradado del cielo */}
@@ -137,17 +128,15 @@ export function Sky() {
 
       {/* Estrellas */}
       <div className="absolute inset-0" style={{ opacity: "var(--stars)" }}>
-        {stars.map((s) => (
+        {STAR_GROUPS.map((g, i) => (
           <span
-            key={s.key}
-            className="absolute bg-white"
+            key={i}
+            className="absolute left-0 top-0 block"
             style={{
-              left: `${s.x}%`,
-              top: `${s.y}%`,
-              width: `calc(var(--px) * ${s.s})`,
-              height: `calc(var(--px) * ${s.s})`,
-              animation: `twinkle ${s.dur}s steps(3) ${s.d}s infinite`,
-              boxShadow: s.s > 1 ? "0 0 6px rgba(255,255,255,.8)" : undefined,
+              width: "calc(var(--px) * 1)",
+              height: "calc(var(--px) * 1)",
+              boxShadow: g.shadow,
+              animation: `twinkle ${g.dur}s steps(3) ${g.delay}s infinite`,
             }}
           />
         ))}

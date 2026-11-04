@@ -1,3 +1,5 @@
+import { pixelPaths } from "@/components/ui/pixelPaths";
+
 /**
  * Personajes pixel propios, dibujados por filas (cada letra = un color).
  * - Ogro Panetonero: ogro de las nieves con chullo, duerme sobre los regalos.
@@ -46,22 +48,7 @@ const OGRE_COLORS: Record<string, string> = {
 };
 
 function rowsToRects(rows: string[], colors: Record<string, string>) {
-  const out: React.ReactNode[] = [];
-  rows.forEach((row, y) => {
-    let x = 0;
-    while (x < row.length) {
-      const c = row[x];
-      if (c === ".") {
-        x++;
-        continue;
-      }
-      let run = 1;
-      while (row[x + run] === c) run++;
-      out.push(<rect key={`${x}-${y}`} x={x} y={y} width={run} height={1} fill={colors[c]} />);
-      x += run;
-    }
-  });
-  return out;
+  return pixelPaths(rows, colors).map((p, i) => <path key={i} d={p.d} fill={p.fill} />);
 }
 
 /** Ogro Panetonero. `awake` controla los ojos; `blink` los anima solos. */

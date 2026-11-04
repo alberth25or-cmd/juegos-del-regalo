@@ -94,7 +94,7 @@ function Layer({
   const width = vw + maxScroll * layer.speed + 60;
   return (
     <div
-      className="absolute left-0 will-change-transform"
+      className="fx-filtro absolute left-0 will-change-transform"
       style={{
         bottom: layer.bottom * sceneH + (layer.bottom > 0 ? floor : 0),
         height: height + (layer.bottom > 0 ? 0 : floor),
@@ -172,7 +172,7 @@ function Mist({
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute left-0 overflow-hidden will-change-transform"
+      className="fx-extra pointer-events-none absolute left-0 overflow-hidden will-change-transform"
       style={{
         bottom: floor + bottom * sceneH,
         height: height * sceneH,
@@ -264,7 +264,13 @@ export function Village() {
       const D = window.DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> };
       D?.requestPermission?.().catch(() => {});
     };
+    let prev = 0;
     const loop = (now: number) => {
+      raf = requestAnimationFrame(loop);
+      // A ~30 cuadros por segundo basta, y nada si la aldea no está a la vista o en modo ligero.
+      if (now - prev < 32) return;
+      prev = now;
+      if (document.documentElement.dataset.ligero === "1" || window.scrollY > window.innerHeight * 2.4) return;
       if (now - lastInput > 2500) {
         const t = now / 1000;
         tx = Math.sin(t * 0.23) * 0.45;
@@ -272,9 +278,8 @@ export function Village() {
       }
       cx += (tx - cx) * 0.05;
       cy += (ty - cy) * 0.05;
-      world.style.setProperty("--mx", cx.toFixed(4));
-      world.style.setProperty("--my", cy.toFixed(4));
-      raf = requestAnimationFrame(loop);
+      world.style.setProperty("--mx", cx.toFixed(3));
+      world.style.setProperty("--my", cy.toFixed(3));
     };
     if (!reduced) {
       raf = requestAnimationFrame(loop);
@@ -389,7 +394,7 @@ export function Village() {
                 <Garland points={garland} lit={mockGroup.completedToday} total={mockGroup.members} />
               </div>
               <div
-                className="absolute inset-0"
+                className="fx-filtro absolute inset-0"
                 style={{ filter: "brightness(calc(0.5 + var(--light) * 0.5)) saturate(var(--sat))" }}
               >
                 <Mascot ref={cuyRef} sceneH={sceneH} worldW={worldW} floor={floor} startX={worldW * 0.41} />

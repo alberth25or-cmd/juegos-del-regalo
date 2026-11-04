@@ -107,8 +107,8 @@ body {
     calc(-1 * var(--b)) 0 0 0 var(--ink),
     var(--b) 0 0 0 var(--ink),
     inset 0 var(--b) 0 0 rgb(255 255 255 / 0.55),
-    inset 0 calc(-1 * var(--b)) 0 0 rgb(42 35 66 / 0.12);
-  filter: drop-shadow(var(--b) calc(var(--b) * 1.5) 0 rgb(42 35 66 / 0.85));
+    inset 0 calc(-1 * var(--b)) 0 0 rgb(42 35 66 / 0.12),
+    var(--b) calc(var(--b) * 1.5) 0 var(--b) rgb(42 35 66 / 0.85);
 }
 
 .px-btn {
@@ -135,9 +135,9 @@ body {
     calc(-1 * var(--b)) 0 0 0 var(--ink),
     var(--b) 0 0 0 var(--ink),
     inset 0 var(--b) 0 0 rgb(255 255 255 / 0.6),
-    inset 0 calc(-1.5 * var(--b)) 0 0 rgb(42 35 66 / 0.18);
-  filter: drop-shadow(var(--b) calc(var(--b) * 1.5) 0 var(--ink));
-  transition: transform 90ms steps(2), filter 90ms steps(2), background-color 120ms;
+    inset 0 calc(-1.5 * var(--b)) 0 0 rgb(42 35 66 / 0.18),
+    var(--b) calc(var(--b) * 1.5) 0 var(--b) var(--ink);
+  transition: transform 90ms steps(2), box-shadow 90ms steps(2), background-color 120ms;
 }
 .px-btn:hover {
   background: color-mix(in srgb, var(--bg) 88%, white);
@@ -145,7 +145,12 @@ body {
 .px-btn:active,
 .px-btn[data-pressed="1"] {
   transform: translate(var(--b), calc(var(--b) * 1.5));
-  filter: drop-shadow(0 0 0 var(--ink));
+  box-shadow:
+    0 calc(-1 * var(--b)) 0 0 var(--ink),
+    0 var(--b) 0 0 var(--ink),
+    calc(-1 * var(--b)) 0 0 0 var(--ink),
+    var(--b) 0 0 0 var(--ink),
+    inset 0 var(--b) 0 0 rgb(255 255 255 / 0.6);
 }
 .px-btn:focus-visible {
   outline: var(--b) solid var(--lavender);
@@ -155,7 +160,11 @@ body {
   --bg: #d9d2c4;
   color: #8a8199;
   cursor: not-allowed;
-  filter: none;
+  box-shadow:
+    0 calc(-1 * var(--b)) 0 0 #8a8199,
+    0 var(--b) 0 0 #8a8199,
+    calc(-1 * var(--b)) 0 0 0 #8a8199,
+    var(--b) 0 0 0 #8a8199;
 }
 
 .px-chip {
@@ -335,7 +344,6 @@ body {
   background:
     linear-gradient(#fff, #fff) center / 100% 33% no-repeat,
     linear-gradient(#fff, #fff) center / 33% 100% no-repeat;
-  filter: drop-shadow(0 0 4px rgba(255, 230, 150, 0.95));
   animation: sparkle 1.8s steps(6) infinite;
   pointer-events: none;
 }
@@ -821,4 +829,44 @@ body {
   padding: 0 6px;
   transform: rotate(-6deg);
   letter-spacing: 0.08em;
+}
+
+
+/* ================================================================
+   Rendimiento
+   ================================================================ */
+
+/* Las zonas fuera de pantalla no se dibujan (ni se animan) hasta que llegas. */
+.zona {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1500px;
+}
+
+/* Modo ligero: para celulares básicos (automático o a mano). */
+:root[data-ligero="1"] .fx-extra,
+:root[data-ligero="1"] .sparkle,
+:root[data-ligero="1"] .shooting-star {
+  display: none !important;
+}
+:root[data-ligero="1"] .fx-filtro {
+  filter: none !important;
+}
+:root[data-ligero="1"] .card-float,
+:root[data-ligero="1"] .card-bob,
+:root[data-ligero="1"] .anim-bob,
+:root[data-ligero="1"] .bulb,
+:root[data-ligero="1"] .shine::after {
+  animation: none !important;
+}
+:root[data-ligero="1"] .shine::after {
+  display: none;
+}
+:root[data-ligero="1"] .game-card {
+  transform: none !important;
+}
+
+/* En modo ligero las escenas de las zonas quedan quietas y los trenes no giran ruedas. */
+:root[data-ligero="1"] .scene-scale *,
+:root[data-ligero="1"] .tren-rueda {
+  animation-play-state: paused !important;
 }

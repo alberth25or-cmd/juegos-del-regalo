@@ -1,3 +1,5 @@
+import { pixelPaths } from "./pixelPaths";
+
 /**
  * Agentes pixel dibujados en código (personajes pequeños para escenas:
  * patinadores, paseantes). Cada uno cambia colores de gorro, abrigo y bufanda.
@@ -49,17 +51,18 @@ export function PixelAgent({ colors, size = 28, flip = false }: { colors: AgentC
   const w = SHAPE[0].length;
   const h = SHAPE.length;
   const filled = (x: number, y: number) => y >= 0 && y < h && x >= 0 && x < w && SHAPE[y][x] !== ".";
-  const outline: React.ReactNode[] = [];
-  const body: React.ReactNode[] = [];
+  // Cuadrícula con contorno ("o") alrededor de la silueta, luego un trazo por color.
+  const grid: string[] = [];
   for (let y = -1; y <= h; y++) {
+    let row = "";
     for (let x = -1; x <= w; x++) {
-      if (filled(x, y)) {
-        body.push(<rect key={`b${x}-${y}`} x={x + 1} y={y + 1} width={1} height={1} fill={map[SHAPE[y][x]]} />);
-      } else if (filled(x + 1, y) || filled(x - 1, y) || filled(x, y + 1) || filled(x, y - 1)) {
-        outline.push(<rect key={`o${x}-${y}`} x={x + 1} y={y + 1} width={1} height={1} fill="#2a2342" />);
-      }
+      if (filled(x, y)) row += SHAPE[y][x];
+      else if (filled(x + 1, y) || filled(x - 1, y) || filled(x, y + 1) || filled(x, y - 1)) row += "o";
+      else row += ".";
     }
+    grid.push(row);
   }
+  const paths = pixelPaths(grid, { ...map, o: "#2a2342" });
   return (
     <svg
       viewBox={`0 0 ${w + 2} ${h + 2}`}
@@ -69,8 +72,9 @@ export function PixelAgent({ colors, size = 28, flip = false }: { colors: AgentC
       aria-hidden
       style={{ transform: flip ? "scaleX(-1)" : undefined, display: "block" }}
     >
-      {outline}
-      {body}
+      {paths.map((p, i) => (
+        <path key={i} d={p.d} fill={p.fill} />
+      ))}
     </svg>
   );
 }

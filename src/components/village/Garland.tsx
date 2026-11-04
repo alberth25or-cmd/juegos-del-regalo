@@ -52,7 +52,7 @@ export const Garland = memo(function Garland({
               <circle
                 r={11}
                 fill={c}
-                style={{ opacity: "calc(0.15 + var(--lights) * 0.45)", filter: "blur(4px)" }}
+                className="fx-extra" style={{ opacity: "calc(0.08 + var(--lights) * 0.3)" }}
               />
             )}
             <rect x={-2} y={0} width={4} height={3} fill="#2a2342" />

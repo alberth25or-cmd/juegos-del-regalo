@@ -1,6 +1,7 @@
 "use client";
 
 import { SPRITES } from "@/lib/assets/manifest";
+import { pixelPaths } from "@/components/ui/pixelPaths";
 
 /* Pixel art propio: trineo + dos renos, dibujados por filas. */
 const DEER = [
@@ -30,9 +31,9 @@ const C: Record<string, string> = { k: "#2a2342", B: "#9a5b34", R: "#e2445c", Y:
 function Rows({ rows }: { rows: string[] }) {
   return (
     <svg viewBox={`0 0 ${rows[0].length} ${rows.length}`} width="100%" height="100%" shapeRendering="crispEdges" aria-hidden>
-      {rows.flatMap((row, y) =>
-        [...row].map((c, x) => (c === "." ? null : <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={C[c]} />)),
-      )}
+      {pixelPaths(rows, C).map((p, i) => (
+        <path key={i} d={p.d} fill={p.fill} />
+      ))}
     </svg>
   );
 }
@@ -42,7 +43,7 @@ export function Sleigh() {
   const cuy = SPRITES["mascota"];
   const s = 3; // pixeles por pixel de arte
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden" style={{ opacity: "var(--lights)" }}>
+    <div aria-hidden className="fx-extra pointer-events-none absolute inset-0 overflow-hidden" style={{ opacity: "var(--lights)" }}>
       <div className="absolute left-0 top-[11%]" style={{ animation: "sleigh-fly 30s linear 4s infinite" }}>
         <div style={{ animation: "sleigh-wave 3.2s ease-in-out infinite" }}>
           <div className="relative flex items-end" style={{ gap: 2 * s }}>

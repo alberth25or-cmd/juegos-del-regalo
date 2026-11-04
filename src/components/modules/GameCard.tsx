@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { useRef } from "react";
 import type { GameCardDef } from "@/lib/modules";
 import { SPRITES } from "@/lib/assets/manifest";
 import { PixelIcon } from "@/components/ui/PixelIcon";
@@ -10,23 +7,8 @@ import { Ogre, Snowman } from "./Characters";
 
 /** Tarjeta de juego: ilustración viva, se inclina con el puntero y flota. */
 export function GameCard({ card, index, dark }: { card: GameCardDef; index: number; dark?: boolean }) {
-  const ref = useRef<HTMLAnchorElement>(null);
   const locked = card.unlockDay !== undefined && card.unlockDay > mockGroup.day;
   const sprite = card.sprite ? SPRITES[card.sprite] : undefined;
-
-  const onMove = (e: React.PointerEvent) => {
-    const el = ref.current;
-    if (!el || e.pointerType !== "mouse") return;
-    const r = el.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width - 0.5;
-    const y = (e.clientY - r.top) / r.height - 0.5;
-    el.style.setProperty("--rx", `${(-y * 10).toFixed(2)}deg`);
-    el.style.setProperty("--ry", `${(x * 12).toFixed(2)}deg`);
-  };
-  const onLeave = () => {
-    ref.current?.style.setProperty("--rx", "0deg");
-    ref.current?.style.setProperty("--ry", "0deg");
-  };
 
   const body = (
     <>
@@ -47,13 +29,12 @@ export function GameCard({ card, index, dark }: { card: GameCardDef; index: numb
               "linear-gradient(45deg, rgb(255 255 255 / .5) 25%, transparent 25%, transparent 75%, rgb(255 255 255 / .5) 75%), linear-gradient(45deg, rgb(255 255 255 / .5) 25%, transparent 25%, transparent 75%, rgb(255 255 255 / .5) 75%)",
             backgroundSize: "18px 18px",
             backgroundPosition: "0 0, 9px 9px",
-            animation: "pattern-pan 9s linear infinite",
           }}
         />
         {/* rayos que giran detrás */}
         <div
           aria-hidden
-          className="absolute left-1/2 top-[62%] h-[260%] w-[260%] -translate-x-1/2 -translate-y-1/2"
+          className="fx-extra absolute left-1/2 top-[62%] h-[260%] w-[260%] -translate-x-1/2 -translate-y-1/2"
           style={{
             background: "repeating-conic-gradient(rgb(255 255 255 / .28) 0deg 10deg, transparent 10deg 24deg)",
             animation: "spin 24s linear infinite",
@@ -81,7 +62,7 @@ export function GameCard({ card, index, dark }: { card: GameCardDef; index: numb
                 draggable={false}
               />
             ) : (
-              <span className="block text-[64px] leading-none" style={{ filter: "drop-shadow(0 4px 0 rgb(42 35 66 / .35))" }}>
+              <span className="block text-[64px] leading-none" style={{ textShadow: "0 4px 0 rgb(42 35 66 / .35)" }}>
                 {card.emoji}
               </span>
             )}
@@ -157,10 +138,7 @@ export function GameCard({ card, index, dark }: { card: GameCardDef; index: numb
 
   return (
     <Link
-      ref={ref}
       href={`/prueba?juego=${card.id}`}
-      onPointerMove={onMove}
-      onPointerLeave={onLeave}
       className="game-card px-box block"
       style={{ ["--bg" as string]: "var(--cream)" }}
     >

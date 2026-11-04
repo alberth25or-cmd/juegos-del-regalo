@@ -1,5 +1,3 @@
-"use client";
-
 import { SPRITES } from "@/lib/assets/manifest";
 import { AGENT_PALETTES, PixelAgent } from "@/components/ui/PixelAgent";
 import { PixelIcon } from "@/components/ui/PixelIcon";

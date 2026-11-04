@@ -48,6 +48,18 @@ function rects(p: TrainPalette): R[] {
 }
 const WHEELS = [5, 13, 23, 31, 41, 49, 59, 67];
 
+/** Agrupa rectángulos en un trazo por color (respeta el orden de dibujo por capas). */
+function porColor(list: R[]): [string, string][] {
+  const out: [string, string][] = [];
+  for (const [x, y, w, h, f] of list) {
+    const last = out[out.length - 1];
+    const seg = `M${x} ${y}h${w}v${h}h-${w}z`;
+    if (last && last[0] === f) last[1] += seg;
+    else out.push([f, seg]);
+  }
+  return out;
+}
+
 /** Trencito navideño que recorre la aldea sin parar. */
 export const Train = memo(function Train({
   worldW,
@@ -104,11 +116,11 @@ export const Train = memo(function Train({
           }}
         />
         <svg viewBox="0 0 74 15" width="100%" height="100%" shapeRendering="crispEdges">
-          {rects(p).map(([x, y, w, h, f], i) => (
-            <rect key={i} x={x} y={y} width={w} height={h} fill={f} />
+          {porColor(rects(p)).map(([f, d], i) => (
+            <path key={i} d={d} fill={f} />
           ))}
           {WHEELS.map((x, i) => (
-            <g key={i} style={{ animation: `wheel 0.3s steps(2) ${i * 0.07}s infinite` }}>
+            <g key={i} className="tren-rueda" style={{ animation: `wheel 0.3s steps(2) ${i * 0.07}s infinite` }}>
               <rect x={x - 2} y={11} width={4} height={4} fill={K} />
               <rect x={x - 1} y={12} width={2} height={2} fill="#c9d6f0" />
             </g>

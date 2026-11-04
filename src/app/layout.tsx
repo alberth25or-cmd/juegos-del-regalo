@@ -6,6 +6,7 @@ import { AtmosphereBootScript, AtmosphereProvider } from "@/components/atmospher
 import { Suspense } from "react";
 import { BottomNav, BottomNavStatic } from "@/components/nav/BottomNav";
 import { TimeMachine } from "@/components/atmosphere/TimeMachine";
+import { ModoLigero, SCRIPT_LIGERO } from "@/components/rendimiento/ModoLigero";
 
 const pixelify = Pixelify_Sans({ variable: "--font-pixelify", subsets: ["latin", "latin-ext"], weight: ["400", "600", "700"] });
 const dm = DM_Sans({ variable: "--font-dm", subsets: ["latin", "latin-ext"] });
@@ -27,9 +28,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="es-PE" className={`${pixelify.variable} ${dm.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
         <AtmosphereBootScript />
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_LIGERO }} />
       </head>
       <body className="min-h-full">
         <AtmosphereProvider>
+          <ModoLigero />
           {children}
           <TimeMachine />
           <Suspense fallback={<BottomNavStatic />}>
