@@ -20,8 +20,10 @@ Registro de lo acordado con Luis. Fecha de inicio del registro: 2026-11-04.
 - El emparejamiento del amigo secreto solo existe en el servidor.
 
 ## Infraestructura
-- Hosting en **Vercel**, ya vinculado a la cuenta de GitHub `alberth25or-cmd` (se comprobó con los despliegues de otro proyecto).
-- Este proyecto **todavía no tiene repositorio** en GitHub ni proyecto en Vercel/Supabase enlazado (verificado 2026-11-04).
+- Código en GitHub, repo **privado** `alberth25or-cmd/juegos-del-regalo` (rama `main`).
+- Hosting en **Vercel**, proyecto `juegos-del-regalo` enlazado al repo: cada push a `main` se publica solo.
+- En línea en **https://juegos-del-regalo.vercel.app** (publicado 2026-11-04). Producción pública; las versiones de prueba (previews) piden login de Vercel.
+- **Supabase aún no está creado.** Plan: instalarlo desde Vercel (Storage → Supabase, región São Paulo) para que las claves lleguen solas.
 
 ## Pendientes
 - Fecha de inicio y fecha exacta de entrega.
