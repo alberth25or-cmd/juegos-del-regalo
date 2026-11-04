@@ -6,7 +6,6 @@ import { mockGroup, mockRanking } from "@/lib/mock";
 
 const SECCIONES: Record<string, { title: string; subtitle: string }> = {
   reto: { title: "Misión del día", subtitle: "Foto misión · +10 puntos" },
-  ranking: { title: "Tablero de la plaza", subtitle: "Ranking en vivo" },
   amigo: { title: "Buzón secreto", subtitle: "Tu expediente clasificado" },
   pozo: { title: "Cofre del pozo", subtitle: `S/ ${mockGroup.pot} · ${mockGroup.paid}/${mockGroup.members} pagaron` },
   fotos: { title: "Muro de fotos", subtitle: "Galería anónima" },

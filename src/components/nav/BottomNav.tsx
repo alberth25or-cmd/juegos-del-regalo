@@ -12,8 +12,17 @@ const ITEMS: { href: string; label: string; icon: IconName; main?: boolean }[] =
   { href: "/pozo", label: "Pozo", icon: "chest" },
 ];
 
+/** Barra inferior con la sección activa resaltada (lee la ruta: va dentro de <Suspense>). */
 export function BottomNav() {
-  const path = usePathname();
+  return <BottomNavBar path={usePathname()} />;
+}
+
+/** Misma barra sin resaltar nada: respaldo mientras se conoce la ruta. */
+export function BottomNavStatic() {
+  return <BottomNavBar path="" />;
+}
+
+function BottomNavBar({ path }: { path: string }) {
   return (
     <nav
       aria-label="Navegación principal"

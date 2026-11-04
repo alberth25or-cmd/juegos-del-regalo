@@ -3,7 +3,8 @@ import { DM_Sans, Pixelify_Sans } from "next/font/google";
 import "./globals.css";
 import { APP_NAME, APP_TAGLINE } from "@/lib/config";
 import { AtmosphereBootScript, AtmosphereProvider } from "@/components/atmosphere/AtmosphereProvider";
-import { BottomNav } from "@/components/nav/BottomNav";
+import { Suspense } from "react";
+import { BottomNav, BottomNavStatic } from "@/components/nav/BottomNav";
 import { TimeMachine } from "@/components/atmosphere/TimeMachine";
 
 const pixelify = Pixelify_Sans({ variable: "--font-pixelify", subsets: ["latin", "latin-ext"], weight: ["400", "600", "700"] });
@@ -31,7 +32,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <AtmosphereProvider>
           {children}
           <TimeMachine />
-          <BottomNav />
+          <Suspense fallback={<BottomNavStatic />}>
+            <BottomNav />
+          </Suspense>
         </AtmosphereProvider>
       </body>
     </html>

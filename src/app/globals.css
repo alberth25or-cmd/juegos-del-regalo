@@ -763,3 +763,62 @@ body {
   80% { transform: scale(1.35) rotate(320deg); }
   100% { transform: scale(1.4) rotate(360deg); }
 }
+
+/* ================================================================
+   Formularios pixel
+   ================================================================ */
+@layer components {
+  .px-input {
+    --b: var(--px);
+    display: block;
+    width: 100%;
+    min-height: 48px;
+    padding: 0.6rem 0.8rem;
+    margin: var(--b) 0;
+    background: #fff;
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px; /* evita el zoom automático en iPhone */
+    border: 0;
+    box-shadow:
+      0 calc(-1 * var(--b)) 0 0 var(--ink),
+      0 var(--b) 0 0 var(--ink),
+      calc(-1 * var(--b)) 0 0 0 var(--ink),
+      var(--b) 0 0 0 var(--ink),
+      inset 0 var(--b) 0 0 rgb(42 35 66 / 0.08);
+    outline: none;
+    transition: box-shadow 120ms;
+  }
+  .px-input:focus-visible {
+    box-shadow:
+      0 calc(-1 * var(--b)) 0 0 var(--cherry),
+      0 var(--b) 0 0 var(--cherry),
+      calc(-1 * var(--b)) 0 0 0 var(--cherry),
+      var(--b) 0 0 0 var(--cherry),
+      0 0 0 calc(var(--b) * 3) rgb(185 167 245 / 0.6);
+  }
+  .px-input.pin {
+    font-family: var(--font-pixel);
+    font-size: 1.6rem;
+    letter-spacing: 0.6em;
+    text-align: center;
+  }
+  .px-label {
+    display: block;
+    margin-bottom: 0.15rem;
+    font-family: var(--font-pixel);
+    font-size: 0.95rem;
+  }
+  .px-hint {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+}
+
+.stamp-static {
+  display: inline-block;
+  border: 2px solid currentColor;
+  padding: 0 6px;
+  transform: rotate(-6deg);
+  letter-spacing: 0.08em;
+}

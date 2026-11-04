@@ -7,6 +7,7 @@ import { SnowCanvas } from "@/components/village/SnowCanvas";
 import { Modules } from "@/components/modules/Modules";
 import { ZoneNav } from "@/components/modules/ZoneNav";
 import { HomeHeader, MissionPill, SwipeHint } from "./HomeHud";
+import { useYo } from "./useYo";
 import { APP_NAME, APP_TAGLINE } from "@/lib/config";
 import { mockGroup } from "@/lib/mock";
 
@@ -22,6 +23,7 @@ const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 
  * aparecen las zonas de juegos.
  */
 export function HomeStage() {
+  const yo = useYo();
   const [hud, setHud] = useState(false);
   const [inVillage, setInVillage] = useState(true);
   const arrivedRef = useRef(false);
@@ -166,7 +168,7 @@ export function HomeStage() {
         }}
         inert={!hud}
       >
-        <HomeHeader compact={!inVillage} />
+        <HomeHeader compact={!inVillage} yo={yo} />
       </div>
 
       {/* Franja de fondo bajo la cabecera y la barra de zonas (solo en las zonas) */}
@@ -193,7 +195,7 @@ export function HomeStage() {
         }}
         inert={!(hud && inVillage)}
       >
-        <MissionPill />
+        <MissionPill yo={yo} />
       </div>
       {hud && inVillage && <SwipeHint />}
     </>
