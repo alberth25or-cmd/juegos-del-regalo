@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { MODULES, type ModuleDef } from "@/lib/modules";
 import { GameCard } from "./GameCard";
 import { Scene } from "./Scenes";
@@ -120,7 +119,7 @@ function ModuleSection({ mod, index }: { mod: ModuleDef; index: number }) {
         {/* Escena animada */}
         <div className="reveal-pop mt-6" style={{ transform: "translateY(calc(var(--mp) * 30px))" }}>
           <div className="scene-scale">
-            <Scene id={mod.id} />
+            <Scene id={mod.scene} />
           </div>
         </div>
 
@@ -148,17 +147,6 @@ export function Modules() {
   return (
     <div id="zonas" className="relative z-10 pb-28">
       <ZonasEfectos />
-      <div className="relative z-10 mx-auto -mb-4 max-w-md px-4 pt-6">
-        <Link href="/prueba" className="px-box flex items-center gap-3 px-3 py-2" style={{ ["--bg" as string]: "var(--gold)" }}>
-          <span className="text-2xl" aria-hidden>
-            🧪
-          </span>
-          <span className="leading-tight">
-            <span className="block font-pixel">Modo prueba</span>
-            <span className="block text-[0.78rem]">Toca cualquier juego para probarlo, todo desbloqueado y con amigos simulados.</span>
-          </span>
-        </Link>
-      </div>
       {MODULES.map((m, i) => (
         <div key={m.id}>
           <Divider color={m.bg} />
@@ -167,7 +155,7 @@ export function Modules() {
       ))}
       <footer className="flex flex-col items-center gap-3 px-4 pb-8 pt-10 text-center font-pixel text-sm text-[var(--on-sky)]">
         <InterruptorLigero />
-        <span>Hecho con 🍫 y mucho misterio · Temporada 2026</span>
+        <span>Los Juegos del Regalo · Temporada Christmas Chaos 2026</span>
       </footer>
     </div>
   );

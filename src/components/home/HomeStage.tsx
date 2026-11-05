@@ -5,11 +5,9 @@ import { Sky } from "@/components/village/Sky";
 import { Village } from "@/components/village/Village";
 import { SnowCanvas } from "@/components/village/SnowCanvas";
 import { ZoneNav } from "@/components/modules/ZoneNav";
-import { HomeHeader, MissionPill, SwipeHint } from "./HomeHud";
-import { useYo } from "./useYo";
+import { SwipeHint } from "./HomeHud";
 import { Guia } from "./Guia";
 import { APP_NAME, APP_TAGLINE } from "@/lib/config";
-import { mockGroup } from "@/lib/mock";
 
 /** Recorrido del desglose vertical de la portada, en altos de pantalla. */
 const RANGE = 1.15;
@@ -22,8 +20,7 @@ const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 
  * cada plano sube a su propia velocidad hasta armar la aldea. Más abajo
  * aparecen las zonas de juegos.
  */
-export function HomeStage() {
-  const yo = useYo();
+export function HomeStage({ header, pill }: { header: React.ReactNode; pill: React.ReactNode }) {
   const [hud, setHud] = useState(false);
   const [inVillage, setInVillage] = useState(true);
   const arrivedRef = useRef(false);
@@ -131,7 +128,7 @@ export function HomeStage() {
             aria-hidden={hud}
           >
             <span className="px-chip mb-4" style={{ ["--chip" as string]: "rgb(255 246 229 / 0.9)" }}>
-              ✦ Temporada navideña · Día {mockGroup.day} de {mockGroup.totalDays} ✦
+              ✦ Temporada Christmas Chaos · 25 nov → 24 dic ✦
             </span>
             <h1 className="hero-title font-pixel">
               {APP_NAME.split(" ").slice(0, 2).join(" ")}
@@ -170,7 +167,7 @@ export function HomeStage() {
         }}
         inert={!hud}
       >
-        <HomeHeader compact={!inVillage} yo={yo} />
+        <div data-compacto={!inVillage ? "1" : "0"} className="hud-cabecera">{header}</div>
       </div>
 
       {/* Franja de fondo bajo la cabecera y la barra de zonas (solo en las zonas) */}
@@ -197,7 +194,7 @@ export function HomeStage() {
         }}
         inert={!(hud && inVillage)}
       >
-        <MissionPill yo={yo} />
+        {pill}
       </div>
       {hud && inVillage && <SwipeHint />}
       <Guia autoAbrir={hud} />

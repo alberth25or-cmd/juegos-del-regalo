@@ -1,5 +1,27 @@
 # Decisiones del proyecto
 
+## Reestructuración "Christmas Chaos" (2026-11-05)
+
+Luis entregó un documento maestro nuevo (`docs/ESPECIFICACION.md`) y pidió reconstruir el proyecto.
+Respuestas de Luis:
+- **Nombre:** se mantiene **Los Juegos del Regalo**; "Christmas Chaos" es el nombre de la temporada.
+- **Ingreso:** invitación + usuario + PIN de 4 dígitos (sin correos ni Google).
+- **Amigo secreto:** sí. **Pozo de dinero: no** (premios definidos por el organizador).
+- **Temporada:** 25 nov → 24 dic de 2026 (30 días, hora de Lima), editable desde el panel.
+
+Supuestos que tomé (se pueden cambiar):
+- Equipos: los arma el organizador, a mano o con "repartir al azar equilibrado"; nombres editables.
+- Tiempo real con sondeo cada pocos segundos en vez de Supabase Realtime (más simple y robusto).
+- Minijuegos en canvas propio en vez de Phaser (menos peso para celulares básicos).
+- Esquema nuevo `cc` en la misma base; el esquema viejo `jdr` queda intacto (no se borra nada).
+  Los 4 compañeros que se registraron en la versión anterior deben registrarse otra vez.
+- Higgsfield está sin créditos (2026-11-05): los NPCs se dibujan en pixel art en código.
+  Si Luis recarga créditos, se reemplazan por arte generado.
+
+---
+
+## Versión anterior (2026-11-04)
+
 Registro de lo acordado con Luis. Fecha de inicio del registro: 2026-11-04.
 
 ## Estética
@@ -28,7 +50,5 @@ Registro de lo acordado con Luis. Fecha de inicio del registro: 2026-11-04.
 - Para desarrollo local, las claves van en `.env.local` (lo crea Luis copiando el snippet de Supabase; nunca se sube a git).
 
 ## Pendientes
-- Fecha de inicio y fecha exacta de entrega.
-- Nombre definitivo y dominio.
-- Tope de apuestas (propuesto: máximo fijo, p. ej. 20 pts).
-- ¿Quién no paga juega sin optar al pozo o no entra al sorteo?
+- Dominio propio (opcional).
+- Premios finales (los define el organizador en el panel).

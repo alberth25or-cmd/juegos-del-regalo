@@ -2,12 +2,12 @@ import Link from "next/link";
 import type { GameCardDef } from "@/lib/modules";
 import { SPRITES } from "@/lib/assets/manifest";
 import { PixelIcon } from "@/components/ui/PixelIcon";
-import { mockGroup } from "@/lib/mock";
+import { NpcSprite } from "@/components/rpg/PixelSprite";
 import { Ogre, Snowman } from "./Characters";
 
 /** Tarjeta de juego: ilustración viva, se inclina con el puntero y flota. */
 export function GameCard({ card, index, dark }: { card: GameCardDef; index: number; dark?: boolean }) {
-  const locked = card.unlockDay !== undefined && card.unlockDay > mockGroup.day;
+  const locked = !card.href;
   const sprite = card.sprite ? SPRITES[card.sprite] : undefined;
 
   const body = (
@@ -47,6 +47,8 @@ export function GameCard({ card, index, dark }: { card: GameCardDef; index: numb
               <span className="block" style={{ animation: "snore 2.4s ease-in-out infinite", transformOrigin: "50% 100%" }}>
                 <Ogre size={card.featured ? 150 : 110} />
               </span>
+            ) : card.npc ? (
+              <NpcSprite id={card.npc} size={card.featured ? 104 : 78} />
             ) : card.art === "snowman" ? (
               <Snowman size={card.featured ? 104 : 80} build />
             ) : sprite ? (
@@ -82,10 +84,7 @@ export function GameCard({ card, index, dark }: { card: GameCardDef; index: numb
             <span style={{ animation: "bob 1.4s steps(2) infinite" }}>
               <PixelIcon name="lock" size={30} />
             </span>
-            <span className="px-chip">Se abre el día {card.unlockDay}</span>
-            <span className="px-chip" style={{ ["--chip" as string]: "var(--gold)" }}>
-              🧪 Toca para probarlo
-            </span>
+            <span className="px-chip">{card.abre?.startsWith("Día") ? `Se abre el ${card.abre.toLowerCase()}` : `Llega en la ${card.abre}`}</span>
           </div>
         )}
       </div>
@@ -137,12 +136,15 @@ export function GameCard({ card, index, dark }: { card: GameCardDef; index: numb
     </>
   );
 
+  if (!card.href) {
+    return (
+      <div className="game-card px-box block" style={{ ["--bg" as string]: "var(--cream)" }} aria-disabled="true">
+        {body}
+      </div>
+    );
+  }
   return (
-    <Link
-      href={`/prueba?juego=${card.id}`}
-      className="game-card px-box block"
-      style={{ ["--bg" as string]: "var(--cream)" }}
-    >
+    <Link href={card.href} className="game-card px-box block" style={{ ["--bg" as string]: "var(--cream)" }}>
       {body}
     </Link>
   );

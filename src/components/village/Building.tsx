@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { buildingSize, type BuildingDef } from "@/lib/village";
-import type { HotspotState } from "@/lib/mock";
+import type { HotspotState } from "@/lib/village";
 import { SPRITES } from "@/lib/assets/manifest";
 import { PixelBuilding } from "./procedural";
 import { PixelIcon } from "@/components/ui/PixelIcon";

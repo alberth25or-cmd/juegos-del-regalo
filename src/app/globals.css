@@ -876,3 +876,12 @@ body {
   pointer-events: none;
   will-change: transform, opacity;
 }
+
+/* Cabecera de la portada: la línea de hora se oculta al bajar a las zonas */
+.hud-cabecera[data-compacto="1"] .hud-linea {
+  opacity: 0;
+  pointer-events: none;
+}
+.hud-linea {
+  transition: opacity 300ms ease;
+}

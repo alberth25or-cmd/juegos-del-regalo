@@ -38,9 +38,35 @@ export function normalizeRescueCode(input: string) {
   return input.toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
 
-/** Código de invitación del grupo (va en el enlace /unirse/XXXXXXXX). */
+/** Código de invitación de la temporada (va en el enlace /i/XXXXXXXX). */
 export function newInviteCode() {
   return randomCode(8);
+}
+
+export function normalizeInviteCode(input: string) {
+  return input.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
+}
+
+// ---------------------------------------------------------------- usuario
+/** Usuario: 3–20 letras minúsculas, números o "_". Se usa para entrar desde otro celular. */
+export function normalizeUsername(input: string) {
+  return input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[\s.-]+/g, "_")
+    .replace(/[^a-z0-9_]/g, "");
+}
+
+export function validateUsername(u: string): string | null {
+  if (!/^[a-z0-9_]{3,20}$/.test(u)) return "Tu usuario debe tener entre 3 y 20 letras o números (sin espacios).";
+  return null;
+}
+
+/** Semilla de 31 bits para partidas (criptográficamente aleatoria). */
+export function newSeed() {
+  return randomInt(1, 2 ** 31 - 1);
 }
 
 // ------------------------------------------------------------------- PIN
@@ -70,3 +96,9 @@ export async function verifyPin(pin: string, stored: string) {
 /** Tras 5 intentos fallidos el PIN se bloquea 15 minutos. */
 export const PIN_MAX_FAILS = 5;
 export const PIN_LOCK_MINUTES = 15;
+
+/** Huella de la IP (HMAC): sirve para limitar intentos sin guardar la IP en claro. */
+export function ipFingerprint(h: Headers) {
+  const ip = h.get("x-real-ip") || h.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+  return hashLookup(`ip:${ip}`).slice(0, 22);
+}

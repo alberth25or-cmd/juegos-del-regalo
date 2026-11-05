@@ -3,7 +3,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { BUILDINGS, buildingSize } from "@/lib/village";
 import { FOREGROUND, LAYERS, type LayerAsset } from "@/lib/assets/manifest";
-import { mockGroup, mockHotspots } from "@/lib/mock";
 import { Building } from "./Building";
 import { Forest, Ridge } from "./procedural";
 import { Mascot, type MascotHandle } from "./Mascot";
@@ -230,11 +229,11 @@ export function Village() {
     };
   }, [ready]);
 
-  // Centrar al inicio en la misión pendiente.
+  // Centrar al inicio en el árbol de la plaza.
   useEffect(() => {
     const sc = scrollRef.current;
     if (!sc || !ready) return;
-    const target = BUILDINGS.find((b) => mockHotspots[b.id] === "pending") ?? BUILDINGS[0];
+    const target = BUILDINGS.find((b) => b.id === "arbol") ?? BUILDINGS[0];
     sc.scrollLeft = Math.max(0, Math.min(maxScroll, target.x * worldW - vw / 2));
     worldRef.current?.style.setProperty("--scroll", String(sc.scrollLeft));
   }, [ready, maxScroll, worldW, vw]);
@@ -392,7 +391,7 @@ export function Village() {
             >
               <Train worldW={worldW} bottom={floor + sceneH * 0.27} scale={Math.max(2, artPx * 1.1)} palette="rojo" />
               <div className="absolute inset-0">
-                <Garland points={garland} lit={mockGroup.completedToday} total={mockGroup.members} />
+                <Garland points={garland} lit={20} total={20} />
               </div>
               <div
                 className="fx-filtro absolute inset-0"
@@ -400,7 +399,7 @@ export function Village() {
               >
                 <Mascot ref={cuyRef} sceneH={sceneH} worldW={worldW} floor={floor} startX={worldW * 0.41} />
                 {BUILDINGS.map((b, i) => (
-                  <Building key={b.id} index={i} def={b} state={mockHotspots[b.id] ?? "available"} sceneH={sceneH} worldW={worldW} floor={floor} />
+                  <Building key={b.id} index={i} def={b} state="available" sceneH={sceneH} worldW={worldW} floor={floor} />
                 ))}
                 <Fireflies worldW={worldW} sceneH={sceneH} floor={floor} />
               </div>

@@ -1,141 +1,229 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useSyncExternalStore } from "react";
-import { crearGrupo, entrar, unirse, type Resultado } from "@/lib/server/acciones";
-import { BotonCopiar, CamposAgente, CodigoRescate, MensajeError } from "./Campos";
-import { APP_NAME } from "@/lib/config";
+import { useState, useSyncExternalStore } from "react";
+import { api } from "@/lib/cliente/api";
+import { Aviso } from "@/components/ui/Pantalla";
+import { CamposJugador, DATOS_INICIALES, errorLocal, type DatosForm } from "./FormJugador";
 
-const noop = () => () => {};
-function useOrigin() {
-  return useSyncExternalStore(noop, () => window.location.origin, () => "");
+function useEnvio() {
+  const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  return { enviando, setEnviando, error, setError };
 }
 
-function Enviar({ pending, texto }: { pending: boolean; texto: string }) {
-  return (
-    <button type="submit" className="px-btn shine w-full" disabled={pending} style={{ ["--bg" as string]: "var(--cherry)", color: "var(--cream)" }}>
-      {pending ? "Procesando…" : texto}
-    </button>
-  );
+/** Recarga completa: así todas las pantallas leen la sesión nueva sin cachés viejas. */
+function irALaPlaza() {
+  // Recarga completa a propósito: la sesión cambió y nada debe quedar en caché.
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+  window.location.assign("/");
 }
 
-// ------------------------------------------------------------ crear grupo
-export function CrearGrupoForm() {
-  const [state, action, pending] = useActionState<Resultado, FormData>(crearGrupo, null);
-  const origin = useOrigin();
+// ------------------------------------------------------------ crear temporada
+export function CrearTemporadaForm() {
+  const [nombre, setNombre] = useState("Christmas Chaos 2026");
+  const [datos, setDatos] = useState<DatosForm>(DATOS_INICIALES);
+  const [creada, setCreada] = useState<string | null>(null);
+  const e = useEnvio();
 
-  if (state?.ok) {
-    const link = `${origin}/unirse/${state.inviteCode}`;
-    const msg = `🎁 ¡Únete a "${state.groupName}" en ${APP_NAME}! Amigo secreto en modo agentes: ${link}`;
-    return (
-      <div className="flex flex-col gap-4">
-        <p className="font-pixel text-lg">¡Grupo creado, organizador! 🎉</p>
-        <CodigoRescate codigo={state.rescueCode!} />
-        <div className="px-box p-4">
-          <p className="font-pixel">Enlace de invitación</p>
-          <p className="my-2 break-all text-[0.9rem]">{link}</p>
-          <div className="flex flex-wrap gap-2">
-            <BotonCopiar valor={link} etiqueta="Copiar enlace" />
-            <a
-              href={`https://wa.me/?text=${encodeURIComponent(msg)}`}
-              target="_blank"
-              rel="noreferrer"
-              className="px-btn !min-h-0 !px-3 !py-2 !text-[0.85rem]"
-              style={{ ["--bg" as string]: "var(--mint)" }}
-            >
-              Enviar por WhatsApp
-            </a>
-          </div>
-          <p className="px-hint mt-2">Mándalo al grupo de WhatsApp. Cada persona que entre quedará pendiente hasta que tú la apruebes.</p>
-        </div>
-        <Link href="/panel" className="px-btn w-full" style={{ ["--bg" as string]: "var(--gold)" }}>
-          Ir a mi panel de organizador
-        </Link>
-      </div>
-    );
-  }
+  if (creada) return <EnlaceInvitacion codigo={creada} />;
 
   return (
-    <form action={action} className="flex flex-col gap-4">
+    <form
+      className="flex flex-col gap-4"
+      onSubmit={async (ev) => {
+        ev.preventDefault();
+        const local = nombre.trim().length < 2 ? "Ponle nombre a la temporada." : errorLocal(datos);
+        if (local) return e.setError(local);
+        e.setEnviando(true);
+        e.setError(null);
+        const r = await api<{ inviteCode: string }>("/api/temporada", { body: { nombre, ...datos } });
+        e.setEnviando(false);
+        if (r.ok) setCreada(r.inviteCode);
+        else e.setError(r.error);
+      }}
+    >
       <div>
-        <label className="px-label" htmlFor="grupo">
-          Nombre del grupo
+        <label className="px-label" htmlFor="nombre">
+          Nombre de la temporada
         </label>
-        <input id="grupo" name="grupo" className="px-input" placeholder="Los Agentes del Panetón" maxLength={60} required disabled={pending} />
+        <input id="nombre" className="px-input" maxLength={60} value={nombre} onChange={(ev) => setNombre(ev.target.value)} disabled={e.enviando} required />
+        <p className="px-hint mt-1">Del 25 de noviembre al 24 de diciembre (lo puedes cambiar en el panel).</p>
       </div>
-      <CamposAgente disabled={pending} />
-      <label className="flex items-start gap-2 text-[0.88rem]">
-        <input type="checkbox" name="acepto" value="si" required className="mt-1 h-5 w-5 accent-[var(--cherry)]" disabled={pending} />
-        <span>
-          Entiendo que <b>el dinero lo manejamos nosotros</b>. Esta página solo cuenta puntos y no recibe ni guarda dinero.
-        </span>
-      </label>
-      <MensajeError texto={state && !state.ok ? state.error : undefined} />
-      <Enviar pending={pending} texto="Crear grupo" />
+      <p className="font-pixel text-lg">Tú, el organizador</p>
+      <CamposJugador datos={datos} setDatos={setDatos} disabled={e.enviando} />
+      {e.error && <Aviso tono="error">{e.error}</Aviso>}
+      <button type="submit" className="px-btn shine" style={{ ["--bg" as string]: "var(--cherry)", color: "var(--cream)" }} disabled={e.enviando}>
+        {e.enviando ? "Creando Snowville…" : "Crear temporada"}
+      </button>
     </form>
   );
 }
 
-// ------------------------------------------------------------- unirse
-export function UnirseForm({ codigo, grupo }: { codigo: string; grupo: string }) {
-  const [state, action, pending] = useActionState<Resultado, FormData>(unirse, null);
+export function EnlaceInvitacion({ codigo, compacto }: { codigo: string; compacto?: boolean }) {
+  const [copiado, setCopiado] = useState(false);
+  const origen = useSyncExternalStore(
+    () => () => {},
+    () => window.location.origin,
+    () => "",
+  );
+  const url = `${origen}/i/${codigo}`;
+  const texto = `🎄 Te invito a Los Juegos del Regalo: Christmas Chaos. Entra aquí y crea tu personaje: ${url}`;
+  return (
+    <div className="flex flex-col gap-3">
+      {!compacto && <Aviso tono="ok">¡Temporada creada! Comparte este enlace con tus amigos por WhatsApp.</Aviso>}
+      <div className="px-box break-all px-3 py-2 font-mono text-[0.85rem]" style={{ ["--bg" as string]: "#fff" }}>
+        {url}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          className="px-btn flex-1 !min-h-[44px] !text-[0.9rem]"
+          style={{ ["--bg" as string]: "var(--gold)" }}
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(url);
+              setCopiado(true);
+              setTimeout(() => setCopiado(false), 2000);
+            } catch {}
+          }}
+        >
+          {copiado ? "¡Copiado!" : "Copiar enlace"}
+        </button>
+        <a
+          className="px-btn flex-1 !min-h-[44px] !text-[0.9rem]"
+          style={{ ["--bg" as string]: "var(--mint)" }}
+          href={`https://wa.me/?text=${encodeURIComponent(texto)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          WhatsApp
+        </a>
+      </div>
+      {!compacto && (
+        <button type="button" onClick={irALaPlaza} className="px-btn" style={{ ["--bg" as string]: "var(--cherry)", color: "var(--cream)" }}>
+          Ir a la plaza →
+        </button>
+      )}
+    </div>
+  );
+}
 
-  if (state?.ok) {
+// ------------------------------------------------------------------ unirse
+export function UnirseForm({ codigo, temporada }: { codigo: string; temporada: string }) {
+  const [datos, setDatos] = useState<DatosForm>(DATOS_INICIALES);
+  const [listo, setListo] = useState<string | null>(null);
+  const e = useEnvio();
+
+  if (listo) {
     return (
-      <div className="flex flex-col gap-4">
-        <p className="font-pixel text-lg">¡Bienvenido a {grupo}, agente! 🕵️</p>
-        <CodigoRescate codigo={state.rescueCode!} />
-        <div className="px-box p-4" style={{ ["--bg" as string]: "var(--mint)" }}>
-          <p className="font-pixel">⏳ Esperando aprobación</p>
-          <p className="mt-1 text-[0.9rem]">El organizador tiene que aprobarte. Mientras tanto ya puedes pasear por la aldea.</p>
+      <div className="flex flex-col gap-3">
+        <Aviso tono="ok">
+          ¡Listo! Ya eres parte de <b>{temporada}</b>. El organizador tiene que aprobarte para que puedas sumar puntos.
+        </Aviso>
+        <div className="px-box px-3 py-2" style={{ ["--bg" as string]: "var(--cream-2)" }}>
+          <p className="px-hint">Para entrar desde otro celular:</p>
+          <p className="font-pixel">
+            Usuario: <span className="text-[var(--cherry)]">{listo}</span> + tu PIN
+          </p>
         </div>
-        <Link href="/" className="px-btn w-full" style={{ ["--bg" as string]: "var(--gold)" }}>
-          Ir a la aldea
-        </Link>
+        <button type="button" onClick={irALaPlaza} className="px-btn" style={{ ["--bg" as string]: "var(--cherry)", color: "var(--cream)" }}>
+          Ir a la plaza →
+        </button>
       </div>
     );
   }
 
   return (
-    <form action={action} className="flex flex-col gap-4">
-      <input type="hidden" name="codigo" value={codigo} />
-      <CamposAgente disabled={pending} />
-      <MensajeError texto={state && !state.ok ? state.error : undefined} />
-      <Enviar pending={pending} texto="Unirme al grupo" />
+    <form
+      className="flex flex-col gap-4"
+      onSubmit={async (ev) => {
+        ev.preventDefault();
+        const local = errorLocal(datos);
+        if (local) return e.setError(local);
+        e.setEnviando(true);
+        e.setError(null);
+        const r = await api<{ username: string }>("/api/unirse", { body: { codigo, ...datos } });
+        e.setEnviando(false);
+        if (r.ok) setListo(r.username);
+        else e.setError(r.error);
+      }}
+    >
+      <CamposJugador datos={datos} setDatos={setDatos} disabled={e.enviando} />
+      {e.error && <Aviso tono="error">{e.error}</Aviso>}
+      <button type="submit" className="px-btn shine" style={{ ["--bg" as string]: "var(--cherry)", color: "var(--cream)" }} disabled={e.enviando}>
+        {e.enviando ? "Creando tu personaje…" : "Entrar a Snowville"}
+      </button>
+      <p className="px-hint text-center">
+        ¿Ya te registraste antes?{" "}
+        <Link href="/entrar" className="underline">
+          Entra con tu usuario y PIN
+        </Link>
+      </p>
     </form>
   );
 }
 
-// -------------------------------------------------------------- entrar
+// ------------------------------------------------------------------ entrar
 export function EntrarForm() {
-  const [state, action, pending] = useActionState<Resultado, FormData>(entrar, null);
+  const [username, setUsername] = useState("");
+  const [pin, setPin] = useState("");
+  const e = useEnvio();
   return (
-    <form action={action} className="flex flex-col gap-4">
+    <form
+      className="flex flex-col gap-4"
+      onSubmit={async (ev) => {
+        ev.preventDefault();
+        if (username.trim().length < 3 || !/^\d{4}$/.test(pin)) return e.setError("Escribe tu usuario y tu PIN de 4 números.");
+        e.setEnviando(true);
+        e.setError(null);
+        const r = await api("/api/entrar", { body: { username, pin } });
+        if (r.ok) return irALaPlaza();
+        e.setEnviando(false);
+        e.setError(r.error);
+        setPin("");
+      }}
+    >
       <div>
-        <label className="px-label" htmlFor="rescate">
-          Código de rescate
+        <label className="px-label" htmlFor="u">
+          Usuario
         </label>
         <input
-          id="rescate"
-          name="rescate"
-          className="px-input pin !text-[1.3rem] !tracking-[0.2em] uppercase"
-          placeholder="XXXX-XXXX"
-          maxLength={9}
+          id="u"
+          className="px-input"
+          value={username}
+          onChange={(ev) => setUsername(ev.target.value.toLowerCase().replace(/\s/g, "_"))}
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          autoComplete="username"
+          maxLength={20}
+          disabled={e.enviando}
           required
-          disabled={pending}
-          autoComplete="off"
-          autoCapitalize="characters"
         />
       </div>
       <div>
-        <label className="px-label" htmlFor="pin">
-          Tu PIN
+        <label className="px-label" htmlFor="p">
+          PIN
         </label>
-        <input id="pin" name="pin" className="px-input pin" type="password" inputMode="numeric" pattern="\d{4}" maxLength={4} required disabled={pending} autoComplete="current-password" />
+        <input
+          id="p"
+          className="px-input pin"
+          inputMode="numeric"
+          pattern="\d{4}"
+          maxLength={4}
+          value={pin}
+          onChange={(ev) => setPin(ev.target.value.replace(/\D/g, "").slice(0, 4))}
+          autoComplete="current-password"
+          disabled={e.enviando}
+          required
+        />
       </div>
-      <MensajeError texto={state && !state.ok ? state.error : undefined} />
-      <Enviar pending={pending} texto="Entrar" />
-      <p className="px-hint">¿Perdiste tu código? Pídele al organizador que te ayude desde su panel.</p>
+      {e.error && <Aviso tono="error">{e.error}</Aviso>}
+      <button type="submit" className="px-btn shine" style={{ ["--bg" as string]: "var(--gold)" }} disabled={e.enviando}>
+        {e.enviando ? "Entrando…" : "Entrar"}
+      </button>
+      <p className="px-hint text-center">¿Olvidaste tu PIN? Pídele al organizador que te lo reinicie desde su panel.</p>
     </form>
   );
 }

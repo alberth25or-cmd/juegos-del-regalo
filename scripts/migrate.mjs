@@ -25,8 +25,9 @@ if (!raw) {
 const url = new URL(raw);
 url.search = "";
 
+const local = ["localhost", "127.0.0.1"].includes(url.hostname);
 const sql = postgres(url.toString(), {
-  ssl: "require",
+  ssl: local ? false : "require",
   prepare: false,
   max: 1,
   idle_timeout: 5,

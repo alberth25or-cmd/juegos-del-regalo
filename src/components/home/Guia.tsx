@@ -3,14 +3,15 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const CLAVE = "jdr:guia-vista";
+const CLAVE = "jdr:guia-cc-vista";
 
 const PASOS = [
-  { e: "🎄", t: "Abre la puerta del día", d: "Cada día, el calendario de adviento te da una pista nueva sobre quién te regala." },
-  { e: "⭐", t: "Cumple la misión del día", d: "Una sola misión de 1 minuto. Cambia cada día: una foto, verdad o mentira, 3 emojis, una palabra secreta…" },
-  { e: "🗳️", t: "Vota o adivina lo de ayer", d: "La mejor foto, cuál era la mentira… Al cerrar se revelan los resultados." },
-  { e: "💰", t: "Suma puntos y gana el pozo", d: "El ranking siempre está a la vista. El top 3 se lleva el pozo el día de la entrega." },
+  { e: "🏛️", t: "Entra a la plaza", d: "Santa, Rudolf, el duende sindicalista, el Muñeco y el Auditor te cuentan qué está pasando en Snowville." },
+  { e: "🕹️", t: "Juega 1 minuto", d: "Tu mejor partida del día suma puntos al ranking. Repetir mejora tu récord, no te da puntos infinitos." },
+  { e: "🤝", t: "Ayuda a tu equipo", d: "Son 4 equipos. Gana el que tiene mejor PROMEDIO, así que cada integrante cuenta." },
+  { e: "🎄", t: "30 días de caos", d: "Del 25 nov al 24 dic se abren votaciones, roast voluntario, misiones cooperativas, sabotajes y el amigo secreto." },
 ];
+
 
 /** Guía rápida: se abre sola la primera vez y con el evento "abrir-guia". */
 export function Guia({ autoAbrir }: { autoAbrir: boolean }) {
@@ -51,7 +52,7 @@ export function Guia({ autoAbrir }: { autoAbrir: boolean }) {
             <h2 id="guia-titulo" className="font-pixel text-[1.5rem] leading-tight">
               ¿Cómo se juega?
             </h2>
-            <p className="px-hint">Menos de 2 minutos al día, agente.</p>
+            <p className="px-hint">Unos minutos al día. Faltar un día no te hunde.</p>
           </div>
         </div>
         <ol className="mt-4 flex flex-col gap-2">
@@ -70,11 +71,11 @@ export function Guia({ autoAbrir }: { autoAbrir: boolean }) {
           ))}
         </ol>
         <p className="mt-3 text-[0.85rem]">
-          <b>Extras opcionales:</b> apuestas, comodines y el minijuego del ogro. <b>Una vez por semana:</b> una misión que da más puntos.
+          <b>XP</b> sube tu nivel, <b>monedas</b> compran cosméticos (sin ventaja) y <b>puntos</b> deciden el ranking.
         </p>
         <div className="mt-4 flex flex-col gap-2">
-          <Link href="/prueba" onClick={cerrar} className="px-btn shine w-full" style={{ ["--bg" as string]: "var(--gold)" }}>
-            🧪 Probar todo en modo prueba
+          <Link href="/reglas" onClick={cerrar} className="px-btn w-full" style={{ ["--bg" as string]: "var(--gold)" }}>
+            📜 Reglas completas
           </Link>
           <button type="button" onClick={cerrar} className="px-btn w-full" style={{ ["--bg" as string]: "var(--cream)" }}>
             ¡Entendido!

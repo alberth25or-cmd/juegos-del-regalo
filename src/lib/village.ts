@@ -3,6 +3,8 @@ import { SPRITES, SPRITE_SCALE } from "./assets/manifest";
 import { buildingAspect } from "@/components/village/procedural";
 import { zoneNumber } from "./modules";
 
+export type HotspotState = "locked" | "available" | "pending" | "done";
+
 export interface BuildingDef {
   id: string;
   label: string;
@@ -24,12 +26,13 @@ export interface BuildingDef {
 }
 
 export const BUILDINGS: BuildingDef[] = [
-  { id: "casa-misiones", label: "Misiones", zone: `Zona ${zoneNumber("chocolatada")}`, zoneColor: "#e2445c", href: "#zona-chocolatada", x: 0.13, bottom: 0.18, size: 0.4, roof: "#e2445c", wall: "#fbe9c9", chimney: true, kind: "house" },
-  { id: "tablero-plaza", label: "Competencia", zone: `Zona ${zoneNumber("pista")}`, zoneColor: "#57b9f0", href: "#zona-pista", x: 0.32, bottom: 0.19, size: 0.3, roof: "#2e9e78", wall: "#fff6e5", kind: "board" },
-  { id: "arbol", label: "Árbol del adviento", href: "/calendario", x: 0.5, bottom: 0.19, size: 0.56, roof: "#2e9e78", wall: "#1f7a5c", kind: "tree" },
-  { id: "buzon", label: "Clasificado", zone: `Zona ${zoneNumber("inteligencia")}`, zoneColor: "#b9a7f5", href: "#zona-inteligencia", x: 0.68, bottom: 0.17, size: 0.2, roof: "#e2445c", wall: "#2e9e78", kind: "mailbox" },
-  { id: "cofre", label: "El pozo", zone: `Zona ${zoneNumber("boveda")}`, zoneColor: "#f6b93b", href: "#zona-boveda", x: 0.87, bottom: 0.16, size: 0.16, roof: "#f6b93b", wall: "#9a5b34", kind: "chest" },
+  { id: "casa-misiones", label: "Arcade", zone: `Zona ${zoneNumber("arcade")}`, zoneColor: "#57b9f0", href: "#zona-arcade", x: 0.13, bottom: 0.18, size: 0.4, roof: "#e2445c", wall: "#fbe9c9", chimney: true, kind: "house" },
+  { id: "tablero-plaza", label: "Tablón del caos", zone: `Zona ${zoneNumber("tablon")}`, zoneColor: "#e2445c", href: "#zona-tablon", x: 0.32, bottom: 0.19, size: 0.3, roof: "#2e9e78", wall: "#fff6e5", kind: "board" },
+  { id: "arbol", label: "Plaza central", href: "#plaza", x: 0.5, bottom: 0.19, size: 0.56, roof: "#2e9e78", wall: "#1f7a5c", kind: "tree" },
+  { id: "buzon", label: "Trofeos", zone: `Zona ${zoneNumber("trofeos")}`, zoneColor: "#f6b93b", href: "#zona-trofeos", x: 0.68, bottom: 0.17, size: 0.2, roof: "#e2445c", wall: "#2e9e78", kind: "mailbox" },
+  { id: "cofre", label: "Mercado negro", zone: `Zona ${zoneNumber("mercado")}`, zoneColor: "#b9a7f5", href: "#zona-mercado", x: 0.87, bottom: 0.16, size: 0.16, roof: "#f6b93b", wall: "#9a5b34", kind: "chest" },
 ];
+
 
 /** Tamaño en pantalla de un edificio: sprite real si existe, si no el placeholder. */
 export function buildingSize(def: BuildingDef, sceneH: number) {

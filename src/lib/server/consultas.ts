@@ -1,59 +1,148 @@
 import "server-only";
-import { db } from "./db";
+import { avatarValido, type ConfigAvatar } from "@/features/avatar";
+import { nivel, promedioEquipo } from "@/features/scoring/reglas";
+import { conTope, db } from "./db";
 
-export interface FilaRanking {
-  memberId: string;
-  codename: string;
-  avatar: string;
+/** Lecturas para pantallas. Todas con tope de tiempo y sin consultas N+1. */
+
+export interface FilaJugador {
+  id: string;
+  username: string;
+  displayName: string;
+  avatar: ConfigAvatar;
+  role: string;
+  status: string;
+  teamId: string | null;
   points: number;
+  xp: number;
+  coins: number;
+  nivel: number;
   rank: number;
 }
 
-/** Ranking del grupo, siempre derivado del libro de puntos. */
-export async function rankingDelGrupo(groupId: string): Promise<FilaRanking[]> {
-  const rows = await db()`
-    select member_id, codename, avatar, points,
-           rank() over (order by points desc)::int as rank
-    from jdr.v_ranking where group_id = ${groupId}
-    order by points desc, codename asc
-  `;
-  return rows.map((r) => ({ memberId: r.member_id, codename: r.codename, avatar: r.avatar, points: r.points, rank: r.rank }));
-}
-
-export async function grupoPorInvitacion(codigo: string) {
-  const [g] = await db()`
-    select g.id, g.name, g.status,
-           (select count(*)::int from jdr.members m where m.group_id = g.id and m.status = 'approved') as agentes
-    from jdr.groups g where g.invite_code = ${codigo.toUpperCase()}
-  `;
-  return g ? { id: g.id as string, name: g.name as string, status: g.status as string, agentes: g.agentes as number } : null;
-}
-
-export interface FilaAgente {
+export interface FilaEquipo {
   id: string;
-  alias: string;
-  codename: string;
-  avatar: string;
-  role: string;
-  status: string;
-  paid: boolean;
-  createdAt: Date;
+  name: string;
+  slug: string;
+  color: string;
+  emblem: string;
+  integrantes: number;
+  total: number;
+  promedio: number;
+  rank: number;
 }
 
-export async function agentesDelGrupo(groupId: string): Promise<FilaAgente[]> {
-  const rows = await db()`
-    select id, alias, codename, avatar, role, status, paid, created_at
-    from jdr.members where group_id = ${groupId}
-    order by case status when 'pending' then 0 when 'approved' then 1 else 2 end, created_at
-  `;
-  return rows.map((r) => ({
-    id: r.id,
-    alias: r.alias,
-    codename: r.codename,
-    avatar: r.avatar,
-    role: r.role,
-    status: r.status,
-    paid: r.paid,
-    createdAt: r.created_at,
-  }));
+export async function jugadoresDeTemporada(seasonId: string, soloActivos = true): Promise<FilaJugador[]> {
+  const rows = await conTope(db()`
+    select p.id, p.username, p.display_name, p.avatar, p.role, p.status, p.team_id, p.created_at,
+           coalesce(t.points, 0)::int as points, coalesce(t.xp, 0)::int as xp, coalesce(t.coins, 0)::int as coins
+    from cc.players p
+    left join cc.v_totals t on t.player_id = p.id
+    where p.season_id = ${seasonId} ${soloActivos ? db()`and p.status = 'active'` : db()``}
+    order by points desc, xp desc, p.display_name asc
+  `);
+  let rank = 0;
+  let prev = Number.NaN;
+  return rows.map((r, i) => {
+    if (r.points !== prev) {
+      rank = i + 1;
+      prev = r.points;
+    }
+    return {
+      id: r.id,
+      username: r.username,
+      displayName: r.display_name,
+      avatar: avatarValido(r.avatar),
+      role: r.role,
+      status: r.status,
+      teamId: r.team_id,
+      points: r.points,
+      xp: r.xp,
+      coins: r.coins,
+      nivel: nivel(r.xp),
+      rank,
+    };
+  });
+}
+
+export async function equiposDeTemporada(seasonId: string) {
+  const rows = await conTope(db()`select id, name, slug, color, emblem from cc.teams where season_id = ${seasonId} order by created_at`);
+  return rows.map((r) => ({ id: r.id as string, name: r.name as string, slug: r.slug as string, color: r.color as string, emblem: r.emblem as string }));
+}
+
+/** Ranking de equipos = promedio de puntos por integrante activo (regla visible en la pantalla). */
+export function rankingEquipos(equipos: Awaited<ReturnType<typeof equiposDeTemporada>>, jugadores: FilaJugador[]): FilaEquipo[] {
+  const filas = equipos.map((e) => {
+    const miembros = jugadores.filter((j) => j.teamId === e.id);
+    const pts = miembros.map((m) => m.points);
+    return { ...e, integrantes: miembros.length, total: pts.reduce((a, b) => a + b, 0), promedio: promedioEquipo(pts), rank: 0 };
+  });
+  filas.sort((a, b) => b.promedio - a.promedio || b.integrantes - a.integrantes || a.name.localeCompare(b.name));
+  filas.forEach((f, i) => (f.rank = i > 0 && f.promedio === filas[i - 1].promedio ? filas[i - 1].rank : i + 1));
+  return filas;
+}
+
+export interface Noticia {
+  id: string;
+  tipo: string;
+  payload: Record<string, unknown>;
+  fecha: string;
+}
+
+export async function noticias(seasonId: string, limite = 12): Promise<Noticia[]> {
+  const rows = await conTope(db()`
+    select id, event_type, payload, created_at from cc.chaos_events
+    where season_id = ${seasonId} and is_public
+    order by created_at desc limit ${limite}
+  `);
+  return rows.map((r) => ({ id: r.id, tipo: r.event_type, payload: r.payload ?? {}, fecha: new Date(r.created_at).toISOString() }));
+}
+
+export async function eventosDeTemporada(seasonId: string) {
+  const rows = await conTope(db()`select day, title, description, kind from cc.season_events where season_id = ${seasonId} order by day, title`);
+  return rows.map((r) => ({ day: r.day as number, title: r.title as string, description: r.description as string, kind: r.kind as string }));
+}
+
+/** Resumen de mi progreso en Gift Catcher (hoy y récord). */
+export async function miGiftCatcher(playerId: string) {
+  const [r] = await conTope(db()`
+    select
+      coalesce(max(score) filter (where local_day = (now() at time zone 'America/Lima')::date), 0)::int as mejor_hoy,
+      coalesce(max(score), 0)::int as record,
+      count(*) filter (where local_day = (now() at time zone 'America/Lima')::date)::int as partidas_hoy,
+      (select coalesce(sum(points), 0)::int from cc.score_ledger
+        where player_id = ${playerId} and source_type = 'juego-dia'
+          and source_id = 'gift-catcher:' || ((now() at time zone 'America/Lima')::date)::text) as puntos_hoy
+    from cc.game_attempts
+    where player_id = ${playerId} and game_slug = 'gift-catcher' and status = 'validated'
+  `);
+  return { mejorHoy: r.mejor_hoy as number, record: r.record as number, partidasHoy: r.partidas_hoy as number, puntosHoy: r.puntos_hoy as number };
+}
+
+/** Mejores puntajes de Gift Catcher de la temporada (récord de cada jugador). */
+export async function recordsGiftCatcher(seasonId: string, limite = 5) {
+  const rows = await conTope(db()`
+    select p.display_name, p.avatar, max(a.score)::int as record
+    from cc.game_attempts a join cc.players p on p.id = a.player_id
+    where a.season_id = ${seasonId} and a.game_slug = 'gift-catcher' and a.status = 'validated' and p.status = 'active'
+    group by p.id, p.display_name, p.avatar
+    order by record desc limit ${limite}
+  `);
+  return rows.map((r) => ({ nombre: r.display_name as string, avatar: avatarValido(r.avatar), record: r.record as number }));
+}
+
+/** Métricas básicas para el organizador (agregadas, sin datos privados). */
+export async function metricas(seasonId: string) {
+  const [r] = await conTope(db()`
+    select
+      (select count(*)::int from cc.players where season_id = ${seasonId} and status = 'active') as activos,
+      (select count(*)::int from cc.players where season_id = ${seasonId} and status = 'pending') as pendientes,
+      (select count(distinct player_id)::int from cc.game_attempts where season_id = ${seasonId}
+        and local_day = (now() at time zone 'America/Lima')::date) as jugaron_hoy,
+      (select count(*)::int from cc.game_attempts where season_id = ${seasonId} and status = 'validated') as partidas,
+      (select count(*)::int from cc.game_attempts where season_id = ${seasonId} and status = 'rejected') as rechazadas,
+      (select count(*)::int from cc.game_attempts where season_id = ${seasonId} and status = 'started'
+        and started_at < now() - interval '10 minutes') as abandonadas
+  `);
+  return r as { activos: number; pendientes: number; jugaron_hoy: number; partidas: number; rechazadas: number; abandonadas: number };
 }
