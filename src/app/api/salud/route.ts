@@ -30,7 +30,8 @@ export async function GET(req: Request) {
       return Response.json({ ok: true, ...row, conexiones });
     }
     if (diag === "2" || diag === "3") {
-      const vacio = "00000000-0000-0000-0000-000000000000";
+      const [gr] = await sql`select g.id from jdr.groups g order by (select count(*) from jdr.members m where m.group_id = g.id) desc limit 1`;
+      const vacio: string = gr?.id ?? "00000000-0000-0000-0000-000000000000";
       const conTiempo = <T,>(p: Promise<T>) =>
         Promise.race([p.then(() => "ok"), new Promise<string>((r) => setTimeout(() => r("COLGADO"), 8000))]);
       const pasos: Record<string, string> = {};
@@ -39,7 +40,7 @@ export async function GET(req: Request) {
         pasos.agenteActual = await conTiempo(agenteActual());
         pasos.t1 = `${Date.now() - t}ms`;
         t = Date.now();
-        pasos.agentesDelGrupo = await conTiempo(agentesDelGrupo(vacio));
+        pasos.agentesDelGrupo = await conTiempo(agentesDelGrupo(vacio).then((r) => { pasos.filas = String(r.length); return r; }));
         pasos.t2 = `${Date.now() - t}ms`;
       } else {
         const raw = process.env.POSTGRES_URL_NON_POOLING;
