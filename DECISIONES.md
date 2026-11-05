@@ -18,6 +18,14 @@ Supuestos que tomé (se pueden cambiar):
 - Higgsfield está sin créditos (2026-11-05): los NPCs se dibujan en pixel art en código.
   Si Luis recarga créditos, se reemplazan por arte generado.
 
+Mundo explorable (respuestas de Luis, 2026-11-05):
+- Vista **desde arriba estilo RPG**; se camina **tocando a dónde ir**.
+- Interacción: **emotes y frases rápidas**, **chat libre corto** (60 letras, filtro y reportes)
+  y **tocar a alguien para ver su perfil**.
+- Arte: Luis **recargará créditos de Higgsfield**; mientras tanto, arte en código.
+- Riesgo aceptado: los canales de Realtime son públicos con la clave pública (el id de la
+  temporada es un UUID imposible de adivinar). El chat oficial lo difunde el servidor.
+
 ---
 
 ## Versión anterior (2026-11-04)

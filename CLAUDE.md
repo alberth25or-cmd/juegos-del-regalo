@@ -20,8 +20,11 @@ consensuado y amigo secreto. El documento maestro es la fuente de verdad:
 - **El navegador nunca habla con la BD.** Todo pasa por Route Handlers (`src/app/api/**`).
   RLS está activado en todas las tablas sin políticas, y `anon`/`authenticated` no tienen
   permisos: aunque alguien tenga la URL pública de Supabase, no puede leer nada.
-- Tiempo real: sondeo corto (cada 5–20 s) en vez de Supabase Realtime. Para 20 personas
-  sobra y no depende de websockets en celulares básicos.
+- Tiempo real del MUNDO (Snowville explorable): Supabase Realtime, un canal por sala
+  (`snow:<seasonId>:<sala>`), presencia + broadcast. Por la red solo viaja "voy de A a B"
+  (cada celular calcula el mismo camino con A*), emotes, frases y saludos. El chat pasa por
+  `/api/mundo/chat` (filtro + guardado + reporte) y el servidor lo difunde. Sin Supabase
+  (en local) se usa BroadcastChannel entre pestañas. Ranking y noticias siguen con sondeo corto.
 - Minijuegos arcade en `<canvas>` propio (sin Phaser) para que carguen rápido en celulares básicos.
 - Despliegue: Vercel (funciones en `gru1`). Las migraciones corren solas en cada build.
 
@@ -34,7 +37,9 @@ src/app/              rutas; api/** = operaciones de negocio (JSON)
 src/features/<dominio>/   reglas puras (scoring, juegos, temporada) — sin React, con tests
 src/lib/server/       db, sesión, seguridad, rate limit, consultas (import "server-only")
 src/lib/cliente/      fetch con timeout + reintento para el navegador
-src/components/       rpg/ (NPCs, mundo), games/, ui/, village/ (aldea animada)
+src/features/mundo/   mapas (Snowville + submundos) y rutas A* — puros, con tests
+src/components/mundo/ motor canvas, arte en código, personajes, red en vivo, interfaz
+src/components/       rpg/ (NPCs, avatar), games/, ui/, village/ (aldea panorámica de la portada)
 tests/                node:test (`npm test`)
 ```
 

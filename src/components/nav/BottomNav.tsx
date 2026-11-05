@@ -7,7 +7,7 @@ import { PixelIcon, type IconName } from "@/components/ui/PixelIcon";
 const ITEMS: { href: string; label: string; icon: IconName; main?: boolean }[] = [
   { href: "/", label: "Plaza", icon: "home" },
   { href: "/arcade", label: "Arcade", icon: "sparkle" },
-  { href: "/arcade/gift-catcher", label: "Jugar", icon: "mission", main: true },
+  { href: "/mundo", label: "Mundo", icon: "mission", main: true },
   { href: "/ranking", label: "Ranking", icon: "ranking" },
   { href: "/perfil", label: "Perfil", icon: "friend" },
 ];

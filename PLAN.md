@@ -38,6 +38,19 @@ viejas. El código sigue en el historial de git (commit `41735be` y anteriores).
 - Ranking individual y por equipos (promedio por integrante activo).
 - Panel del organizador: temporada, fechas, jugadores, equipos, PIN olvidado, ajustes auditados.
 
+## Fase 1.5 — Snowville explorable (pedido de Luis, 2026-11-05)
+
+- Mapa visto desde arriba estilo RPG: Snowville (46×36 baldosas) con plaza, árbol gigante,
+  lago, bosque y 6 edificios con puerta; 7 submundos (Arcade, Fábrica, Tablón, Mercado,
+  Arena, Salón de Trofeos, Bosque) donde también se camina.
+- Tocar para caminar (A*), personajes en 4 direcciones con animación, NPCs que pasean,
+  luces de noche según la hora de Lima, nieve, humo, cinta transportadora.
+- En vivo: ver a los demás caminar, emotes, frases rápidas, chat corto moderado
+  (filtro + reportes), tocar a alguien para ver su perfil y saludarlo.
+- Los objetos de cada submundo abren su actividad (Gift Catcher, ranking) o dicen cuándo llega.
+- Arte: en código + sprites de Higgsfield existentes; se reemplaza con arte nuevo de
+  Higgsfield cuando haya créditos.
+
 ## Fase 2 — Cooperación
 
 - Misión global "Encender el árbol de Snowville" (energía navideña de los 20).

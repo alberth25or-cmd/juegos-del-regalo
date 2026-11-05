@@ -144,6 +144,18 @@ export async function PlazaCentral() {
 
   return (
     <Seccion>
+      <Link href="/mundo" className="px-box shine flex items-center gap-3 p-3" style={{ ["--bg" as string]: "#1b1f4a", color: "var(--cream)" }}>
+        <span className="text-3xl" aria-hidden>
+          🗺️
+        </span>
+        <span className="min-w-0 flex-1 leading-tight">
+          <span className="block font-pixel text-lg" style={{ color: "var(--gold)" }}>
+            Entrar a Snowville
+          </span>
+          <span className="block text-[0.8rem] opacity-85">Camina, entra a las casas y mira quién más está conectado.</span>
+        </span>
+        <span className="font-pixel text-xl">▶</span>
+      </Link>
       <DialogoNpc lineas={lineas} />
 
       {yo.role === "admin" && (
@@ -267,6 +279,18 @@ function Bienvenida() {
           { npc: "muneco", texto: "Si tienes un enlace de invitación, ábrelo. Si no… yo no te vi." },
         ]}
       />
+      <Link href="/mundo" className="px-box shine flex items-center gap-3 p-3" style={{ ["--bg" as string]: "#1b1f4a", color: "var(--cream)" }}>
+        <span className="text-3xl" aria-hidden>
+          🗺️
+        </span>
+        <span className="min-w-0 flex-1 leading-tight">
+          <span className="block font-pixel text-lg" style={{ color: "var(--gold)" }}>
+            Entrar a Snowville
+          </span>
+          <span className="block text-[0.8rem] opacity-85">Camina, entra a las casas y mira quién más está conectado.</span>
+        </span>
+        <span className="font-pixel text-xl">▶</span>
+      </Link>
       <div className="px-box flex flex-col gap-3 p-4">
         <p className="font-pixel text-lg">¿Cómo entro?</p>
         <ol className="flex list-decimal flex-col gap-1 pl-5 text-[0.9rem]">

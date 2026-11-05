@@ -171,13 +171,13 @@ export function Pildora({ e }: { e: EstadoPildora }) {
           </span>
           <span className="min-w-0 flex-1 leading-tight">
             <span className="block text-[0.68rem] uppercase tracking-wide text-[var(--ink-soft)]">{e.detalle}</span>
-            <span className="block truncate font-pixel text-[1.05rem]">{e.titulo}</span>
+            <span className="block truncate font-pixel text-[1.05rem]">Snowville te espera</span>
             <span className="text-[0.7rem] text-[var(--ink-soft)]">
-              Hoy: {e.puntosHoy}/{e.tope} pts
+              {e.titulo} hoy: {e.puntosHoy}/{e.tope} pts
             </span>
           </span>
-          <Link href="/arcade/gift-catcher" className="px-btn shine !min-h-[44px] !px-3 !text-[0.9rem]" style={{ ["--bg" as string]: "var(--cherry)", color: "var(--cream)" }}>
-            ¡Jugar!
+          <Link href="/mundo" className="px-btn shine !min-h-[44px] !px-3 !text-[0.9rem]" style={{ ["--bg" as string]: "var(--cherry)", color: "var(--cream)" }}>
+            Entrar ▶
           </Link>
         </div>
       )}

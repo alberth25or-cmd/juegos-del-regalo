@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: "Gift Catcher" };
 
 export default function GiftCatcherPage() {
   return (
-    <Pantalla title="Gift Catcher" kicker="Arcade · Santa en bancarrota" back="/arcade">
+    <Pantalla title="Gift Catcher" kicker="Arcade · Santa en bancarrota" back="/mundo?sala=arcade">
       <Suspense fallback={<Cargando texto="Santa está cargando los regalos…" />}>
         <Juego />
       </Suspense>
