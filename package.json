@@ -10,7 +10,8 @@
     "migrate": "node scripts/migrate.mjs",
     "test": "node --experimental-strip-types --no-warnings --test tests/*.test.ts",
     "db:local": "node scripts/db-local.mjs",
-    "sim": "node --experimental-strip-types --no-warnings scripts/sim-20.mjs"
+    "sim": "node --experimental-strip-types --no-warnings scripts/sim-20.mjs",
+    "hf:ejemplo": "node --experimental-strip-types --no-warnings scripts/higgsfield/seedance-ejemplo.ts"
   },
   "dependencies": {
     "@supabase/realtime-js": "2.118.0",
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@electric-sql/pglite": "0.5.10",
     "@electric-sql/pglite-socket": "0.2.13",
+    "@higgsfield/client": "0.2.6",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
