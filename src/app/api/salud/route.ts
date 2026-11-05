@@ -29,6 +29,19 @@ export async function GET(req: Request) {
       `;
       return Response.json({ ok: true, ...row, conexiones });
     }
+    if (diag === "4") {
+      const [gr] = await sql`select g.id from jdr.groups g order by (select count(*) from jdr.members m where m.group_id = g.id) desc limit 1`;
+      const t = Date.now();
+      const una = async () => {
+        await sql`update jdr.sessions set last_used_at = now() where token_hash = ${"x" + Math.random()} returning member_id`;
+        return agentesDelGrupo(gr.id);
+      };
+      const r = await Promise.race([
+        Promise.all(Array.from({ length: 8 }, una)).then(() => "ok"),
+        new Promise<string>((res) => setTimeout(() => res("COLGADO"), 9000)),
+      ]);
+      return Response.json({ paralelo: r, ms: Date.now() - t });
+    }
     if (diag === "2" || diag === "3") {
       const [gr] = await sql`select g.id from jdr.groups g order by (select count(*) from jdr.members m where m.group_id = g.id) desc limit 1`;
       const vacio: string = gr?.id ?? "00000000-0000-0000-0000-000000000000";
