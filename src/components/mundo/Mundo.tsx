@@ -21,6 +21,7 @@ export interface JugadorMundo {
   seasonId: string;
   dia: number;
   prueba?: boolean;
+  admin?: boolean;
 }
 
 interface MensajeLog {
@@ -46,10 +47,11 @@ type Hoja =
   | { tipo: "npc"; npc: NpcId; lineas: string[] }
   | { tipo: "jugador"; id: string; nombre: string; perfil?: PerfilVista | null }
   | { tipo: "aqui" }
+  | { tipo: "menu" }
   | null;
 
 const CLAVE_POS = "jdr:mundo-pos";
-const CLAVE_AYUDA = "jdr:mundo-ayuda";
+const CLAVE_AYUDA = "jdr:instrucciones-v1";
 
 function leerPos(): { sala: SalaId; x: number; y: number } | null {
   try {
@@ -225,12 +227,6 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
   const alTocar = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!motor.current) return;
     setPanel(null);
-    if (ayuda) {
-      setAyuda(false);
-      try {
-        localStorage.setItem(CLAVE_AYUDA, "1");
-      } catch {}
-    }
     motor.current.tocar(e.clientX, e.clientY);
   };
 
@@ -284,11 +280,16 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
       {/* Barra superior */}
       <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3" style={{ paddingTop: "max(12px, env(safe-area-inset-top))" }}>
         <div className="pointer-events-auto flex flex-col gap-1.5">
-          <Link href="/" className="px-chip !text-[0.75rem]">
-            ← Plaza
-          </Link>
+          <div className="flex gap-1.5">
+            <button type="button" className="px-btn !min-h-[40px] !px-3 !text-[0.9rem]" style={{ ["--bg" as string]: "var(--cream)" }} onClick={() => setHoja({ tipo: "menu" })} aria-label="Abrir menú">
+              ☰ Menú
+            </button>
+            <button type="button" className="px-btn !min-h-[40px] !px-3 !text-[0.9rem]" style={{ ["--bg" as string]: "var(--gold)" }} onClick={() => setAyuda(true)} aria-label="Cómo se juega">
+              ?
+            </button>
+          </div>
           <span className="px-chip !text-[0.85rem]" style={{ ["--chip" as string]: "var(--cream)" }}>
-            {s.nombre}
+            📍 {s.nombre}
           </span>
           {jugador?.prueba && (
             <span className="px-chip !text-[0.72rem]" style={{ ["--chip" as string]: "var(--lavender)" }}>
@@ -322,13 +323,15 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
       )}
 
       {ayuda && listo && (
-        <div className="pointer-events-none absolute inset-x-0 top-[42%] flex justify-center px-6">
-          <p className="px-box anim-pop max-w-xs px-4 py-3 text-center text-[0.9rem]">
-            👆 <b>Toca el suelo</b> para caminar.
-            <br />
-            Toca una <b>puerta</b> para entrar, y a un <b>personaje</b> para hablar.
-          </p>
-        </div>
+        <Instrucciones
+          visitante={!jugador}
+          onCerrar={() => {
+            setAyuda(false);
+            try {
+              localStorage.setItem(CLAVE_AYUDA, "1");
+            } catch {}
+          }}
+        />
       )}
 
       {toast && (
@@ -341,7 +344,7 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
 
       {/* Visitante */}
       {!jugador && listo && (
-        <div className="absolute inset-x-0 flex justify-center px-4" style={{ bottom: "calc(max(10px, env(safe-area-inset-bottom)) + 92px)" }}>
+        <div className="absolute inset-x-0 flex justify-center px-4" style={{ bottom: "calc(max(12px, env(safe-area-inset-bottom)) + 4px)" }}>
           <div className="px-box flex max-w-md items-center gap-3 px-3 py-2">
             <span className="min-w-0 flex-1 text-[0.85rem] leading-tight">
               <b className="font-pixel">Estás de visita.</b> Con tu invitación, tus amigos te verán caminar en vivo.
@@ -355,7 +358,7 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
 
       {/* Acciones */}
       {jugador && !hoja && (
-        <div className="absolute inset-x-0 flex flex-col items-center gap-2 px-3" style={{ bottom: "calc(max(10px, env(safe-area-inset-bottom)) + 92px)" }}>
+        <div className="absolute inset-x-0 flex flex-col items-center gap-2 px-3" style={{ bottom: "calc(max(12px, env(safe-area-inset-bottom)) + 4px)" }}>
           {panel === "emotes" && (
             <div className="px-box anim-pop grid grid-cols-5 gap-1 p-2">
               {EMOTES.map((em) => (
@@ -422,7 +425,7 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
 
       {/* Hojas */}
       {hoja && (
-        <div className="absolute inset-0 z-20 flex items-end justify-center bg-[rgb(27_31_74/0.45)] px-3" style={{ paddingBottom: "calc(max(10px, env(safe-area-inset-bottom)) + 96px)" }} onPointerDown={(e) => e.target === e.currentTarget && setHoja(null)}>
+        <div className="absolute inset-0 z-20 flex items-end justify-center bg-[rgb(27_31_74/0.45)] px-3" style={{ paddingBottom: "calc(max(12px, env(safe-area-inset-bottom)) + 8px)" }} onPointerDown={(e) => e.target === e.currentTarget && setHoja(null)}>
           <div className="px-box anim-pop w-full max-w-md p-4" role="dialog" aria-modal="true">
             {hoja.tipo === "interaccion" && (
               <div className="flex flex-col gap-3">
@@ -489,6 +492,7 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
                 </button>
               </div>
             )}
+            {hoja.tipo === "menu" && <Menu admin={!!jugador?.admin} visitante={!jugador} onAyuda={() => { setHoja(null); setAyuda(true); }} />}
             {hoja.tipo === "aqui" && (
               <div className="flex flex-col gap-2">
                 <p className="font-pixel text-xl">En {s.nombre}</p>
@@ -536,5 +540,78 @@ function DialogoNpcUnico({ npc, lineas, onCerrar }: { npc: NpcId; lineas: string
         <span className="mt-1 block text-right font-pixel text-[0.75rem]">{i + 1 < lineas.length ? "▼ seguir" : "✕ cerrar"}</span>
       </span>
     </button>
+  );
+}
+
+function Menu({ admin, visitante, onAyuda }: { admin: boolean; visitante: boolean; onAyuda: () => void }) {
+  const items: [string, string, string][] = visitante
+    ? [
+        ["🔑", "Entrar con mi usuario", "/entrar"],
+        ["🎄", "Crear una temporada", "/crear"],
+        ["📜", "Reglas y privacidad", "/reglas"],
+      ]
+    : [
+        ["🏆", "Ranking", "/ranking"],
+        ["📰", "Noticias y mi progreso", "/plaza"],
+        ["👤", "Mi perfil y mi personaje", "/perfil"],
+        ...(admin ? ([["⚙️", "Panel del organizador", "/admin"]] as [string, string, string][]) : []),
+        ["📜", "Reglas y privacidad", "/reglas"],
+      ];
+  return (
+    <nav className="flex flex-col gap-2" aria-label="Menú">
+      <p className="font-pixel text-xl">Menú</p>
+      {items.map(([e, t, href]) => (
+        <Link key={href} href={href} className="px-box flex items-center gap-3 px-3 py-2.5" style={{ ["--bg" as string]: "#fff", margin: "2px 0" }}>
+          <span className="text-xl" aria-hidden>
+            {e}
+          </span>
+          <span className="font-pixel">{t}</span>
+        </Link>
+      ))}
+      <button type="button" className="px-box flex items-center gap-3 px-3 py-2.5 text-left" style={{ ["--bg" as string]: "var(--cream-2)", margin: "2px 0" }} onClick={onAyuda}>
+        <span className="text-xl" aria-hidden>
+          📖
+        </span>
+        <span className="font-pixel">Cómo se juega</span>
+      </button>
+    </nav>
+  );
+}
+
+const PASOS: { e: string; t: string; d: string }[] = [
+  { e: "👆", t: "Camina", d: "Toca el suelo y tu personaje va solo hasta ahí." },
+  { e: "🚪", t: "Entra a las casas", d: "Toca una casa o su puerta. Adentro también caminas; sales por la puerta de abajo." },
+  { e: "💬", t: "Habla y saluda", d: "Toca a un personaje para hablar. Toca a un amigo para ver su perfil y saludarlo." },
+  { e: "▶", t: "Juega", d: "Lo que tiene ▶ se juega (empieza por la máquina del Arcade). Lo que tiene ! te cuenta qué viene." },
+  { e: "☰", t: "Menú", d: "Ranking, noticias, tu perfil y, si organizas, el panel." },
+];
+
+function Instrucciones({ visitante, onCerrar }: { visitante: boolean; onCerrar: () => void }) {
+  return (
+    <div className="absolute inset-0 z-30 flex items-center justify-center bg-[rgb(27_31_74/0.6)] px-4" role="dialog" aria-modal="true" aria-labelledby="instr-titulo">
+      <div className="px-box anim-pop w-full max-w-sm p-5">
+        <h2 id="instr-titulo" className="font-pixel text-[1.6rem] leading-tight">
+          Cómo se juega
+        </h2>
+        <p className="px-hint">Snowville está en quiebra. Ayuda (o no) a salvar la Navidad.</p>
+        <ol className="mt-3 flex flex-col gap-2">
+          {PASOS.map((p) => (
+            <li key={p.t} className="flex items-start gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center bg-[var(--cream-2)] font-pixel text-lg" style={{ boxShadow: "0 0 0 2px var(--ink)" }} aria-hidden>
+                {p.e}
+              </span>
+              <span className="leading-snug">
+                <span className="block font-pixel">{p.t}</span>
+                <span className="block text-[0.85rem] text-[var(--ink-soft)]">{p.d}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+        {visitante && <p className="mt-3 rounded-sm bg-[var(--cream-2)] px-3 py-2 text-[0.82rem]">Estás de visita: puedes pasear, pero para jugar y que te vean tus amigos necesitas entrar con tu usuario.</p>}
+        <button type="button" className="px-btn shine mt-4 w-full" style={{ ["--bg" as string]: "var(--cherry)", color: "var(--cream)" }} onClick={onCerrar}>
+          ¡A jugar!
+        </button>
+      </div>
+    </div>
   );
 }

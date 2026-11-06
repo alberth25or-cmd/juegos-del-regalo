@@ -119,7 +119,7 @@ export function EnlaceInvitacion({ codigo, compacto }: { codigo: string; compact
       </div>
       {!compacto && (
         <button type="button" onClick={irALaPlaza} className="px-btn" style={{ ["--bg" as string]: "var(--cherry)", color: "var(--cream)" }}>
-          Ir a la plaza →
+          Entrar a Snowville →
         </button>
       )}
     </div>
@@ -145,7 +145,7 @@ export function UnirseForm({ codigo, temporada }: { codigo: string; temporada: s
           </p>
         </div>
         <button type="button" onClick={irALaPlaza} className="px-btn" style={{ ["--bg" as string]: "var(--cherry)", color: "var(--cream)" }}>
-          Ir a la plaza →
+          Entrar a Snowville →
         </button>
       </div>
     );

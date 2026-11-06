@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { cache } from "react";
-import { unstable_rethrow } from "next/navigation";
 import { arcoDelDia, type EstadoTemporada } from "@/features/season/calendario";
 import { contextoDelDia, fraseDe, type NpcId } from "@/features/contenido/npcs";
 import { GIFT_CATCHER, nivel, xpParaNivel } from "@/features/scoring/reglas";
@@ -12,23 +11,11 @@ import { EnlaceInvitacion } from "@/components/acceso/Formularios";
 import { equiposDeTemporada, eventosDeTemporada, jugadoresDeTemporada, miGiftCatcher, noticias, rankingEquipos, recordsGiftCatcher } from "@/lib/server/consultas";
 import { hasDatabase } from "@/lib/server/db";
 import { estadoDe, jugadorActual } from "@/lib/server/sesion";
-import { Cabecera, Pildora, type EstadoPildora } from "./HomeHud";
 
 /**
  * Partes de la portada que dependen del jugador. Van dentro de <Suspense>
  * y comparten las mismas consultas por request (React `cache`).
  */
-
-/** Si la BD falla, la cabecera y la píldora muestran el modo visitante en vez de romper la portada. */
-async function seguro<T>(p: Promise<T>): Promise<T | null> {
-  try {
-    return await p;
-  } catch (e) {
-    unstable_rethrow(e);
-    console.error("[portada]", e);
-    return null;
-  }
-}
 
 const datosJugador = cache(async () => {
   if (!hasDatabase()) return null;
@@ -48,44 +35,6 @@ function diaTexto(e: EstadoTemporada, prueba = false) {
   return `🎄 Día ${e.dia} de ${e.totalDias}`;
 }
 
-export async function CabeceraDatos() {
-  const d = await seguro(datosJugador());
-  if (!d) return <Cabecera r={null} />;
-  return (
-    <Cabecera
-      r={{
-        nombre: d.yo.displayName,
-        avatar: d.yo.avatar,
-        nivel: d.fila?.nivel ?? 1,
-        puntos: d.fila?.points ?? 0,
-        rol: d.yo.role,
-        estado: d.yo.status,
-        puesto: d.fila?.rank ?? null,
-        total: d.jugadores.length,
-        diaTexto: diaTexto(d.estado, d.yo.prueba),
-      }}
-    />
-  );
-}
-
-export async function PildoraDatos() {
-  const d = await seguro(datosJugador());
-  let e: EstadoPildora = { tipo: "visitante" };
-  if (d) {
-    if (d.yo.status === "pending") e = { tipo: "pendiente", temporada: d.yo.seasonName };
-    else if (d.yo.status !== "active") e = { tipo: "sinAcceso" };
-    else
-      e = {
-        tipo: "activo",
-        titulo: "Gift Catcher",
-        detalle: d.estado.fase === "pretemporada" ? "Pretemporada · práctica" : d.estado.fase === "en-curso" ? `Misión destacada · día ${d.estado.dia}` : "Temporada terminada",
-        puntosHoy: d.gift.puntosHoy,
-        tope: GIFT_CATCHER.topeDiario,
-      };
-  }
-  return <Pildora e={e} />;
-}
-
 // ------------------------------------------------------------- plaza central
 const ORDEN_NPC: NpcId[] = ["santa", "duende", "rudolf", "auditor", "muneco"];
 
@@ -98,7 +47,7 @@ function Seccion({ children }: { children: React.ReactNode }) {
             Snowville · Centro
           </span>
           <h2 id="plaza-titulo" className="zone-title mt-3 font-pixel">
-            Plaza central
+            Noticias y progreso
           </h2>
         </header>
         {children}

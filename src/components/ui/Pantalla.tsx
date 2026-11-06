@@ -8,7 +8,7 @@ export function Pantalla({
   title,
   kicker,
   children,
-  back = "/",
+  back = "/mundo",
   ancho = "md",
   npc,
 }: {
@@ -25,7 +25,7 @@ export function Pantalla({
       <div className={`relative z-10 mx-auto px-4 pt-6 ${ancho === "lg" ? "max-w-2xl" : "max-w-md"}`} style={{ paddingTop: "max(24px, env(safe-area-inset-top))" }}>
         {back && (
           <Link href={back} className="px-chip mb-4">
-            ← Volver
+            {back.startsWith("/mundo") ? "← Volver al mundo" : "← Volver"}
           </Link>
         )}
         <section className="px-box anim-pop relative p-5">

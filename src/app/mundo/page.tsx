@@ -55,6 +55,7 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/mundo">["
               seasonId: yo.seasonId,
               dia: estado?.fase === "en-curso" ? estado.dia : 0,
               prueba: yo.prueba,
+              admin: yo.role === "admin" && yo.status === "active",
             }
           : null
       }

@@ -39,7 +39,7 @@ src/lib/server/       db, sesión, seguridad, rate limit, consultas (import "ser
 src/lib/cliente/      fetch con timeout + reintento para el navegador
 src/features/mundo/   mapas (Snowville + submundos) y rutas A* — puros, con tests
 src/components/mundo/ motor canvas, arte en código, personajes, red en vivo, interfaz
-src/components/       rpg/ (NPCs, avatar), games/, ui/, village/ (aldea panorámica de la portada)
+src/components/       rpg/ (NPCs, avatar, retratos), games/, ui/, village/ (solo el cielo por hora: Sky)
 tests/                node:test (`npm test`)
 ```
 

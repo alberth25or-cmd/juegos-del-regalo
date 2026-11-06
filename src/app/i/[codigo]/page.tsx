@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Invitación" };
 
 export default function InvitacionPage({ params }: PageProps<"/i/[codigo]">) {
   return (
-    <Pantalla title="Te invitaron a Snowville" kicker="Invitación" npc="duende">
+    <Pantalla back="/" title="Te invitaron a Snowville" kicker="Invitación" npc="duende">
       <Suspense fallback={<Cargando texto="Buscando la temporada…" />}>
         <Contenido params={params} />
       </Suspense>
@@ -31,7 +31,7 @@ async function Contenido({ params }: { params: PageProps<"/i/[codigo]">["params"
           Ya estás en <b>{temporada.name}</b> como <b>{yo.displayName}</b>.
         </p>
         <Link href="/" className="px-btn" style={{ ["--bg" as string]: "var(--gold)" }}>
-          Ir a la plaza
+          Entrar a Snowville
         </Link>
       </div>
     );
