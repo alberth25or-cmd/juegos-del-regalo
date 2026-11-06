@@ -1,6 +1,6 @@
 # Los Juegos del Regalo — Temporada Christmas Chaos
 
-Juego social web para ~20 amigos: 30 días (25 nov → 24 dic, hora de Lima) en Snowville,
+Juego social web para 20 a 40 amigos: 30 días (25 nov → 24 dic, hora de Lima) en Snowville,
 un pueblo navideño pixel art en quiebra. Minijuegos, equipos, votaciones, humor consensuado
 y amigo secreto. En línea: https://juegos-del-regalo.vercel.app
 
@@ -28,7 +28,7 @@ npm install
 npm test                      # reglas críticas (puntuación, validación, calendario, equipos)
 npm run db:local              # Postgres local en memoria (PGlite) en :54329
 node scripts/dev-local.mjs    # app en http://localhost:3100 contra la BD local
-npm run sim                   # 20 jugadores simultáneos contra el servidor LOCAL
+npm run sim                   # 20 jugadores simultáneos contra el servidor LOCAL (SIM_N=40 para 40)
 npm run sim:prueba            # temporada de prueba (simular días, sin topes) contra el servidor LOCAL
 ```
 

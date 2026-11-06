@@ -17,7 +17,8 @@ if (!/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(BASE)) {
   console.error("Solo se permite simular contra un servidor local.");
   process.exit(1);
 }
-const N = 20;
+const N = Number(process.env.SIM_N || 20);
+const M = N - 1;
 const fallos = [];
 const tiempos = [];
 
@@ -67,7 +68,7 @@ check(r.status === 201 && r.inviteCode, `crear temporada (${r.status})`);
 const codigo = r.inviteCode;
 
 // 2) 19 inscripciones simultáneas (cada uno desde su "celular")
-const jugadores = Array.from({ length: N - 1 }, (_, i) => new Cliente(`j${i}`, `10.0.1.${i + 2}`));
+const jugadores = Array.from({ length: M }, (_, i) => new Cliente(`j${i}`, `10.0.1.${i + 2}`));
 let t0 = performance.now();
 const altas = await Promise.all(
   jugadores.map((j, i) =>
@@ -76,7 +77,7 @@ const altas = await Promise.all(
 );
 check(
   altas.every((a) => a.status === 201),
-  `19 inscripciones a la vez en ${Math.round(performance.now() - t0)} ms (${altas.filter((a) => a.status === 201).length}/19 ok)`,
+  `${M} inscripciones a la vez en ${Math.round(performance.now() - t0)} ms (${altas.filter((a) => a.status === 201).length}/${M} ok)`,
 );
 altas.forEach((a, i) => a.status !== 201 && console.log("   ", jugadores[i].nombre, a.status, a.error));
 
@@ -99,7 +100,7 @@ const pendientesResp = await Promise.all(
     return admin.pedir("/api/admin", { accion: "aprobar", playerId: yo.yo.id });
   }),
 );
-check(pendientesResp.every((p) => p.ok), `aprobar 19 jugadores en paralelo (${pendientesResp.filter((p) => p.ok).length}/19)`);
+check(pendientesResp.every((p) => p.ok), `aprobar ${M} jugadores en paralelo (${pendientesResp.filter((p) => p.ok).length}/${M})`);
 r = await admin.pedir("/api/admin", { accion: "repartir" });
 check(r.ok, "repartir equipos al azar");
 const hoy = diaLocal(new Date());
@@ -114,14 +115,18 @@ const pins = ["2580", ...jugadores.map((_, i) => `${(3141 + i * 7) % 10000}`.pad
 const nuevos = todos.map((c) => new Cliente(c.nombre, c.ip));
 t0 = performance.now();
 const logins = await Promise.all(nuevos.map((c, i) => c.pedir("/api/entrar", { username: usuarios[i], pin: pins[i] })));
-check(logins.every((l) => l.ok), `20 ingresos con usuario+PIN a la vez en ${Math.round(performance.now() - t0)} ms (${logins.filter((l) => l.ok).length}/20)`);
+check(logins.every((l) => l.ok), `${N} ingresos con usuario+PIN a la vez en ${Math.round(performance.now() - t0)} ms (${logins.filter((l) => l.ok).length}/${N})`);
 r = await new Cliente("malo", "10.0.8.8").pedir("/api/entrar", { username: usuarios[3], pin: "0000" });
 check(r.status === 401, "PIN incorrecto se rechaza");
 
-// 6) 20 partidas a la vez
+// 5b) Todos en la MISMA red Wi-Fi (misma IP): nadie debe quedar bloqueado.
+const misma = await Promise.all(todos.map((c, i) => new Cliente(c.nombre, "10.7.7.7").pedir("/api/entrar", { username: usuarios[i], pin: pins[i] })));
+check(misma.every((l) => l.ok), `${N} ingresos desde la misma Wi-Fi (${misma.filter((l) => l.ok).length}/${N})`);
+
+// 6) Todas las partidas a la vez
 t0 = performance.now();
 const partidas = await Promise.all(nuevos.map((c) => c.pedir("/api/partidas", {})));
-check(partidas.every((p) => p.status === 201), `20 partidas iniciadas a la vez en ${Math.round(performance.now() - t0)} ms`);
+check(partidas.every((p) => p.status === 201), `${N} partidas iniciadas a la vez en ${Math.round(performance.now() - t0)} ms`);
 console.log("   …esperando 61 s (una partida real: cuenta regresiva + 60 s de juego)…");
 await esperar(61_000);
 
@@ -135,9 +140,9 @@ const envios = partidas.map((p, i) => {
 envios[5].body = { ...envios[5].body, puntaje: envios[5].body.puntaje + 500 };
 t0 = performance.now();
 const cierres = await Promise.all(nuevos.map((c, i) => c.pedir(`/api/partidas/${envios[i].id}`, envios[i].body)));
-check(cierres.every((c) => c.ok), `20 partidas validadas a la vez en ${Math.round(performance.now() - t0)} ms`);
+check(cierres.every((c) => c.ok), `${N} partidas validadas a la vez en ${Math.round(performance.now() - t0)} ms`);
 check(cierres[5].resultado?.valida === false, "la partida con puntaje inflado se rechaza");
-check(cierres.filter((c, i) => i !== 5).every((c) => c.resultado?.valida), "las 19 partidas honestas son válidas");
+check(cierres.filter((c, i) => i !== 5).every((c) => c.resultado?.valida), `las ${M} partidas honestas son válidas`);
 cierres.forEach((c, i) => i !== 5 && !c.resultado?.valida && console.log("   ", i, c.status, c.error ?? c.resultado?.motivo));
 check(
   cierres.filter((c, i) => i !== 5).every((c) => c.resultado.puntos === puntosDelDia(c.resultado.puntaje)),
@@ -157,9 +162,10 @@ check(r.status === 404, "no se puede cerrar la partida de otro");
 
 // 7) Ranking
 const rk = await nuevos[0].pedir("/api/ranking");
-check(rk.jugadores?.length === 20, `ranking con 20 jugadores (${rk.jugadores?.length})`);
+check(rk.jugadores?.length === N, `ranking con ${N} jugadores (${rk.jugadores?.length})`);
 const suma = rk.equipos.reduce((a, e) => a + e.integrantes, 0);
-check(suma === 20 && rk.equipos.every((e) => e.integrantes === 5), `4 equipos de 5 (${rk.equipos.map((e) => e.integrantes).join("/")})`);
+const tam = rk.equipos.map((e) => e.integrantes);
+check(suma === N && Math.max(...tam) - Math.min(...tam) <= 1, `4 equipos parejos (${tam.join("/")})`);
 const e0 = rk.equipos[0];
 const miembros = rk.jugadores.filter((j) => j.teamId === e0.id);
 check(Math.abs(e0.promedio - miembros.reduce((a, j) => a + j.points, 0) / miembros.length) < 0.06, "el ranking de equipos usa el promedio");
@@ -168,8 +174,8 @@ check(tramposo && tramposo.points === 0, "el tramposo no sumó puntos");
 
 // 8) 60 lecturas simultáneas de la plaza/ranking
 t0 = performance.now();
-const lecturas = await Promise.all(Array.from({ length: 60 }, (_, k) => nuevos[k % 20].pedir(k % 2 ? "/api/ranking" : "/api/plaza")));
-check(lecturas.every((l) => l.ok), `60 lecturas simultáneas en ${Math.round(performance.now() - t0)} ms`);
+const lecturas = await Promise.all(Array.from({ length: N * 3 }, (_, k) => nuevos[k % N].pedir(k % 2 ? "/api/ranking" : "/api/plaza")));
+check(lecturas.every((l) => l.ok), `${N * 3} lecturas simultáneas en ${Math.round(performance.now() - t0)} ms`);
 
 // 9) El ledger no se puede editar ni con un ajuste raro
 r = await admin.pedir("/api/admin", { accion: "ajustar", playerId: rk.jugadores[0].id, puntos: 9999, motivo: "prueba" });

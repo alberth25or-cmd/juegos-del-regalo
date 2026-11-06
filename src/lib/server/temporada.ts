@@ -19,7 +19,8 @@ import { iniciarSesion } from "./sesion";
 
 /** Operaciones de temporada, ingreso y administración. Todas en el servidor. */
 
-const MAX_JUGADORES = 40;
+/** Pensado para 20 a 40 jugadores; se deja margen. Los rechazados no cuentan. */
+const MAX_JUGADORES = 50;
 
 export interface DatosJugador {
   username: string;
@@ -121,7 +122,7 @@ export async function unirse(input: { codigo: string; jugador: DatosJugador }) {
   try {
     return await conTope(
       sql.begin(async (tx) => {
-        const [{ total }] = await tx`select count(*)::int as total from cc.players where season_id = ${s.id}`;
+        const [{ total }] = await tx`select count(*)::int as total from cc.players where season_id = ${s.id} and status <> 'rejected'`;
         if (total >= MAX_JUGADORES) throw new ErrorDeUsuario("Esta temporada ya está llena.");
         const [p] = await tx`
           insert into cc.players (season_id, username, display_name, avatar, pin_hash)

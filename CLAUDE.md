@@ -2,7 +2,7 @@
 
 # Los Juegos del Regalo — temporada "Christmas Chaos"
 
-Juego social web multijugador para ~20 amigos (4 equipos de 5) durante una
+Juego social web multijugador para 20 a 40 amigos (4 equipos) durante una
 temporada navideña de 30 días (25 nov → 24 dic, hora `America/Lima`). Mundo
 RPG pixel art (Snowville) con minijuegos, cooperación, votaciones, humor negro
 consensuado y amigo secreto. El documento maestro es la fuente de verdad:
@@ -69,7 +69,7 @@ tests/                node:test (`npm test`)
 - `npm run dev` — desarrollo (sin `.env.local` corre sin BD; con `npm run db:local` usa una BD local).
 - `npm run db:local` — Postgres local en memoria (PGlite) en el puerto 54329 para probar.
 - `npm test` — tests de reglas críticas.
-- `npm run sim` — simula 20 jugadores a la vez contra un servidor LOCAL (nunca contra producción).
+- `npm run sim` — simula 20 jugadores a la vez contra un servidor LOCAL (nunca contra producción). `SIM_N=40 npm run sim` para 40.
 - `npm run build` — migraciones + build.
 
 ## Commits

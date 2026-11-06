@@ -22,10 +22,14 @@ export async function permitir(clave: string, maximo: number, ventanaSeg: number
   return (r?.hits ?? 1) <= maximo;
 }
 
-/** Límites usados en la app (por IP salvo que diga otra cosa). */
+/**
+ * Límites usados en la app (por IP salvo que diga otra cosa). Ojo: 40 amigos en la
+ * misma red Wi-Fi comparten IP, por eso los límites por IP son holgados; la defensa
+ * fuerte contra adivinar PINs es el bloqueo por CUENTA (5 fallos → 15 min).
+ */
 export const LIMITES = {
-  entrar: { max: 12, ventana: 15 * 60 },
-  unirse: { max: 8, ventana: 60 * 60 },
+  entrar: { max: 80, ventana: 15 * 60 },
+  unirse: { max: 60, ventana: 60 * 60 },
   crearTemporada: { max: 3, ventana: 60 * 60 },
   partidasPorDia: { max: 60, ventana: 24 * 60 * 60 },
   admin: { max: 120, ventana: 60 },
