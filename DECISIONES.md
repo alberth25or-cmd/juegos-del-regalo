@@ -1,5 +1,29 @@
 # Decisiones del proyecto
 
+## Diseño de interfaz — Frente 1 (2026-11-06)
+
+Hecho con la skill `ui-ux-pro-max` (sistema de diseño + guías de UX) y aplicando `ponytail`
+(reusar `px-box`, `PixelIcon` y los sprites; sin dependencias nuevas). Detalle y tabla de contrastes:
+`design-system/los-juegos-del-regalo/MASTER.md`. Vista con datos de ejemplo en **`/diseno`**.
+
+- **Tema noche** para las pantallas de juego: azul noche, dorado, rojo y crema (la paleta aprobada,
+  no la que propuso la herramienta).
+- **Rojo de botón `--cta` (#c8304a)** en vez de `--cherry`: con texto crema llega a 4.9:1; `--cherry` no
+  pasa 4.5:1 y queda solo como decoración.
+- **Tipografía:** Pixelify Sans solo en títulos y cifras; DM Sans en texto (se descartó VT323 por lectura).
+- **Riel de avance:** se agrupan las cabezas por stage (1 en celular, 3 en computadora, más "+N"),
+  porque con 20–40 agentes no caben una por una.
+- **Árbol:** los huecos se reparten al azar con semilla fija y las cabezas se ordenan por alias, para
+  no revelar el orden de inscripción.
+- **Panel del organizador:** "Avance · por alias" y "Contraseñas · por usuario" en pestañas distintas;
+  nunca en la misma vista. "Empezar" pide confirmación porque no se puede deshacer.
+- **Íconos nuevos** `heart` (Amor) y `chili` (Picante), en pixel art y sin emojis.
+
+Pendiente para los frentes 2–5: conectar estas pantallas a datos reales. `/diseno` se puede borrar
+cuando todas estén conectadas.
+
+---
+
 ## Reorientación: amigo secreto con agentes y stages en orden (2026-11-06)
 
 Sesión de brainstorming con Cesar (skill `brainstorming` de Superpowers). Diseño completo:

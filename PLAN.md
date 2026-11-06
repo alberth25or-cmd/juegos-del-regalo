@@ -10,7 +10,7 @@ de las otras carpetas de plugins del espacio de trabajo (`ui-ux-pro-max-skill/`,
 | # | Frente | Qué entrega | Depende de |
 |---|---|---|---|
 | 0 | **Ideas, decisiones y estilo** ✅ | Diseño, decisiones y bocetos (esta sesión) | — |
-| 1 | **Diseño de interfaz** | Sistema visual y pantallas en celular y computadora: árbol de espera, barra superior (cabezas + ranking), carrusel de stages (opción B), ficha de inscripción, ficha del amigo secreto, panel del organizador. Partir de `docs/superpowers/bocetos/` | 0 |
+| 1 | **Diseño de interfaz** ✅ | Hecho en `/diseno` con datos de ejemplo; tokens y reglas en `design-system/los-juegos-del-regalo/MASTER.md`. Sistema visual y pantallas en celular y computadora: árbol de espera, barra superior (cabezas + ranking), carrusel de stages (opción B), ficha de inscripción, ficha del amigo secreto, panel del organizador. Partir de `docs/superpowers/bocetos/` | 0 |
 | 2 | **Inscripción y árbol** | Enlace → registro con alias al azar → ficha obligatoria → árbol con capacidad → "Empezar" (sorteo secreto + puerta cerrada) | 1 |
 | 3 | **Motor de stages y ranking** | Stages con fecha + "superado", intervalo configurable, penalidades, ranking individual siempre visible; se retiran los equipos y queda solo la moneda de puntos | 2 |
 | 4 | **Contenido de stages** | S1 con los minijuegos existentes, S2 La manada, S3 Amor, S4 Picante (con "Paso" y consentimiento), S5 Juicio final | 3 |
