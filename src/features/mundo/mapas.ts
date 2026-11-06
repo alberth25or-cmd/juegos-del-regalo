@@ -210,7 +210,7 @@ function construirSnowville(): Sala {
 
   // Plaza central con el árbol gigante.
   L.pintar(16, 12, 14, 12, "plaza");
-  L.objeto({ tipo: "arbolPlaza", x: 21, y: 15, w: 4, h: 3 });
+  L.objeto({ tipo: "arbolPlaza", x: 21, y: 15, w: 4, h: 3, interaccion: { titulo: "El árbol de Snowville", texto: "Se enciende con la energía de todos: cada partida y cada voto suma. Al 100 %, Santa reparte monedas.", href: "/energia" } });
   for (const [x, y] of [
     [16, 12],
     [29, 12],
@@ -294,7 +294,7 @@ const ARCADE = () =>
       variante: 0,
       interaccion: { titulo: "Gift Catcher", texto: "Santa en bancarrota: atrapa regalos, esquiva facturas. Tu mejor partida del día suma al ranking.", href: "/arcade/gift-catcher" },
     });
-    L.objeto({ tipo: "maquina", x: 6, y: 2, w: 2, h: 1, variante: 1, interaccion: { titulo: "Memory Gifts", texto: "Memoria del desastre: encuentra los pares, solo o por turnos con tu equipo.", abre: "Fase 2" } });
+    L.objeto({ tipo: "maquina", x: 6, y: 2, w: 2, h: 1, variante: 1, interaccion: { titulo: "Memory Gifts", texto: "Memoria del desastre: encuentra los 8 pares con pocos movimientos. Tu mejor partida del día suma al ranking.", href: "/arcade/memory" } });
     L.objeto({ tipo: "maquina", x: 10, y: 2, w: 2, h: 1, variante: 2, interaccion: { titulo: "Aguanta el botón", texto: "Reflejos de duende en huelga.", abre: "Fase 2" } });
     L.objeto({ tipo: "mesa", x: 2, y: 6, w: 2, h: 1 });
     L.objeto({ tipo: "mesa", x: 11, y: 6, w: 2, h: 1 });
@@ -320,7 +320,7 @@ const FABRICA = () =>
       y: 2,
       w: 2,
       h: 1,
-      interaccion: { titulo: "Energía navideña", texto: "Los 20 contra el desastre: juntos tienen que reunir 10 000 de energía para encender el árbol de la plaza.", abre: "Fase 2" },
+      interaccion: { titulo: "Energía navideña", texto: "Los 20 contra el desastre: toda la XP que ganan entre todos enciende el árbol de la plaza.", href: "/energia" },
     });
     L.objeto({ tipo: "estante", x: 1, y: 2, w: 3, h: 1 });
     L.npcs.push({ id: "duende", x: 8, y: 8, radio: 3 });
@@ -334,7 +334,7 @@ const TABLON = () =>
       y: 1,
       w: 7,
       h: 2,
-      interaccion: { titulo: "¿Quién es más probable…?", texto: "Una pregunta, un voto por persona, resultados al cierre con comentario del Auditor.", abre: "Fase 3" },
+      interaccion: { titulo: "¿Quién es más probable…?", texto: "Una pregunta, un voto secreto por persona. Cuando votan todos, el Auditor revela quién ganó.", href: "/votacion" },
     });
     L.objeto({ tipo: "cabina", x: 12, y: 3, w: 2, h: 2, interaccion: { titulo: "Confesionario", texto: "Responde anónimo (para los jugadores) y adivina quién escribió qué.", abre: "Fase 3" } });
     L.objeto({ tipo: "microfono", x: 2, y: 4, w: 1, h: 1, interaccion: { titulo: "Roast Battle", texto: "Solo voluntarios. Dos personas, una situación absurda y el grupo vota.", abre: "Fase 3" } });
@@ -383,7 +383,7 @@ function construirArena(): Sala {
   L.pintar(0, 0, 18, 2, "muro");
   L.pintar(4, 4, 10, 6, "plaza");
   L.objeto({ tipo: "ring", x: 6, y: 5, w: 6, h: 3, bloquea: false });
-  L.objeto({ tipo: "podio", x: 2, y: 3, w: 2, h: 1, interaccion: { titulo: "Juicio del Polo Norte", texto: "Trivia absurda por equipos. Cuenta el promedio del equipo.", abre: "Fase 3" } });
+  L.objeto({ tipo: "podio", x: 2, y: 3, w: 2, h: 1, interaccion: { titulo: "Juicio del Polo Norte", texto: "Trivia por equipos: 8 preguntas, 15 segundos cada una. Cuenta el promedio de tu equipo.", href: "/arena/trivia" } });
   L.objeto({ tipo: "marcador", x: 13, y: 2, w: 3, h: 1, interaccion: { titulo: "Marcador de equipos", texto: "Ranking por equipos en vivo.", href: "/ranking" } });
   L.objeto({ tipo: "muneco", x: 15, y: 9, interaccion: { titulo: "Guerra de nieve", texto: "Por rondas: defiende tu base y captura la del rival.", abre: "Fase 5" } });
   L.objeto({ tipo: "roca", x: 2, y: 9 });

@@ -122,6 +122,7 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
     const canvas = lienzo.current;
     if (!canvas) return;
     let vivo = true;
+    let relojEnergia: number | undefined;
     const guardada = leerPos();
     const inicio = guardada && guardada.sala === salaInicial ? { x: guardada.x, y: guardada.y } : undefined;
     const r = crearRed(realtime, !!jugador);
@@ -201,6 +202,13 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
         }
       });
       if (jugador) {
+        // Las luces del árbol de la plaza muestran la energía navideña del grupo.
+        const energia = async () => {
+          const res = await api<{ energia: { pct: number } }>("/api/energia", { intentos: 1, tope: 8000 });
+          if (res.ok && motor.current) motor.current.energia = res.energia.pct;
+        };
+        void energia();
+        relojEnergia = window.setInterval(() => document.visibilityState === "visible" && void energia(), 60_000);
         const p = inicio ?? salaPorId(salaInicial).inicio;
         r.unir(topico(jugador.seasonId, salaInicial), presencia(p.x, p.y));
         void cargarChat(salaInicial);
@@ -213,6 +221,7 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
     window.addEventListener("ligero-cambio", ligero);
     return () => {
       vivo = false;
+      window.clearInterval(relojEnergia);
       ro.disconnect();
       window.removeEventListener("ligero-cambio", ligero);
       motor.current?.detener();
@@ -433,7 +442,7 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
                 <p className="text-[0.92rem]">{hoja.i.texto}</p>
                 {hoja.i.href ? (
                   <Link href={hoja.i.href} className="px-btn shine" style={{ ["--bg" as string]: "var(--cherry)", color: "var(--cream)" }}>
-                    ▶ {hoja.i.href.startsWith("/arcade") ? "Jugar" : "Abrir"}
+                    ▶ {hoja.i.href === "/ranking" ? "Abrir" : "Jugar"}
                   </Link>
                 ) : (
                   <span className="px-chip self-start" style={{ ["--chip" as string]: "var(--lavender)" }}>
@@ -552,6 +561,8 @@ function Menu({ admin, visitante, onAyuda }: { admin: boolean; visitante: boolea
       ]
     : [
         ["🏆", "Ranking", "/ranking"],
+        ["🗳️", "¿Quién es más probable…? (votar)", "/votacion"],
+        ["⚡", "Energía navideña del grupo", "/energia"],
         ["📰", "Noticias y mi progreso", "/plaza"],
         ["👤", "Mi perfil y mi personaje", "/perfil"],
         ...(admin ? ([["⚙️", "Panel del organizador", "/admin"]] as [string, string, string][]) : []),

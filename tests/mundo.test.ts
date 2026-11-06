@@ -78,3 +78,9 @@ test("filtro de chat: limpia, recorta y bloquea lo discriminatorio", () => {
   assert.ok(m.ok && !m.texto.includes("mierda"));
   assert.ok(FRASES_RAPIDAS.length >= 8);
 });
+
+test("los juegos nuevos tienen su puerta en el mundo (no 'Próximamente')", () => {
+  const hrefs = new Set<string>();
+  for (const id of SALAS_IDS) for (const o of sala(id).objetos) if (o.interaccion?.href) hrefs.add(o.interaccion.href);
+  for (const h of ["/arcade/gift-catcher", "/arcade/memory", "/arena/trivia", "/votacion", "/energia"]) assert.ok(hrefs.has(h), h);
+});

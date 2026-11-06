@@ -19,8 +19,12 @@ function texto(n: NoticiaVista) {
       return { e: "🧑‍🎄", t: `${nombre} firmó contrato con la fábrica. Sin seguro médico, como todos.` };
     case "equipos_sorteados":
       return { e: "🎲", t: "Se sortearon los equipos. Las alianzas empiezan… y las traiciones también." };
-    case "record_personal":
-      return { e: "🏆", t: `${nombre} rompió su récord en Gift Catcher: ${String(n.payload.puntaje ?? "")} pts.` };
+    case "record_personal": {
+      const juego = { memory: "Memory Gifts", trivia: "el Juicio del Polo Norte" }[String(n.payload.juego ?? "")] ?? "Gift Catcher";
+      return { e: "🏆", t: `${nombre} rompió su récord en ${juego}: ${String(n.payload.puntaje ?? "")} pts.` };
+    }
+    case "energia_hito":
+      return { e: "🎄", t: `${String(n.payload.hito ?? "")} % de energía: ${String(n.payload.mensaje ?? "")}` };
     default:
       return { e: "📰", t: "Algo pasó en Snowville. El Auditor lo está investigando." };
   }

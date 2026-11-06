@@ -105,6 +105,11 @@ export async function eventosDeTemporada(seasonId: string) {
 
 /** Resumen de mi progreso en Gift Catcher (hoy y récord). */
 export async function miGiftCatcher(playerId: string) {
+  return misStats(playerId, "gift-catcher");
+}
+
+/** Mi progreso en un juego (hoy y récord). */
+export async function misStats(playerId: string, juego: string) {
   const [r] = await conTope(() => db()`
     select
       coalesce(max(score) filter (where local_day = (now() at time zone 'America/Lima')::date), 0)::int as mejor_hoy,
@@ -112,19 +117,24 @@ export async function miGiftCatcher(playerId: string) {
       count(*) filter (where local_day = (now() at time zone 'America/Lima')::date)::int as partidas_hoy,
       (select coalesce(sum(points), 0)::int from cc.score_ledger
         where player_id = ${playerId} and source_type = 'juego-dia'
-          and source_id = 'gift-catcher:' || ((now() at time zone 'America/Lima')::date)::text) as puntos_hoy
+          and source_id = ${juego} || ':' || ((now() at time zone 'America/Lima')::date)::text) as puntos_hoy
     from cc.game_attempts
-    where player_id = ${playerId} and game_slug = 'gift-catcher' and status = 'validated'
+    where player_id = ${playerId} and game_slug = ${juego} and status = 'validated'
   `);
   return { mejorHoy: r.mejor_hoy as number, record: r.record as number, partidasHoy: r.partidas_hoy as number, puntosHoy: r.puntos_hoy as number };
 }
 
 /** Mejores puntajes de Gift Catcher de la temporada (récord de cada jugador). */
 export async function recordsGiftCatcher(seasonId: string, limite = 5) {
+  return records(seasonId, "gift-catcher", limite);
+}
+
+/** Récord de cada jugador en un juego, los mejores primero. */
+export async function records(seasonId: string, juego: string, limite = 5) {
   const rows = await conTope(() => db()`
     select p.display_name, p.avatar, max(a.score)::int as record
     from cc.game_attempts a join cc.players p on p.id = a.player_id
-    where a.season_id = ${seasonId} and a.game_slug = 'gift-catcher' and a.status = 'validated' and p.status = 'active'
+    where a.season_id = ${seasonId} and a.game_slug = ${juego} and a.status = 'validated' and p.status = 'active'
     group by p.id, p.display_name, p.avatar
     order by record desc limit ${limite}
   `);
@@ -145,4 +155,29 @@ export async function metricas(seasonId: string) {
         and started_at < now() - interval '10 minutes') as abandonadas
   `);
   return r as { activos: number; pendientes: number; jugaron_hoy: number; partidas: number; rechazadas: number; abandonadas: number };
+}
+
+/**
+ * Trivia por equipos de HOY: promedio del mejor puntaje de cada integrante activo
+ * (quien no jugó cuenta 0, para que gane el equipo que juega junto, no el que tiene un genio).
+ */
+export async function triviaEquiposHoy(seasonId: string) {
+  const rows = await conTope(() => db()`
+    select t.id, t.name, t.color, t.emblem,
+           count(p.id)::int as integrantes,
+           count(m.mejor)::int as jugaron,
+           coalesce(round(sum(coalesce(m.mejor, 0))::numeric / nullif(count(p.id), 0), 1), 0)::float as promedio
+    from cc.teams t
+    left join cc.players p on p.team_id = t.id and p.status = 'active'
+    left join (
+      select player_id, max(score) as mejor from cc.game_attempts
+      where season_id = ${seasonId} and game_slug = 'trivia' and status = 'validated'
+        and local_day = (now() at time zone 'America/Lima')::date
+      group by player_id
+    ) m on m.player_id = p.id
+    where t.season_id = ${seasonId}
+    group by t.id, t.name, t.color, t.emblem
+    order by promedio desc, t.name
+  `);
+  return rows.map((r) => ({ id: r.id as string, nombre: r.name as string, color: r.color as string, emblema: r.emblem as string, integrantes: r.integrantes as number, jugaron: r.jugaron as number, promedio: Number(r.promedio) }));
 }

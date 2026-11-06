@@ -42,6 +42,32 @@ Reglas del ranking:
 - **Puntos de ranking:** solo el mejor resultado del día: 20 por jugar + hasta 80 según el puntaje (tope 100/día).
 - Se puede jugar las veces que quieras; los puntos no suben por repetir.
 
+## Adelantados de la Fase 2 (pedido de Luis, 6 nov)
+
+Todos usan el mismo esquema seguro que Gift Catcher: el servidor crea la partida
+(semilla + hora), el navegador juega y el servidor recalcula el resultado. Puntos de
+ranking: mejor partida del día por juego (20 + hasta 80); en temporada de prueba cada
+partida suma.
+
+- **Memory Gifts** (`/arcade/memory`, máquina del Arcade): 16 cartas, 8 pares. El navegador
+  manda los volteos en orden; el servidor los repite sobre el mazo de la semilla. Puntaje
+  1000 con la partida perfecta, −30 por movimiento extra, −4 por segundo después de 20 s.
+  Rechaza partidas sin terminar o más rápidas de 0,5 s por movimiento.
+- **Juicio del Polo Norte** (`/arena/trivia`, podio de la Arena): 8 preguntas de 38, 15 s cada
+  una. El navegador recibe las preguntas SIN la respuesta (el catálogo nunca llega al
+  navegador). Puntaje = 100 por acierto + bono por rapidez. Por equipos: promedio del mejor
+  puntaje de hoy de cada integrante activo (quien no jugó cuenta 0).
+- **¿Quién es más probable…?** (`/votacion`, Tablón del Caos): un voto secreto por persona y
+  ronda, nunca por uno mismo. Ronda = día de Lima (temporada real) o 4 minutos (prueba).
+  Resultados ocultos hasta que votan todos o cierra la ronda, con comentario del Auditor.
+  Votar da +5 XP, +3 monedas y +10 puntos (una vez por ronda). 38 preguntas revisadas.
+- **Energía navideña** (`/energia`, árbol de la plaza y medidor de la Fábrica): toda la XP del
+  grupo es energía. Meta = 500 por jugador activo (10 000 con 20), mínimo 3 000. Hitos al
+  25/50/75/100 % salen en Noticias; al 100 % cada jugador activo recibe 50 monedas. Las luces
+  del árbol de la plaza se encienden según el porcentaje.
+
+Prueba de punta a punta contra el servidor local: `npm run sim:juegos`.
+
 ## Ritmo de la temporada (decidido por Luis el 2026-11-06)
 
 **Todo abierto desde el día 1.** Ningún juego espera "su día": así se puede probar todo

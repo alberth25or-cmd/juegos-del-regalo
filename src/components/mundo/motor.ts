@@ -97,6 +97,8 @@ export class Motor {
   private copos = Array.from({ length: 50 }, () => ({ x: Math.random(), y: Math.random(), v: 0.02 + Math.random() * 0.04, d: Math.random() * 6 }));
   private humo: { x: number; y: number; t: number }[] = [];
   ligero = false;
+  /** Energía navideña del grupo (0–100 %): enciende las luces del árbol de la plaza. */
+  energia = 0;
   vivo = true;
   private errorVisto = false;
 
@@ -547,10 +549,18 @@ export class Motor {
       }
     }
     // Lucecitas del árbol de la plaza
+    // (cuántas se encienden depende de la energía navideña del grupo)
     const arbol = this.sala.objetos.find((o) => o.tipo === "arbolPlaza");
     if (arbol) {
       const cols = ["#ff5a7a", "#ffd23f", "#7ce0ff", "#b9f5a7", "#ffffff"];
-      for (let k = 0; k < 22; k++) {
+      const encendidas = Math.round(3 + (Math.max(0, Math.min(100, this.energia)) / 100) * 37);
+      if (this.energia >= 100) {
+        const p = this.aPantalla((arbol.x + arbol.w / 2) * T, (arbol.y + arbol.h) * T - 98);
+        const s = Math.round((4 + Math.sin(t / 250)) * this.k);
+        ctx.fillStyle = "#ffd23f";
+        ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
+      }
+      for (let k = 0; k < encendidas; k++) {
         if ((Math.floor(t / 300) + k) % 3 === 0) continue;
         const fx = hash("luz", k);
         const fy = hash("luzy", k);
