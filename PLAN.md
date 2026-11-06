@@ -1,4 +1,29 @@
-# Plan por fases — Christmas Chaos
+# Plan — reorientación (2026-11-06)
+
+Fuente de verdad: `docs/superpowers/specs/2026-11-06-reorientacion-design.md` y la sección del
+6 nov en `DECISIONES.md`. Cada frente se trabaja en **su propia sesión de Claude Code**, en este
+orden. Antes de construir, cada sesión usa la skill `superpowers:writing-plans` (en
+`superpowers/skills/`) para armar su plan, y puede usar otras skills de Superpowers
+(brainstorming si aparece algo nuevo, test-driven-development, verification-before-completion) o
+de las otras carpetas de plugins del espacio de trabajo (`ui-ux-pro-max-skill/`, `ponytail/`).
+
+| # | Frente | Qué entrega | Depende de |
+|---|---|---|---|
+| 0 | **Ideas, decisiones y estilo** ✅ | Diseño, decisiones y bocetos (esta sesión) | — |
+| 1 | **Diseño de interfaz** | Sistema visual y pantallas en celular y computadora: árbol de espera, barra superior (cabezas + ranking), carrusel de stages (opción B), ficha de inscripción, ficha del amigo secreto, panel del organizador. Partir de `docs/superpowers/bocetos/` | 0 |
+| 2 | **Inscripción y árbol** | Enlace → registro con alias al azar → ficha obligatoria → árbol con capacidad → "Empezar" (sorteo secreto + puerta cerrada) | 1 |
+| 3 | **Motor de stages y ranking** | Stages con fecha + "superado", intervalo configurable, penalidades, ranking individual siempre visible; se retiran los equipos y queda solo la moneda de puntos | 2 |
+| 4 | **Contenido de stages** | S1 con los minijuegos existentes, S2 La manada, S3 Amor, S4 Picante (con "Paso" y consentimiento), S5 Juicio final | 3 |
+| 5 | **Ficha final y panel del organizador** | Ficha privada del amigo secreto; configuración solo para el creador; panel que nunca revela sorteo, alias ni respuestas | 3 |
+
+Antes del frente 2 hay que cerrar las preguntas abiertas del §12 del diseño, sobre todo si las
+opciones de regalo se ven antes del 20 dic.
+
+---
+
+# (Histórico) Plan por fases — Christmas Chaos
+
+> Reemplazado por la reorientación del 2026-11-06. Se conserva como referencia de lo construido.
 
 Cada fase termina en una versión publicada y probable. "Hecho" = conectado a datos reales,
 validado en el servidor, con estados de carga/error, probado en móvil y con al menos dos

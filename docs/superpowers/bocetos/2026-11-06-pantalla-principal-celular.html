@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pantalla principal · v2</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#1b1d22;color:#e9e6df;font-family:system-ui,Segoe UI,sans-serif;padding:24px}
+  h1{font-size:24px;margin:0 0 6px}
+  .sub{color:#a9a49a;margin:0 0 24px;max-width:900px;line-height:1.45}
+  .cards{display:flex;flex-wrap:wrap;gap:36px;justify-content:center}
+  .opt{width:380px;cursor:pointer;border:3px solid transparent;border-radius:16px;padding:10px;transition:.15s}
+  .opt:hover{border-color:#5a5f6b}
+  .opt.selected{border-color:#e8455a;background:#2a1d22}
+  .opt h3{font-size:19px;margin:14px 4px 4px}
+  .opt p{margin:0 4px;color:#b9b4aa;line-height:1.45;font-size:14px}
+
+  /* ---------- teléfono ---------- */
+  .phone{width:360px;height:700px;margin:0 auto;background:#0f1d3a;border:6px solid #2b2b2b;border-radius:28px;overflow:hidden;color:#f6ecd6;font-size:14px;display:flex;flex-direction:column}
+  .px{font-family:"Courier New",monospace;font-weight:700}
+  .top{background:#16284f;padding:12px 14px 10px;border-bottom:4px solid #d9a93a;flex:none}
+  .row{display:flex;justify-content:space-between;align-items:center}
+  .alias{font-size:13px;opacity:.85}
+  .pts{background:#0f1d3a;border:2px solid #d9a93a;border-radius:6px;padding:3px 8px;font-size:14px}
+  .track{position:relative;height:50px;margin-top:10px}
+  .line{position:absolute;left:8px;right:8px;top:34px;height:5px;background:#3a4f7d;border-radius:3px}
+  .fill{position:absolute;left:8px;top:34px;height:5px;background:#d9a93a;border-radius:3px}
+  .tick{position:absolute;top:28px;width:18px;height:18px;margin-left:-9px;background:#16284f;border:2px solid #d9a93a;border-radius:3px;font-size:10px;text-align:center;line-height:14px;color:#d9a93a;font-weight:700}
+  .tick.off{border-color:#4a5f8d;color:#6a7fad}
+  .head{position:absolute;top:0;width:24px;height:24px;margin-left:-12px;border:2px solid #f6ecd6;border-radius:4px}
+  .head::before,.head::after{content:"";position:absolute;top:8px;width:4px;height:4px;background:#111}
+  .head::before{left:5px}.head::after{right:5px}
+  .head.me{box-shadow:0 0 0 3px #e8455a}
+  .top3{display:flex;gap:6px;margin-top:6px;font-size:12px}
+  .top3 span{background:#0f1d3a;border-radius:4px;padding:2px 6px;white-space:nowrap}
+  .body{padding:14px;flex:1;overflow:hidden}
+
+  /* A: camino */
+  .node{display:flex;align-items:center;gap:12px;margin:0 0 6px;position:relative}
+  .node:not(:last-child)::after{content:"";position:absolute;left:27px;top:58px;width:4px;height:12px;background:#3a4f7d}
+  .dot{width:58px;height:58px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;border:3px solid #d9a93a;background:#21407a;flex:none}
+  .dot.lock{border-color:#3a4f7d;background:#1a2a4d;filter:grayscale(1);opacity:.6}
+  .dot.now{background:#2f6b3f;box-shadow:0 0 0 4px #e8455a}
+  .lbl b{display:block;font-size:15px}
+  .lbl span{opacity:.75;font-size:13px}
+  .ok{color:#8fd18a}
+  .go{display:inline-block;margin-top:4px;background:#e8455a;color:#fff;padding:5px 10px;border-radius:5px;font-weight:700;font-size:13px}
+
+  /* B: tarjeta */
+  .big{background:#16284f;border:3px solid #e8455a;border-radius:10px;padding:16px;text-align:center}
+  .big .ico{font-size:72px}
+  .btn{display:block;margin-top:14px;background:#e8455a;color:#fff;text-align:center;padding:13px;border-radius:6px;font-weight:700;font-size:16px}
+  .peek{display:flex;gap:8px;margin-top:14px}
+  .peek div{flex:1;background:#1a2a4d;border:2px solid #3a4f7d;border-radius:8px;padding:8px;text-align:center;opacity:.6;font-size:12px;filter:grayscale(1)}
+  .peek div b{display:block;font-size:24px}
+  .dots{text-align:center;margin-top:12px;letter-spacing:4px;opacity:.7}
+
+  /* C: mapa */
+  .map{position:relative;height:100%;background:linear-gradient(#bcd7ec,#eef6fb 70%,#ffffff);border-radius:10px;overflow:hidden}
+  .snow{position:absolute;inset:0;background-image:radial-gradient(#fff 1.5px,transparent 1.5px);background-size:22px 22px;opacity:.8}
+  .zone{position:absolute;width:96px;height:78px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:28px;border:4px solid #6b3f17;background:#c8553d;color:#fff;box-shadow:0 5px 0 #6b3f17}
+  .zone small{font-size:11px;font-weight:700}
+  .zone.lock{background:#8a8f99;border-color:#4a4d55;box-shadow:0 5px 0 #4a4d55;filter:grayscale(1)}
+  .zone.now{outline:4px solid #e8455a;outline-offset:3px}
+  .seg{position:absolute;height:0;border-top:6px dotted #8a5a2b;transform-origin:left center}
+  .me-map{position:absolute;width:22px;height:22px;background:#5b8de3;border:3px solid #fff;border-radius:4px}
+</style>
+</head>
+<body>
+<h1>¿Cómo se ve la pantalla principal? <span style="color:#a9a49a;font-size:16px">(versión 2, más grande)</span></h1>
+<p class="sub">Las tres llevan arriba la misma barra: tu alias, tus puntos y tu puesto. Debajo, la línea de stages con la cabeza de cada agente donde va (la tuya con marco rojo) y el top 3 del ranking. Lo que cambia es cómo se muestran los stages. Haz clic en la que prefieras.</p>
+
+<div class="cards">
+
+<!-- ============ A ============ -->
+<div class="card opt" data-choice="a" onclick="toggleSelect(this)">
+  <div class="phone">
+    <div class="top">
+      <div class="row"><span class="px alias">Agente_Rocoto</span><span class="px pts">⭐ 340 · #4</span></div>
+      <div class="track">
+        <div class="line"></div><div class="fill" style="width:30%"></div>
+        <div class="tick" style="left:5%">1</div><div class="tick" style="left:23%">2</div><div class="tick off" style="left:41%">3</div><div class="tick off" style="left:59%">4</div><div class="tick off" style="left:77%">5</div><div class="tick off" style="left:95%">🎁</div>
+        <div class="head" style="left:8%;background:#7bb36a"></div>
+        <div class="head" style="left:19%;background:#e3a75b"></div>
+        <div class="head me" style="left:26%;background:#5b8de3"></div>
+        <div class="head" style="left:33%;background:#c86ad9"></div>
+      </div>
+      <div class="top3 px"><span>🥇 Picarón 520</span><span>🥈 Mazamorra 470</span><span>🥉 Cau Cau 410</span></div>
+    </div>
+    <div class="body">
+      <div class="node"><div class="dot">🎮</div><div class="lbl"><b>1 · Calentamiento</b><span class="ok">✔ Superado</span></div></div>
+      <div class="node"><div class="dot now">🐑</div><div class="lbl"><b>2 · La manada</b><span>Llevas 2 de 5 preguntas</span><br><span class="go">Responder la de hoy</span></div></div>
+      <div class="node"><div class="dot lock">💘</div><div class="lbl"><b>3 · Amor</b><span>🔒 Se abre el 5 dic</span></div></div>
+      <div class="node"><div class="dot lock">🌶️</div><div class="lbl"><b>4 · Picante</b><span>🔒 Se abre el 10 dic</span></div></div>
+      <div class="node"><div class="dot lock">⚖️</div><div class="lbl"><b>5 · Juicio final</b><span>🔒 Se abre el 15 dic</span></div></div>
+      <div class="node"><div class="dot lock">🎁</div><div class="lbl"><b>Ficha de tu amigo secreto</b><span>🔒 Se abre el 20 dic</span></div></div>
+    </div>
+  </div>
+  <h3>A · Camino vertical</h3>
+  <p>Todos los stages en una lista, como un sendero. El de hoy resalta con su botón; los bloqueados en gris con su fecha. Ves el conjunto y lo de hoy a la vez.</p>
+</div>
+
+<!-- ============ B ============ -->
+<div class="card opt" data-choice="b" onclick="toggleSelect(this)">
+  <div class="phone">
+    <div class="top">
+      <div class="row"><span class="px alias">Agente_Rocoto</span><span class="px pts">⭐ 340 · #4</span></div>
+      <div class="track">
+        <div class="line"></div><div class="fill" style="width:30%"></div>
+        <div class="tick" style="left:5%">1</div><div class="tick" style="left:23%">2</div><div class="tick off" style="left:41%">3</div><div class="tick off" style="left:59%">4</div><div class="tick off" style="left:77%">5</div><div class="tick off" style="left:95%">🎁</div>
+        <div class="head" style="left:8%;background:#7bb36a"></div>
+        <div class="head" style="left:19%;background:#e3a75b"></div>
+        <div class="head me" style="left:26%;background:#5b8de3"></div>
+        <div class="head" style="left:33%;background:#c86ad9"></div>
+      </div>
+      <div class="top3 px"><span>🥇 Picarón 520</span><span>🥈 Mazamorra 470</span><span>🥉 Cau Cau 410</span></div>
+    </div>
+    <div class="body">
+      <div class="px" style="margin-bottom:10px;opacity:.8">STAGE 2 DE 5 · DÍA 7 DE 30</div>
+      <div class="big">
+        <div class="ico">🐑</div>
+        <div class="px" style="font-size:20px">La manada</div>
+        <p style="opacity:.85;margin:8px 0">Adivina lo que piensa la mayoría.<br>Una pregunta por día.</p>
+        <div>Hoy: ⏳ pendiente · Llevas 2 de 5</div>
+        <span class="btn">Responder la de hoy</span>
+      </div>
+      <div class="peek">
+        <div><b>💘</b>3 · Amor<br>🔒 5 dic</div>
+        <div><b>🌶️</b>4 · Picante<br>🔒 10 dic</div>
+        <div><b>⚖️</b>5 · Juicio<br>🔒 15 dic</div>
+      </div>
+      <div class="dots">●●○○○○ &nbsp; desliza →</div>
+    </div>
+  </div>
+  <h3>B · Una tarjeta grande por stage</h3>
+  <p>El stage de hoy ocupa casi toda la pantalla con un solo botón grande. Los que vienen se asoman abajo, bloqueados. Lo más enfocado: imposible perderse.</p>
+</div>
+
+<!-- ============ C ============ -->
+<div class="card opt" data-choice="c" onclick="toggleSelect(this)">
+  <div class="phone">
+    <div class="top">
+      <div class="row"><span class="px alias">Agente_Rocoto</span><span class="px pts">⭐ 340 · #4</span></div>
+      <div class="track">
+        <div class="line"></div><div class="fill" style="width:30%"></div>
+        <div class="tick" style="left:5%">1</div><div class="tick" style="left:23%">2</div><div class="tick off" style="left:41%">3</div><div class="tick off" style="left:59%">4</div><div class="tick off" style="left:77%">5</div><div class="tick off" style="left:95%">🎁</div>
+        <div class="head" style="left:8%;background:#7bb36a"></div>
+        <div class="head" style="left:19%;background:#e3a75b"></div>
+        <div class="head me" style="left:26%;background:#5b8de3"></div>
+        <div class="head" style="left:33%;background:#c86ad9"></div>
+      </div>
+      <div class="top3 px"><span>🥇 Picarón 520</span><span>🥈 Mazamorra 470</span><span>🥉 Cau Cau 410</span></div>
+    </div>
+    <div class="body">
+      <div class="map">
+        <div class="snow"></div>
+        <div class="seg" style="left:80px;top:470px;width:150px;transform:rotate(-38deg)"></div>
+        <div class="seg" style="left:220px;top:370px;width:150px;transform:rotate(-142deg)"></div>
+        <div class="seg" style="left:90px;top:270px;width:150px;transform:rotate(-38deg)"></div>
+        <div class="seg" style="left:220px;top:170px;width:150px;transform:rotate(-142deg)"></div>
+        <div class="zone" style="left:22px;top:430px">🎮<small>1 · Arcade ✔</small></div>
+        <div class="zone now" style="left:200px;top:330px">🐑<small>2 · Manada</small></div>
+        <div class="zone lock" style="left:22px;top:230px">💘<small>3 · 🔒 5 dic</small></div>
+        <div class="zone lock" style="left:200px;top:130px">🌶️<small>4 · 🔒 10 dic</small></div>
+        <div class="zone lock" style="left:22px;top:30px">⚖️<small>5 · 🔒 15 dic</small></div>
+        <div class="me-map" style="left:170px;top:395px"></div>
+      </div>
+    </div>
+  </div>
+  <h3>C · Mapa pixel en zigzag</h3>
+  <p>Snowville como un sendero nevado de edificios que se sube en orden; los bloqueados en gris. Tu personaje está parado en el stage actual. Lo más "videojuego", con menos texto.</p>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pantalla principal · computadora</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#1b1d22;color:#e9e6df;font-family:system-ui,Segoe UI,sans-serif;padding:20px}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:#a9a49a;margin:0 0 18px;line-height:1.45;max-width:1100px}
+  .px{font-family:"Courier New",monospace;font-weight:700}
+
+  .screen{max-width:1280px;margin:0 auto;border:8px solid #2b2b2b;border-radius:14px;overflow:hidden;background:#0f1d3a;color:#f6ecd6;box-shadow:0 20px 60px #0008}
+  .chrome{background:#2b2b2b;padding:6px 12px;font-size:12px;color:#aaa}
+
+  /* barra superior */
+  .top{background:#16284f;border-bottom:4px solid #d9a93a;padding:14px 28px 12px;display:grid;grid-template-columns:220px 1fr 300px;gap:28px;align-items:center}
+  .who{display:flex;align-items:center;gap:10px}
+  .av{width:42px;height:42px;background:#5b8de3;border:3px solid #f6ecd6;border-radius:6px;position:relative;box-shadow:0 0 0 3px #e8455a}
+  .av::before,.av::after{content:"";position:absolute;top:14px;width:6px;height:6px;background:#111}
+  .av::before{left:9px}.av::after{right:9px}
+  .who small{display:block;opacity:.7;font-size:12px}
+  .track{position:relative;height:58px}
+  .line{position:absolute;left:10px;right:10px;top:40px;height:6px;background:#3a4f7d;border-radius:3px}
+  .fill{position:absolute;left:10px;top:40px;height:6px;background:#d9a93a;border-radius:3px}
+  .tick{position:absolute;top:32px;width:22px;height:22px;margin-left:-11px;background:#16284f;border:3px solid #d9a93a;border-radius:4px;font-size:11px;text-align:center;line-height:16px;color:#d9a93a;font-weight:700}
+  .tick.off{border-color:#4a5f8d;color:#6a7fad}
+  .tlabel{position:absolute;top:58px;margin-left:-40px;width:80px;text-align:center;font-size:11px;opacity:.7}
+  .head{position:absolute;top:0;width:26px;height:26px;margin-left:-13px;border:2px solid #f6ecd6;border-radius:4px}
+  .head::before,.head::after{content:"";position:absolute;top:8px;width:4px;height:4px;background:#111}
+  .head::before{left:5px}.head::after{right:5px}
+  .head.me{box-shadow:0 0 0 3px #e8455a}
+  .rank{background:#0f1d3a;border:2px solid #d9a93a;border-radius:8px;padding:8px 12px;font-size:13px}
+  .rank div{display:flex;justify-content:space-between;padding:1px 0}
+  .rank .meR{color:#ff8a99}
+
+  /* carrusel */
+  .stage-area{position:relative;height:560px;overflow:hidden;background:
+    radial-gradient(ellipse at 50% 120%,#21407a 0,#0f1d3a 60%)}
+  .snow{position:absolute;inset:0;background-image:radial-gradient(#ffffff55 1.5px,transparent 1.5px);background-size:28px 28px}
+  .lbl-top{position:absolute;top:22px;left:0;right:0;text-align:center;opacity:.8;letter-spacing:1px}
+  .slide{position:absolute;top:70px;width:420px;height:440px;border-radius:14px;background:#16284f;border:4px solid #3a4f7d;padding:26px;text-align:center;transition:.3s}
+  .slide .ico{font-size:96px;line-height:1.1}
+  .slide h2{font-family:"Courier New",monospace;margin:10px 0 6px;font-size:26px}
+  .slide p{opacity:.85;line-height:1.45}
+  .center{left:50%;margin-left:-210px;border-color:#e8455a;box-shadow:0 0 0 6px #e8455a33,0 20px 40px #0008;z-index:3}
+  .side{filter:blur(3px) grayscale(.6);opacity:.55;transform:scale(.82);z-index:2}
+  .far{filter:blur(6px) grayscale(1);opacity:.25;transform:scale(.66);z-index:1}
+  .l1{left:50%;margin-left:-640px}
+  .r1{left:50%;margin-left:220px}
+  .l2{left:50%;margin-left:-980px}
+  .r2{left:50%;margin-left:560px}
+  .btn{display:block;margin:20px auto 0;width:80%;background:#e8455a;color:#fff;padding:14px;border-radius:8px;font-weight:700;font-size:17px}
+  .badge{display:inline-block;margin-top:10px;padding:4px 10px;border-radius:5px;font-size:13px}
+  .done{background:#2f6b3f}
+  .lock{background:#1a2a4d;border:2px solid #4a5f8d}
+  .arrow{position:absolute;top:255px;width:54px;height:54px;border-radius:50%;background:#16284f;border:3px solid #d9a93a;display:flex;align-items:center;justify-content:center;font-size:24px;z-index:4;cursor:pointer}
+  .aL{left:calc(50% - 300px)}
+  .aR{left:calc(50% + 246px)}
+  .dots{position:absolute;bottom:18px;left:0;right:0;text-align:center;letter-spacing:6px;font-size:16px}
+  .dots b{color:#e8455a}
+  .note{max-width:1280px;margin:16px auto 0;color:#a9a49a;font-size:14px;line-height:1.5}
+</style>
+</head>
+<body>
+<h1>Pantalla principal en computadora (opción B)</h1>
+<p class="sub">Igual que en el celular, pero aprovechando el ancho: el stage de hoy al centro, y a los lados los stages vecinos difuminados. Se pasa con las flechas, deslizando o con ← →. Los bloqueados se pueden mirar pero no abrir. Arriba, siempre: tu agente, la línea de avance con todas las cabezas y el ranking.</p>
+
+<div class="screen">
+  <div class="chrome">🔒 juegos-del-regalo.vercel.app</div>
+
+  <div class="top">
+    <div class="who">
+      <div class="av"></div>
+      <div><span class="px">Agente_Rocoto</span><small>⭐ 340 puntos · puesto #4 de 20</small></div>
+    </div>
+
+    <div class="track">
+      <div class="line"></div><div class="fill" style="width:30%"></div>
+      <div class="tick" style="left:5%">1</div><div class="tlabel" style="left:5%">Calentamiento</div>
+      <div class="tick" style="left:23%">2</div><div class="tlabel" style="left:23%">Manada</div>
+      <div class="tick off" style="left:41%">3</div><div class="tlabel" style="left:41%">Amor</div>
+      <div class="tick off" style="left:59%">4</div><div class="tlabel" style="left:59%">Picante</div>
+      <div class="tick off" style="left:77%">5</div><div class="tlabel" style="left:77%">Juicio</div>
+      <div class="tick off" style="left:95%">🎁</div><div class="tlabel" style="left:95%">Ficha</div>
+      <div class="head" style="left:6%;background:#e35b5b"></div>
+      <div class="head" style="left:11%;background:#7bb36a"></div>
+      <div class="head" style="left:17%;background:#e3a75b"></div>
+      <div class="head me" style="left:24%;background:#5b8de3"></div>
+      <div class="head" style="left:29%;background:#c86ad9"></div>
+      <div class="head" style="left:34%;background:#5bd3c8"></div>
+    </div>
+
+    <div class="rank px">
+      <div><span>🥇 Agente_Picarón</span><span>520</span></div>
+      <div><span>🥈 Agente_Mazamorra</span><span>470</span></div>
+      <div><span>🥉 Agente_Cau_Cau</span><span>410</span></div>
+      <div class="meR"><span>#4 Tú (Rocoto)</span><span>340</span></div>
+    </div>
+  </div>
+
+  <div class="stage-area">
+    <div class="snow"></div>
+    <div class="lbl-top px">STAGE 2 DE 5 · DÍA 7 DE 30</div>
+
+    <div class="slide far l2"><div class="ico">🎄</div><h2>Árbol</h2><span class="badge done">✔ Inscrito</span></div>
+
+    <div class="slide side l1">
+      <div class="ico">🎮</div><h2>1 · Calentamiento</h2>
+      <p>Gift Catcher, Memory y Trivia.</p>
+      <span class="badge done">✔ Superado · 180 pts</span>
+    </div>
+
+    <div class="slide center">
+      <div class="ico">🐑</div>
+      <h2>2 · La manada</h2>
+      <p>Adivina lo que piensa la mayoría.<br>Una pregunta por día; ganas si coincides con el grupo.</p>
+      <div>Hoy: ⏳ pendiente · Llevas 2 de 5 · Cierra 23:59</div>
+      <span class="btn">Responder la de hoy</span>
+    </div>
+
+    <div class="slide side r1">
+      <div class="ico">💘</div><h2>3 · Amor</h2>
+      <p>Preguntas directas de respuesta corta.</p>
+      <span class="badge lock">🔒 Se abre el 5 dic</span>
+    </div>
+
+    <div class="slide far r2"><div class="ico">🌶️</div><h2>4 · Picante</h2><span class="badge lock">🔒 10 dic</span></div>
+
+    <div class="arrow aL">◀</div>
+    <div class="arrow aR">▶</div>
+    <div class="dots">● <b>●</b> ○ ○ ○ ○</div>
+  </div>
+</div>
+
+<p class="note">En celular es la misma pantalla en angosto (opción B que elegiste): la tarjeta de hoy ocupa el centro y los vecinos asoman difuminados por los bordes. El ranking del celular muestra el top 3 + tu puesto; en computadora cabe completo arriba a la derecha.</p>
+</body>
+</html>

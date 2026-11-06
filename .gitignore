@@ -41,5 +41,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Sesiones del compañero visual de brainstorming (los bocetos aprobados se copian a docs/superpowers/bocetos)
+/.superpowers
+
 # Originales de arte generados (pesados); los procesados viven en public/art
 /art-src

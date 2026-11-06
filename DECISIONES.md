@@ -1,5 +1,60 @@
 # Decisiones del proyecto
 
+## Reorientación: amigo secreto con agentes y stages en orden (2026-11-06)
+
+Sesión de brainstorming con Cesar (skill `brainstorming` de Superpowers). Diseño completo:
+`docs/superpowers/specs/2026-11-06-reorientacion-design.md`. Bocetos aprobados:
+`docs/superpowers/bocetos/`. **Esta sección manda sobre las anteriores donde choquen.**
+
+Decisiones de Cesar:
+- **Amigo secreto = la persona a la que TÚ le regalas** (no quien te regala).
+- **Alias anónimo, al azar y fijo:** `Agente_<comida peruana>` (Agente_Picarón, Agente_Rocoto,
+  Agente_Mazamorra…). Nadie escribe su nombre. El usuario de acceso y la contraseña sí son personales.
+- **La ficha de inscripción es el pase al árbol:** 3 o 4 opciones de regalo dentro del presupuesto
+  (S/40 por defecto, configurable) y 4 datos breves para describirte + 1 opcional.
+- **Árbol navideño como sala de espera.** Nadie juega antes del "Empezar" del organizador. El
+  "Empezar" hace el sorteo y cierra la puerta.
+- **Stages lineales y temáticos.** Cada uno se abre en su fecha y solo si superaste el anterior.
+  Los siguientes se ven difuminados pero no se pueden abrir. El intervalo entre stages lo
+  configura el organizador, contando desde el "Empezar".
+- **Superar un stage = hacer cada actividad al menos una vez.** Faltar resta puntos, pero no te
+  saca de la historia.
+- **Stages:** 1 Calentamiento (minijuegos existentes) · 2 **La manada** (adivinar lo que piensa la
+  mayoría; se descartó votar por alias porque no era justo) · 3 **Amor y relaciones** (respuestas
+  cortas) · 4 **Picante** (solo sí o no) · 5 Juicio final · Ficha del amigo secreto · Intercambio.
+- **"Paso" existe y resta puntos**, con la penalidad explicada en pantalla.
+- **Las respuestas íntimas las ve solo quien regala**, al final, en la "Ficha de tu amigo secreto
+  — privada y confidencial".
+- **Sin equipos.** Un solo ranking individual, siempre visible. Quien suma más puntos gana el
+  premio final. **La app no maneja dinero:** solo muestra el texto del premio.
+- **El organizador juega como uno más.** Su panel nunca muestra el sorteo, nunca relaciona alias
+  con usuario y nunca muestra respuestas. Configura: capacidad máxima, intervalo y fechas,
+  presupuesto y premio. Reinicia contraseñas.
+- **Pantalla principal = opción B** (una tarjeta grande por stage). En computadora es un carrusel
+  con los stages vecinos difuminados y la barra superior con las cabezas y el ranking.
+
+Cambios a decisiones anteriores (por decisión de Cesar):
+- "Pozo de dinero: no" (5 nov) → hay premio final para el primero, fuera de la app.
+- "Todo abierto + rotación diaria" (6 nov) → stages lineales con fecha.
+- Equipos (5 nov) → eliminados.
+- Snowville explorable como pantalla principal (Fase 1.5) → reemplazado por la pantalla de
+  stages. El arte se puede reutilizar como decoración.
+- Spec §9.2 y regla 7 de `CLAUDE.md` (no pedir datos íntimos) → los stages 3 y 4 sí los piden,
+  con "Paso" y visibles solo para quien regala.
+
+Supuestos que tomé (se pueden cambiar): el PIN de 4 dígitos sigue como contraseña · lista de ≥ 50
+platos · datos breves = género, lentes, estatura, cabello + un rasgo opcional · responder +10,
+pasar −5, máximo 2 pases por stage · −5 por pregunta diaria sin responder · solo puntos (sin XP,
+monedas ni tienda) · 4 opciones fijas en La manada · confirmación de mayoría de edad antes del
+stage 4 y borrado de respuestas íntimas al cerrar la temporada · la ficha final se abre por fecha
+para todos.
+
+Pendientes de decidir (ver §12 del diseño): ¿las opciones de regalo se ven antes de la ficha
+final, para que dé tiempo de comprar? · ¿se mantiene la aprobación manual de inscritos? ·
+contenido del stage 5 · banco de preguntas de los stages 3 y 4.
+
+---
+
 ## Reestructuración "Christmas Chaos" (2026-11-05)
 
 Luis entregó un documento maestro nuevo (`docs/ESPECIFICACION.md`) y pidió reconstruir el proyecto.
