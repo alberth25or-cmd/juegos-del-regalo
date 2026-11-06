@@ -9,7 +9,7 @@ const PASOS = [
   { e: "🏛️", t: "Entra a la plaza", d: "Santa, Rudolf, el duende sindicalista, el Muñeco y el Auditor te cuentan qué está pasando en Snowville." },
   { e: "🕹️", t: "Juega 1 minuto", d: "Tu mejor partida del día suma puntos al ranking. Repetir mejora tu récord, no te da puntos infinitos." },
   { e: "🤝", t: "Ayuda a tu equipo", d: "Son 4 equipos. Gana el que tiene mejor PROMEDIO, así que cada integrante cuenta." },
-  { e: "🎄", t: "30 días de caos", d: "Del 25 nov al 24 dic se abren votaciones, roast voluntario, misiones cooperativas, sabotajes y el amigo secreto." },
+  { e: "🎄", t: "30 días de caos", d: "Del 25 nov al 24 dic: todo está abierto, pero cada día hay preguntas, acertijos y retos nuevos, y de vez en cuando un evento especial." },
 ];
 
 

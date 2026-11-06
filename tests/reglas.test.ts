@@ -9,7 +9,7 @@ import {
   validarPartida,
 } from "../src/features/games/giftCatcher.ts";
 import { deltaPuntos, nivel, promedioEquipo, puntosDelDia, recompensaPartida } from "../src/features/scoring/reglas.ts";
-import { diaLocal, estadoTemporada, inicioDelDia } from "../src/features/season/calendario.ts";
+import { diaLocal, estadoConPrueba, estadoTemporada, inicioDelDia } from "../src/features/season/calendario.ts";
 import { repartirEquipos } from "../src/features/teams/repartir.ts";
 import { fraseDe, FRASES } from "../src/features/contenido/npcs.ts";
 
@@ -136,4 +136,16 @@ test("todos los NPCs tienen frases generales y la elección es estable", () => {
   for (const [id, cat] of Object.entries(FRASES)) assert.ok((cat.general?.length ?? 0) >= 3, id);
   assert.equal(fraseDe("santa", "general", 10), fraseDe("santa", "general", 10));
   assert.ok(fraseDe("muneco", "pendiente", 3).length > 0); // cae a "general" si no hay contexto
+});
+
+test("temporada de prueba: nunca hay pretemporada y se puede simular el día", () => {
+  const ini = inicioDelDia("2026-11-25");
+  const fin = new Date(inicioDelDia("2026-12-25").getTime() - 1);
+  const hoy = new Date("2026-11-06T15:00:00Z"); // antes de empezar
+  assert.equal(estadoConPrueba(hoy, ini, fin, false, null).fase, "pretemporada");
+  assert.deepEqual(estadoConPrueba(hoy, ini, fin, true, null), { fase: "en-curso", dia: 1, totalDias: 30 });
+  assert.deepEqual(estadoConPrueba(hoy, ini, fin, true, 15), { fase: "en-curso", dia: 15, totalDias: 30 });
+  assert.equal((estadoConPrueba(hoy, ini, fin, true, 99) as { dia: number }).dia, 30);
+  // En una temporada real, simular no tiene efecto.
+  assert.equal(estadoConPrueba(hoy, ini, fin, false, 15).fase, "pretemporada");
 });

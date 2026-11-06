@@ -16,6 +16,9 @@ y amigo secreto. En línea: https://juegos-del-regalo.vercel.app
 4. En la plaza, los NPCs cuentan qué pasa; en el Arcade se juega **Gift Catcher**.
 5. El servidor valida cada partida; el ranking individual y por equipos (promedio) se actualiza solo.
 
+Para probar todo en una tarde: crea una **temporada de prueba** en `/crear` (sin topes diarios y con
+"simular día N" en el panel). La temporada real va aparte.
+
 Desde otro celular se entra en `/entrar` con usuario + PIN. Si alguien olvida su PIN, el organizador lo reinicia.
 
 ## Desarrollo
@@ -26,6 +29,7 @@ npm test                      # reglas críticas (puntuación, validación, cale
 npm run db:local              # Postgres local en memoria (PGlite) en :54329
 node scripts/dev-local.mjs    # app en http://localhost:3100 contra la BD local
 npm run sim                   # 20 jugadores simultáneos contra el servidor LOCAL
+npm run sim:prueba            # temporada de prueba (simular días, sin topes) contra el servidor LOCAL
 ```
 
 Sin `.env.local` y sin `db:local`, `npm run dev` levanta la aldea sin base de datos.

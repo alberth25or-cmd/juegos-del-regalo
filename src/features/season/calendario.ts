@@ -34,6 +34,18 @@ export function estadoTemporada(ahora: Date, inicio: Date, fin: Date): EstadoTem
   return { fase: "en-curso", dia, totalDias };
 }
 
+/**
+ * Estado con TEMPORADA DE PRUEBA: el organizador puede simular cualquier día para
+ * probar los 30 días en una tarde. En prueba nunca hay pretemporada (todo cuenta ya).
+ */
+export function estadoConPrueba(ahora: Date, inicio: Date, fin: Date, prueba: boolean, diaSimulado: number | null): EstadoTemporada {
+  const real = estadoTemporada(ahora, inicio, fin);
+  if (!prueba) return real;
+  const totalDias = Math.round((Date.parse(`${diaLocal(fin)}T00:00:00Z`) - Date.parse(`${diaLocal(inicio)}T00:00:00Z`)) / 86_400_000) + 1;
+  const dia = diaSimulado ?? (real.fase === "en-curso" ? real.dia : 1);
+  return { fase: "en-curso", dia: Math.max(1, Math.min(totalDias, Math.round(dia))), totalDias };
+}
+
 export interface Arco {
   desde: number;
   hasta: number;

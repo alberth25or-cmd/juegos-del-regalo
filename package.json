@@ -12,7 +12,8 @@
     "db:local": "node scripts/db-local.mjs",
     "sim": "node --experimental-strip-types --no-warnings scripts/sim-20.mjs",
     "hf:ejemplo": "node --experimental-strip-types --no-warnings scripts/higgsfield/seedance-ejemplo.ts",
-    "hf:arte": "node --experimental-strip-types --no-warnings scripts/higgsfield/generar-arte.ts"
+    "hf:arte": "node --experimental-strip-types --no-warnings scripts/higgsfield/generar-arte.ts",
+    "sim:prueba": "node --experimental-strip-types --no-warnings scripts/sim-prueba.mjs"
   },
   "dependencies": {
     "@supabase/realtime-js": "2.118.0",

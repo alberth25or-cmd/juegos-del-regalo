@@ -14,7 +14,7 @@ export interface GameCardDef {
   tagline: string;
   /** enlace SOLO si la actividad ya funciona */
   href?: string;
-  /** texto del candado si todavía no existe */
+  /** fase del plan en que se construye (se muestra "Próximamente") */
   abre?: string;
   sprite?: string;
   emoji?: string;
@@ -73,8 +73,8 @@ export const MODULES: ModuleDef[] = [
     bg: "#fff1dc",
     bg2: "#f6d9ad",
     cards: [
-      { id: "inutiles", title: "La fábrica de los inútiles", tagline: "Seleccionar, envolver, etiquetar, transportar", npc: "duende", color: "#9fe3cf", abre: "Día 11", featured: true, ribbon: "Cooperativo" },
-      { id: "arbol", title: "Encender el árbol", tagline: "Los 20 contra el desastre: 10 000 de energía", emoji: "🎄", color: "#f6b93b", abre: "Día 11" },
+      { id: "inutiles", title: "La fábrica de los inútiles", tagline: "Seleccionar, envolver, etiquetar, transportar", npc: "duende", color: "#9fe3cf", abre: "Fase 2", featured: true, ribbon: "Cooperativo" },
+      { id: "arbol", title: "Encender el árbol", tagline: "Los 20 contra el desastre: 10 000 de energía", emoji: "🎄", color: "#f6b93b", abre: "Fase 2" },
       { id: "regalo-imposible", title: "El regalo imposible", tagline: "Muévanlo entre todos sin romperlo", emoji: "📦", color: "#ffb3c7", abre: "Fase 5" },
     ],
   },
@@ -91,7 +91,7 @@ export const MODULES: ModuleDef[] = [
     dark: true,
     cards: [
       { id: "escape", title: "Escape del Polo Norte", tagline: "Pistas distintas para cada uno", art: "ogre", color: "#8fd3ff", abre: "Fase 5", featured: true, ribbon: "Misterio" },
-      { id: "acertijo", title: "Acertijos del Muñeco", tagline: "Uno nuevo cada pocos días", npc: "muneco", color: "#b9a7f5", abre: "Día 6" },
+      { id: "acertijo", title: "Acertijos del Muñeco", tagline: "Uno nuevo cada pocos días", npc: "muneco", color: "#b9a7f5", abre: "Fase 3" },
       { id: "maquina", title: "Desactiva la máquina", tagline: "Uno ve la bomba, otros el manual", emoji: "💣", color: "#ffb3c7", abre: "Fase 5" },
     ],
   },
@@ -106,10 +106,10 @@ export const MODULES: ModuleDef[] = [
     bg: "#ffe3ec",
     bg2: "#ffc6d8",
     cards: [
-      { id: "probable", title: "¿Quién es más probable…?", tagline: "Un voto por persona, resultados al cierre", npc: "auditor", color: "#ffb3c7", abre: "Día 6", featured: true, ribbon: "Votación" },
-      { id: "confesionario", title: "Confesionario", tagline: "Responde anónimo y adivina quién fue", emoji: "🕯️", color: "#b9a7f5", abre: "Día 6" },
-      { id: "roast", title: "Roast Battle", tagline: "Solo voluntarios. El grupo vota", emoji: "🎤", color: "#f6b93b", abre: "Día 10" },
-      { id: "memes", title: "Batalla de memes", tagline: "Plantillas propias, gana el grupo", emoji: "😂", color: "#9fe3cf", abre: "Día 16" },
+      { id: "probable", title: "¿Quién es más probable…?", tagline: "Un voto por persona, resultados al cierre", npc: "auditor", color: "#ffb3c7", abre: "Fase 3", featured: true, ribbon: "Votación" },
+      { id: "confesionario", title: "Confesionario", tagline: "Responde anónimo y adivina quién fue", emoji: "🕯️", color: "#b9a7f5", abre: "Fase 3" },
+      { id: "roast", title: "Roast Battle", tagline: "Solo voluntarios. El grupo vota", emoji: "🎤", color: "#f6b93b", abre: "Fase 3" },
+      { id: "memes", title: "Batalla de memes", tagline: "Plantillas propias, gana el grupo", emoji: "😂", color: "#9fe3cf", abre: "Fase 4" },
     ],
   },
   {
@@ -123,9 +123,9 @@ export const MODULES: ModuleDef[] = [
     bg: "#ece7ff",
     bg2: "#d4caff",
     cards: [
-      { id: "trivia", title: "Juicio del Polo Norte", tagline: "Trivia absurda por equipos", npc: "rudolf", color: "#8fd3ff", abre: "Día 11", featured: true, ribbon: "Equipos" },
-      { id: "nieve", title: "Guerra de nieve", tagline: "Por rondas: defiende tu base", art: "snowman", color: "#dff3ff", abre: "Día 15" },
-      { id: "saboteador", title: "Caza al saboteador", tagline: "Alguien tiene una misión secreta", emoji: "🕵️", color: "#ffb3c7", abre: "Día 20" },
+      { id: "trivia", title: "Juicio del Polo Norte", tagline: "Trivia absurda por equipos", npc: "rudolf", color: "#8fd3ff", abre: "Fase 3", featured: true, ribbon: "Equipos" },
+      { id: "nieve", title: "Guerra de nieve", tagline: "Por rondas: defiende tu base", art: "snowman", color: "#dff3ff", abre: "Fase 5" },
+      { id: "saboteador", title: "Caza al saboteador", tagline: "Alguien tiene una misión secreta", emoji: "🕵️", color: "#ffb3c7", abre: "Fase 5" },
     ],
   },
   {
@@ -156,7 +156,7 @@ export const MODULES: ModuleDef[] = [
     bg2: "#f4d6a8",
     cards: [
       { id: "ranking", title: "Ranking en vivo", tagline: "Individual y por equipos", href: "/ranking", sprite: "tablero-plaza", color: "#8fd3ff", featured: true, ribbon: "En vivo" },
-      { id: "verguenza", title: "Ranking de la vergüenza", tagline: "Premios absurdos y también bonitos", emoji: "🥴", color: "#ffb3c7", abre: "Día 7" },
+      { id: "verguenza", title: "Ranking de la vergüenza", tagline: "Premios absurdos y también bonitos", emoji: "🥴", color: "#ffb3c7", abre: "Fase 3" },
       { id: "amigo", title: "Amigo secreto", tagline: "Sorteo, wishlist y pistas diarias", sprite: "buzon", color: "#f6b93b", abre: "Fase 3" },
     ],
   },

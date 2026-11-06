@@ -59,7 +59,7 @@ function slug(nombre: string) {
 }
 
 // ------------------------------------------------------- crear temporada
-export async function crearTemporada(input: { nombre: string; jugador: DatosJugador }) {
+export async function crearTemporada(input: { nombre: string; jugador: DatosJugador; prueba?: boolean }) {
   const nombre = input.nombre.trim().replace(/\s+/g, " ");
   if (nombre.length < 2 || nombre.length > 60) throw new ErrorDeUsuario("El nombre de la temporada debe tener entre 2 y 60 letras.");
   const j = validarDatosJugador(input.jugador);
@@ -74,7 +74,7 @@ export async function crearTemporada(input: { nombre: string; jugador: DatosJuga
       const [s] = await tx`
         insert into cc.seasons (name, slug, description, starts_at, ends_at, invite_code, status, settings)
         values (${nombre}, ${`${slug(nombre)}-${invite.slice(0, 4).toLowerCase()}`}, ${"30 días para sobrevivir a la Navidad."},
-                ${inicio}, ${fin}, ${invite}, 'active', ${tx.json({ equipos: 4, tamanoEquipo: 5 })})
+                ${inicio}, ${fin}, ${invite}, 'active', ${tx.json({ equipos: 4, tamanoEquipo: 5, prueba: input.prueba === true, diaSimulado: input.prueba ? 1 : null })})
         returning id, invite_code
       `;
       for (const e of EQUIPOS_POR_DEFECTO) {
@@ -151,7 +151,7 @@ export async function entrar(input: { username: string; pin: string }) {
     select p.id, p.pin_hash, p.pin_failed, p.pin_locked_until, p.status
     from cc.players p join cc.seasons s on s.id = p.season_id
     where p.username = ${username} and p.status <> 'rejected' and s.status <> 'completed'
-    order by p.created_at desc limit 5
+    order by coalesce((s.settings->>'prueba')::boolean, false) asc, p.created_at desc limit 5
   `);
   if (candidatos.length === 0) throw generico;
   for (const c of candidatos) {
@@ -276,6 +276,20 @@ export async function cambiarFechas(adminId: string, seasonId: string, desde: st
     db().begin(async (tx) => {
       await tx`update cc.seasons set starts_at = ${ini}, ends_at = ${fin} where id = ${seasonId}`;
       await auditar(tx, seasonId, adminId, "cambiar_fechas", { desde, hasta });
+    }),
+  );
+}
+
+/** Temporada de prueba: simular un día (1..N) para probar el calendario en una tarde. */
+export async function simularDia(adminId: string, seasonId: string, dia: number | null) {
+  return conTope(
+    db().begin(async (tx) => {
+      const [s] = await tx`select settings, starts_at, ends_at from cc.seasons where id = ${seasonId} for update`;
+      if (!s?.settings?.prueba) throw new ErrorDeUsuario("Solo las temporadas de prueba pueden simular días.");
+      const total = Math.round((new Date(s.ends_at).getTime() + 1000 - new Date(s.starts_at).getTime()) / 86_400_000);
+      if (dia !== null && (!Number.isInteger(dia) || dia < 1 || dia > total)) throw new ErrorDeUsuario(`El día debe estar entre 1 y ${total}.`);
+      await tx`update cc.seasons set settings = settings || ${tx.json({ diaSimulado: dia })} where id = ${seasonId}`;
+      await auditar(tx, seasonId, adminId, "simular_dia", { dia });
     }),
   );
 }

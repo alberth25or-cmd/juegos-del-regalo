@@ -3,11 +3,10 @@ import { Suspense } from "react";
 import { unstable_rethrow } from "next/navigation";
 import { GiftCatcher } from "@/components/games/GiftCatcher";
 import { Cargando, Pantalla } from "@/components/ui/Pantalla";
-import { estadoTemporada } from "@/features/season/calendario";
 import { AVATAR_POR_DEFECTO } from "@/features/avatar";
 import { miGiftCatcher } from "@/lib/server/consultas";
 import { hasDatabase } from "@/lib/server/db";
-import { jugadorActual } from "@/lib/server/sesion";
+import { estadoDe, jugadorActual } from "@/lib/server/sesion";
 
 export const metadata: Metadata = { title: "Gift Catcher" };
 
@@ -36,6 +35,6 @@ async function Juego() {
     return <GiftCatcher modo="practica" avatar={yo.avatar} stats={null} pretemporada={false} aviso="Práctica: cuando el organizador te apruebe, tus partidas se guardarán." />;
   }
   const stats = await miGiftCatcher(yo.id);
-  const pretemporada = estadoTemporada(new Date(), yo.startsAt, yo.endsAt).fase === "pretemporada";
+  const pretemporada = estadoDe(yo).fase === "pretemporada";
   return <GiftCatcher modo="real" avatar={yo.avatar} stats={{ record: stats.record, mejorHoy: stats.mejorHoy, puntosHoy: stats.puntosHoy }} pretemporada={pretemporada} />;
 }

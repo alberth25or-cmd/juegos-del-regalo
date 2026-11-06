@@ -99,7 +99,7 @@ export const VELOCIDAD = 4.2;
 /** Posición en un camino `t` ms después de empezar a recorrerlo. */
 export function posicionEnRuta(origen: Punto, ruta: Punto[], ms: number): { p: Punto; dir: Punto; termino: boolean } {
   // El reloj del cuadro puede ir unos ms detrás del inicio: nunca negativo.
-  const pasos = (Math.max(0, ms) / 1000) * VELOCIDAD;
+  const pasos = ((Number.isFinite(ms) ? Math.max(0, ms) : 0) / 1000) * VELOCIDAD;
   if (ruta.length === 0) return { p: origen, dir: { x: 0, y: 1 }, termino: true };
   const n = Math.floor(pasos);
   if (n >= ruta.length) {

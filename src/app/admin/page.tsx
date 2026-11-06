@@ -7,7 +7,7 @@ import { Aviso, Cargando, Pantalla } from "@/components/ui/Pantalla";
 import { diaLocal } from "@/features/season/calendario";
 import { equiposDeTemporada, jugadoresDeTemporada, metricas } from "@/lib/server/consultas";
 import { hasDatabase } from "@/lib/server/db";
-import { jugadorActual } from "@/lib/server/sesion";
+import { estadoDe, jugadorActual } from "@/lib/server/sesion";
 
 export const metadata: Metadata = { title: "Panel del organizador" };
 
@@ -40,7 +40,10 @@ async function Contenido() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <p className="font-pixel text-xl">{yo.seasonName}</p>
+        <p className="font-pixel text-xl">
+          {yo.seasonName}
+          {yo.prueba ? " · 🧪 prueba" : ""}
+        </p>
         <div className="mt-2 grid grid-cols-3 gap-2 text-center">
           <Metrica t="Activos" v={m.activos} />
           <Metrica t="Pendientes" v={m.pendientes} />
@@ -60,9 +63,14 @@ async function Contenido() {
         equipos={equipos}
         desde={diaLocal(yo.startsAt)}
         hasta={diaLocal(yo.endsAt)}
+        prueba={yo.prueba ? simulacion(estadoDe(yo)) : null}
       />
     </div>
   );
+}
+
+function simulacion(e: ReturnType<typeof estadoDe>) {
+  return e.fase === "pretemporada" ? { dia: 1, total: 30 } : { dia: e.dia, total: e.totalDias };
 }
 
 function Metrica({ t, v }: { t: string; v: number }) {

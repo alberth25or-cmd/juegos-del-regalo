@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { unstable_rethrow } from "next/navigation";
 import { Mundo } from "@/components/mundo/Mundo";
-import { estadoTemporada } from "@/features/season/calendario";
 import { esSala } from "@/features/mundo/mapas";
 import { conTope, db, hasDatabase } from "@/lib/server/db";
 import { realtimeConfig } from "@/lib/server/mundo";
-import { jugadorActual } from "@/lib/server/sesion";
+import { estadoDe, jugadorActual } from "@/lib/server/sesion";
 
 export const metadata: Metadata = { title: "Snowville" };
 
@@ -40,7 +39,7 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/mundo">["
     console.error("[mundo]", e);
   }
   const puede = yo && (yo.status === "active" || yo.status === "pending");
-  const estado = yo ? estadoTemporada(new Date(), yo.startsAt, yo.endsAt) : null;
+  const estado = yo ? estadoDe(yo) : null;
   return (
     <Mundo
       salaInicial={salaInicial}
@@ -55,6 +54,7 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/mundo">["
               pendiente: yo.status === "pending",
               seasonId: yo.seasonId,
               dia: estado?.fase === "en-curso" ? estado.dia : 0,
+              prueba: yo.prueba,
             }
           : null
       }

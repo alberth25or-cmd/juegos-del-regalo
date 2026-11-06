@@ -20,6 +20,7 @@ export interface JugadorMundo {
   pendiente: boolean;
   seasonId: string;
   dia: number;
+  prueba?: boolean;
 }
 
 interface MensajeLog {
@@ -289,6 +290,11 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
           <span className="px-chip !text-[0.85rem]" style={{ ["--chip" as string]: "var(--cream)" }}>
             {s.nombre}
           </span>
+          {jugador?.prueba && (
+            <span className="px-chip !text-[0.72rem]" style={{ ["--chip" as string]: "var(--lavender)" }}>
+              🧪 Prueba · día {jugador.dia || 1}
+            </span>
+          )}
         </div>
         <div className="pointer-events-auto flex flex-col items-end gap-1.5">
           <span className="px-chip !text-[0.72rem]" title="Estado de la conexión en vivo">
@@ -428,7 +434,7 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
                   </Link>
                 ) : (
                   <span className="px-chip self-start" style={{ ["--chip" as string]: "var(--lavender)" }}>
-                    🔒 {hoja.i.abre?.startsWith("Día") ? `Se abre el ${hoja.i.abre.toLowerCase()}` : `Llega en la ${hoja.i.abre}`}
+                    🔧 Próximamente: lo estamos construyendo
                   </span>
                 )}
               </div>
@@ -474,7 +480,7 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
                   >
                     👋 Saludar
                   </button>
-                  <button type="button" className="px-btn !px-3" disabled title="Se abre con la Arena (día 15)">
+                  <button type="button" className="px-btn !px-3" disabled title="Próximamente, con la Arena">
                     ⚔️ Retar
                   </button>
                 </div>

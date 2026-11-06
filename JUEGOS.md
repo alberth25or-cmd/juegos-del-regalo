@@ -42,15 +42,37 @@ Reglas del ranking:
 - **Puntos de ranking:** solo el mejor resultado del día: 20 por jugar + hasta 80 según el puntaje (tope 100/día).
 - Se puede jugar las veces que quieras; los puntos no suben por repetir.
 
-## Calendario (25 nov → 24 dic, hora de Lima)
+## Ritmo de la temporada (decidido por Luis el 2026-11-06)
 
-| Días | Arco | Qué se abre |
-|---|---|---|
-| 1–5 | El inicio del desastre | Avatares, equipos, Gift Catcher; día 5: evento "Primera auditoría" |
-| 6–10 | Se rompe la amistad | Votaciones, confesionario; día 10: primer roast |
-| 11–15 | La guerra del Polo Norte | Fábrica de los inútiles, misión del árbol; día 15: guerra por equipos |
-| 16–20 | Nadie es inocente | Memes, sabotaje controlado; día 20: caza al saboteador |
-| 21–25 | Caos absoluto | Eventos especiales y remontadas; día 25: doble puntos |
-| 26–30 | El juicio final | Últimos retos; día 30 (24 dic): ceremonia y revelación del amigo secreto |
+**Todo abierto desde el día 1.** Ningún juego espera "su día": así se puede probar todo
+con los amigos en una tarde y nadie se queda con candados. El ritmo de 30 días lo dan:
+
+- **Contenido que rota cada día:** una pregunta nueva de ¿Quién es más probable…?, un
+  acertijo nuevo, un tema nuevo de roast, frases nuevas de los NPCs.
+- **Topes diarios de puntos:** conviene volver cada día; jugar 5 horas seguidas no sirve.
+- **Arcos de la historia** (cambian el tono de los NPCs y la plaza):
+
+| Días | Arco |
+|---|---|
+| 1–5 | El inicio del desastre |
+| 6–10 | Se rompe la amistad |
+| 11–15 | La guerra del Polo Norte |
+| 16–20 | Nadie es inocente |
+| 21–25 | Caos absoluto |
+| 26–30 | El juicio final (día 30 = 24 dic: ceremonia y revelación del amigo secreto) |
+
+- **Eventos especiales** (saboteador, doble puntos, juicio final) en el calendario, que el
+  organizador también podrá lanzar a mano desde el panel.
+
+Lo que todavía no está construido se muestra como **"Próximamente"** (no es un candado por día).
+
+## Temporada de prueba
+
+Al crear una temporada se puede marcar **🧪 Es una temporada de prueba**. Va aparte de la real:
+- sin topes diarios (cada partida suma sus puntos) y sin pretemporada,
+- el organizador puede **simular cualquier día** desde el panel (◀ ▶ o atajos día 1/5/10…),
+- un aviso 🧪 se ve en la plaza, el mundo y la cabecera para no confundirla con la real.
+
+Al entrar con usuario + PIN se prioriza la temporada real si alguien está en las dos.
 
 El organizador puede cambiar fechas y eventos desde el panel sin tocar código.

@@ -22,6 +22,7 @@ function irALaPlaza() {
 // ------------------------------------------------------------ crear temporada
 export function CrearTemporadaForm() {
   const [nombre, setNombre] = useState("Christmas Chaos 2026");
+  const [prueba, setPrueba] = useState(false);
   const [datos, setDatos] = useState<DatosForm>(DATOS_INICIALES);
   const [creada, setCreada] = useState<string | null>(null);
   const e = useEnvio();
@@ -37,7 +38,7 @@ export function CrearTemporadaForm() {
         if (local) return e.setError(local);
         e.setEnviando(true);
         e.setError(null);
-        const r = await api<{ inviteCode: string }>("/api/temporada", { body: { nombre, ...datos } });
+        const r = await api<{ inviteCode: string }>("/api/temporada", { body: { nombre, prueba, ...datos } });
         e.setEnviando(false);
         if (r.ok) setCreada(r.inviteCode);
         else e.setError(r.error);
@@ -50,6 +51,22 @@ export function CrearTemporadaForm() {
         <input id="nombre" className="px-input" maxLength={60} value={nombre} onChange={(ev) => setNombre(ev.target.value)} disabled={e.enviando} required />
         <p className="px-hint mt-1">Del 25 de noviembre al 24 de diciembre (lo puedes cambiar en el panel).</p>
       </div>
+      <label className="px-box flex cursor-pointer items-start gap-3 px-3 py-2" style={{ ["--bg" as string]: prueba ? "var(--lavender)" : "#fff" }}>
+        <input
+          type="checkbox"
+          className="mt-1 h-5 w-5"
+          checked={prueba}
+          disabled={e.enviando}
+          onChange={(ev) => {
+            setPrueba(ev.target.checked);
+            if (ev.target.checked && nombre === "Christmas Chaos 2026") setNombre("Prueba con el equipo");
+          }}
+        />
+        <span className="leading-tight">
+          <span className="block font-pixel">🧪 Es una temporada de prueba</span>
+          <span className="block text-[0.8rem]">Para probar todo hoy con tus amigos: sin topes diarios y puedes simular cualquier día desde el panel. Va aparte de la temporada real.</span>
+        </span>
+      </label>
       <p className="font-pixel text-lg">Tú, el organizador</p>
       <CamposJugador datos={datos} setDatos={setDatos} disabled={e.enviando} />
       {e.error && <Aviso tono="error">{e.error}</Aviso>}

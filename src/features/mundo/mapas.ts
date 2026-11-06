@@ -18,7 +18,7 @@ export interface Interaccion {
   texto: string;
   /** enlace si la actividad ya existe */
   href?: string;
-  /** texto del candado si todavía no */
+  /** fase del plan en que se construye (se muestra "Próximamente") */
   abre?: string;
   npc?: NpcId;
 }
@@ -309,7 +309,7 @@ const FABRICA = () =>
       y: 4,
       w: 13,
       h: 1,
-      interaccion: { titulo: "La fábrica de los inútiles", texto: "Cadena cooperativa: seleccionar, envolver, etiquetar y transportar. Cada uno tiene su estación.", abre: "Día 11" },
+      interaccion: { titulo: "La fábrica de los inútiles", texto: "Cadena cooperativa: seleccionar, envolver, etiquetar y transportar. Cada uno tiene su estación.", abre: "Fase 2" },
     });
     L.objeto({ tipo: "regalos", x: 2, y: 7, w: 1, h: 1 });
     L.objeto({ tipo: "regalos", x: 3, y: 7, w: 1, h: 1, variante: 1 });
@@ -320,7 +320,7 @@ const FABRICA = () =>
       y: 2,
       w: 2,
       h: 1,
-      interaccion: { titulo: "Energía navideña", texto: "Los 20 contra el desastre: juntos tienen que reunir 10 000 de energía para encender el árbol de la plaza.", abre: "Día 11" },
+      interaccion: { titulo: "Energía navideña", texto: "Los 20 contra el desastre: juntos tienen que reunir 10 000 de energía para encender el árbol de la plaza.", abre: "Fase 2" },
     });
     L.objeto({ tipo: "estante", x: 1, y: 2, w: 3, h: 1 });
     L.npcs.push({ id: "duende", x: 8, y: 8, radio: 3 });
@@ -334,11 +334,11 @@ const TABLON = () =>
       y: 1,
       w: 7,
       h: 2,
-      interaccion: { titulo: "¿Quién es más probable…?", texto: "Una pregunta, un voto por persona, resultados al cierre con comentario del Auditor.", abre: "Día 6" },
+      interaccion: { titulo: "¿Quién es más probable…?", texto: "Una pregunta, un voto por persona, resultados al cierre con comentario del Auditor.", abre: "Fase 3" },
     });
-    L.objeto({ tipo: "cabina", x: 12, y: 3, w: 2, h: 2, interaccion: { titulo: "Confesionario", texto: "Responde anónimo (para los jugadores) y adivina quién escribió qué.", abre: "Día 6" } });
-    L.objeto({ tipo: "microfono", x: 2, y: 4, w: 1, h: 1, interaccion: { titulo: "Roast Battle", texto: "Solo voluntarios. Dos personas, una situación absurda y el grupo vota.", abre: "Día 10" } });
-    L.objeto({ tipo: "fotos", x: 1, y: 2, w: 2, h: 1, interaccion: { titulo: "Batalla de memes", texto: "Plantillas propias del juego. Gana el que haga reír al grupo.", abre: "Día 16" } });
+    L.objeto({ tipo: "cabina", x: 12, y: 3, w: 2, h: 2, interaccion: { titulo: "Confesionario", texto: "Responde anónimo (para los jugadores) y adivina quién escribió qué.", abre: "Fase 3" } });
+    L.objeto({ tipo: "microfono", x: 2, y: 4, w: 1, h: 1, interaccion: { titulo: "Roast Battle", texto: "Solo voluntarios. Dos personas, una situación absurda y el grupo vota.", abre: "Fase 3" } });
+    L.objeto({ tipo: "fotos", x: 1, y: 2, w: 2, h: 1, interaccion: { titulo: "Batalla de memes", texto: "Plantillas propias del juego. Gana el que haga reír al grupo.", abre: "Fase 4" } });
     L.objeto({ tipo: "banca", x: 5, y: 7, w: 2, h: 1 });
     L.objeto({ tipo: "banca", x: 9, y: 7, w: 2, h: 1 });
   });
@@ -372,7 +372,7 @@ const TROFEOS = () =>
     L.objeto({ tipo: "trofeos", x: 2, y: 1, w: 4, h: 2 });
     L.objeto({ tipo: "trofeos", x: 9, y: 1, w: 4, h: 2, variante: 1 });
     L.objeto({ tipo: "marcador", x: 6, y: 1, w: 3, h: 2, interaccion: { titulo: "Ranking en vivo", texto: "Individual y por equipos (promedio por integrante).", href: "/ranking" } });
-    L.objeto({ tipo: "podio", x: 6, y: 5, w: 3, h: 1, interaccion: { titulo: "Ranking de la vergüenza", texto: "Premios absurdos y también bonitos, cada semana.", abre: "Día 7" } });
+    L.objeto({ tipo: "podio", x: 6, y: 5, w: 3, h: 1, interaccion: { titulo: "Ranking de la vergüenza", texto: "Premios absurdos y también bonitos, cada semana.", abre: "Fase 3" } });
     L.objeto({ tipo: "buzon", x: 12, y: 6, w: 1, h: 1, interaccion: { titulo: "Cápsula del tiempo", texto: "Escribe algo hoy; se abre en la ceremonia final.", abre: "Fase 5" } });
     L.npcs.push({ id: "auditor", x: 4, y: 6, radio: 2 });
   });
@@ -383,9 +383,9 @@ function construirArena(): Sala {
   L.pintar(0, 0, 18, 2, "muro");
   L.pintar(4, 4, 10, 6, "plaza");
   L.objeto({ tipo: "ring", x: 6, y: 5, w: 6, h: 3, bloquea: false });
-  L.objeto({ tipo: "podio", x: 2, y: 3, w: 2, h: 1, interaccion: { titulo: "Juicio del Polo Norte", texto: "Trivia absurda por equipos. Cuenta el promedio del equipo.", abre: "Día 11" } });
+  L.objeto({ tipo: "podio", x: 2, y: 3, w: 2, h: 1, interaccion: { titulo: "Juicio del Polo Norte", texto: "Trivia absurda por equipos. Cuenta el promedio del equipo.", abre: "Fase 3" } });
   L.objeto({ tipo: "marcador", x: 13, y: 2, w: 3, h: 1, interaccion: { titulo: "Marcador de equipos", texto: "Ranking por equipos en vivo.", href: "/ranking" } });
-  L.objeto({ tipo: "muneco", x: 15, y: 9, interaccion: { titulo: "Guerra de nieve", texto: "Por rondas: defiende tu base y captura la del rival.", abre: "Día 15" } });
+  L.objeto({ tipo: "muneco", x: 15, y: 9, interaccion: { titulo: "Guerra de nieve", texto: "Por rondas: defiende tu base y captura la del rival.", abre: "Fase 5" } });
   L.objeto({ tipo: "roca", x: 2, y: 9 });
   L.npcs.push({ id: "rudolf", x: 9, y: 10, radio: 2 });
   const e = EDIFICIOS.find((b) => b.id === "arena")!;
@@ -398,7 +398,7 @@ function construirBosque(): Sala {
   L.pintar(0, 9, 14, 2, "camino");
   L.pintar(13, 4, 2, 7, "camino");
   L.objeto({ tipo: "cueva", x: 12, y: 1, w: 4, h: 3, interaccion: { titulo: "La cueva del ogro", texto: "Escape del Polo Norte: cada uno ve pistas distintas. Hablen o se quedan atrapados.", abre: "Fase 5" } });
-  L.objeto({ tipo: "runa", x: 19, y: 12, interaccion: { titulo: "Acertijos del Muñeco", texto: "Piedras con acertijos nuevos cada pocos días.", abre: "Día 6" } });
+  L.objeto({ tipo: "runa", x: 19, y: 12, interaccion: { titulo: "Acertijos del Muñeco", texto: "Piedras con acertijos nuevos cada pocos días.", abre: "Fase 3" } });
   L.objeto({ tipo: "runa", x: 6, y: 14, variante: 1, interaccion: { titulo: "Desactiva la máquina", texto: "Uno ve el dispositivo, los demás el manual. Información asimétrica.", abre: "Fase 5" } });
   const azar = crearAzar(77);
   for (let k = 0; k < 150; k++) {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cache } from "react";
 import { unstable_rethrow } from "next/navigation";
-import { estadoTemporada, arcoDelDia } from "@/features/season/calendario";
+import { arcoDelDia, type EstadoTemporada } from "@/features/season/calendario";
 import { contextoDelDia, fraseDe, type NpcId } from "@/features/contenido/npcs";
 import { GIFT_CATCHER, nivel, xpParaNivel } from "@/features/scoring/reglas";
 import { NpcSprite, Avatar } from "@/components/rpg/PixelSprite";
@@ -11,7 +11,7 @@ import { Aviso } from "@/components/ui/Pantalla";
 import { EnlaceInvitacion } from "@/components/acceso/Formularios";
 import { equiposDeTemporada, eventosDeTemporada, jugadoresDeTemporada, miGiftCatcher, noticias, rankingEquipos, recordsGiftCatcher } from "@/lib/server/consultas";
 import { hasDatabase } from "@/lib/server/db";
-import { jugadorActual } from "@/lib/server/sesion";
+import { estadoDe, jugadorActual } from "@/lib/server/sesion";
 import { Cabecera, Pildora, type EstadoPildora } from "./HomeHud";
 
 /**
@@ -36,12 +36,13 @@ const datosJugador = cache(async () => {
   if (!yo) return null;
   const [jugadores, equipos, gift] = await Promise.all([jugadoresDeTemporada(yo.seasonId), equiposDeTemporada(yo.seasonId), miGiftCatcher(yo.id)]);
   const ahora = new Date();
-  const estado = estadoTemporada(ahora, yo.startsAt, yo.endsAt);
+  const estado = estadoDe(yo, ahora);
   const fila = jugadores.find((j) => j.id === yo.id);
   return { yo, jugadores, equipos, gift, estado, fila, ahora };
 });
 
-function diaTexto(e: ReturnType<typeof estadoTemporada>) {
+function diaTexto(e: EstadoTemporada, prueba = false) {
+  if (prueba && e.fase === "en-curso") return `🧪 Prueba · día ${e.dia}`;
   if (e.fase === "pretemporada") return `⏳ Faltan ${e.faltanDias} día${e.faltanDias === 1 ? "" : "s"}`;
   if (e.fase === "terminada") return "🏁 Temporada terminada";
   return `🎄 Día ${e.dia} de ${e.totalDias}`;
@@ -61,7 +62,7 @@ export async function CabeceraDatos() {
         estado: d.yo.status,
         puesto: d.fila?.rank ?? null,
         total: d.jugadores.length,
-        diaTexto: diaTexto(d.estado),
+        diaTexto: diaTexto(d.estado, d.yo.prueba),
       }}
     />
   );
@@ -144,6 +145,11 @@ export async function PlazaCentral() {
 
   return (
     <Seccion>
+      {yo.prueba && (
+        <Aviso>
+          🧪 <b>Temporada de prueba.</b> Aquí todo vale para probar: sin topes diarios y el organizador puede simular cualquier día. Los puntos no pasan a la temporada real.
+        </Aviso>
+      )}
       <Link href="/mundo" className="px-box shine flex items-center gap-3 p-3" style={{ ["--bg" as string]: "#1b1f4a", color: "var(--cream)" }}>
         <span className="text-3xl" aria-hidden>
           🗺️
@@ -175,7 +181,7 @@ export async function PlazaCentral() {
         <div className="flex items-baseline justify-between gap-2">
           <span className="font-pixel text-lg">{estado.fase === "pretemporada" ? "Pretemporada" : arco.titulo}</span>
           <span className="px-chip !text-[0.72rem]" style={{ ["--chip" as string]: "var(--mint)" }}>
-            {diaTexto(estado)}
+            {diaTexto(estado, yo.prueba)}
           </span>
         </div>
         <p className="mt-1 text-[0.85rem] text-[var(--ink-soft)]">

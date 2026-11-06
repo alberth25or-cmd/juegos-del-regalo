@@ -1,12 +1,11 @@
 import "server-only";
 import { DURACION_MS, MOTIVOS, validarPartida } from "@/features/games/giftCatcher";
 import { deltaPuntos, puntosDelDia, recompensaPartida } from "@/features/scoring/reglas";
-import { estadoTemporada } from "@/features/season/calendario";
 import { ErrorDeUsuario } from "./api";
 import { conTope, db } from "./db";
 import { LIMITES, permitir } from "./limites";
 import { newSeed } from "./seguridad";
-import type { Jugador } from "./sesion";
+import { estadoDe, type Jugador } from "./sesion";
 
 const JUEGO = "gift-catcher";
 
@@ -64,7 +63,7 @@ export async function terminarPartida(yo: Jugador, attemptId: string, datos: { p
       if (a.status !== "started") throw new ErrorDeUsuario("Esta partida ya fue registrada.", 409);
 
       const v = validarPartida({ seed: a.seed, transcurridoMs: a.transcurrido, duracionMs: datos.duracionMs, atrapados: datos.atrapados, puntaje: datos.puntaje });
-      const estado = estadoTemporada(new Date(), yo.startsAt, yo.endsAt);
+      const estado = estadoDe(yo);
       const pretemporada = estado.fase === "pretemporada";
 
       if (!v.ok) {
@@ -99,11 +98,12 @@ export async function terminarPartida(yo: Jugador, attemptId: string, datos: { p
       `;
       let puntos = 0;
       if (!pretemporada && estado.fase === "en-curso") {
-        puntos = deltaPuntos(mejor, otorgado);
+        // En prueba no hay tope diario: cada partida suma sus puntos (para probar rápido).
+        puntos = yo.prueba ? puntosDelDia(puntaje) : deltaPuntos(mejor, otorgado);
         if (puntos > 0) {
           await tx`
             insert into cc.score_ledger (season_id, player_id, team_id, source_type, source_id, points, reason, idempotency_key)
-            values (${yo.seasonId}, ${yo.id}, ${yo.teamId}, 'juego-dia', ${dia}, ${puntos}, 'Gift Catcher: mejor del día', ${`dia:${dia}:${yo.id}:${a.id}`})
+            values (${yo.seasonId}, ${yo.id}, ${yo.teamId}, 'juego-dia', ${dia}, ${puntos}, ${yo.prueba ? "Gift Catcher (prueba)" : "Gift Catcher: mejor del día"}, ${`dia:${dia}:${yo.id}:${a.id}`})
           `;
         }
       }
@@ -123,7 +123,7 @@ export async function terminarPartida(yo: Jugador, attemptId: string, datos: { p
         coins: recompensa.coins,
         puntos,
         puntosHoy: otorgado + puntos,
-        topeHoy: puntosDelDia(1e9),
+        topeHoy: yo.prueba ? 0 : puntosDelDia(1e9),
         pretemporada,
         atrapados: v.resumen.atrapados,
         rachaMax: v.resumen.rachaMax,

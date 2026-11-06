@@ -4,6 +4,7 @@ import { cookies, headers } from "next/headers";
 import { after } from "next/server";
 import { conTope, db, hasDatabase, type Sql, type Tx } from "./db";
 import { hashLookup, newSessionToken } from "./seguridad";
+import { estadoConPrueba } from "@/features/season/calendario";
 
 /**
  * Sesión del jugador: token aleatorio en una cookie httpOnly que dura 60 días.
@@ -29,6 +30,14 @@ export interface Jugador {
   allowPublicSharing: boolean;
   startsAt: Date;
   endsAt: Date;
+  /** temporada de prueba: sin topes diarios y con día simulado */
+  prueba: boolean;
+  diaSimulado: number | null;
+}
+
+/** Día de temporada del jugador (respeta la simulación de las temporadas de prueba). */
+export function estadoDe(yo: Jugador, ahora = new Date()) {
+  return estadoConPrueba(ahora, yo.startsAt, yo.endsAt, yo.prueba, yo.diaSimulado);
 }
 
 /** Crea una sesión para el jugador y deja la cookie en este dispositivo. */
@@ -54,7 +63,7 @@ export const jugadorActual = cache(async (): Promise<Jugador | null> => {
     db()`
       select p.id, p.season_id, s.name as season_name, s.invite_code, p.username, p.display_name, p.avatar,
              p.role, p.status, p.team_id, p.humor_level, p.allow_roast, p.allow_public_sharing,
-             s.starts_at, s.ends_at,
+             s.starts_at, s.ends_at, s.settings,
              (ss.last_used_at < now() - interval '10 minutes') as renovar
       from cc.sessions ss
       join cc.players p on p.id = ss.player_id
@@ -94,6 +103,8 @@ export const jugadorActual = cache(async (): Promise<Jugador | null> => {
     allowPublicSharing: r.allow_public_sharing,
     startsAt: new Date(r.starts_at),
     endsAt: new Date(r.ends_at),
+    prueba: r.settings?.prueba === true,
+    diaSimulado: typeof r.settings?.diaSimulado === "number" ? r.settings.diaSimulado : null,
   };
 });
 

@@ -84,7 +84,7 @@ export function GameCard({ card, index, dark }: { card: GameCardDef; index: numb
             <span style={{ animation: "bob 1.4s steps(2) infinite" }}>
               <PixelIcon name="lock" size={30} />
             </span>
-            <span className="px-chip">{card.abre?.startsWith("Día") ? `Se abre el ${card.abre.toLowerCase()}` : `Llega en la ${card.abre}`}</span>
+            <span className="px-chip">Próximamente</span>
           </div>
         )}
       </div>

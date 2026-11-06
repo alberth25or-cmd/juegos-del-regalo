@@ -12,6 +12,7 @@ export const POST = manejador(async (req) => {
   const b = await cuerpo(req);
   const r = await crearTemporada({
     nombre: texto(b, "nombre", 80),
+    prueba: b.prueba === true,
     jugador: { username: texto(b, "username", 40), displayName: texto(b, "displayName", 40), avatar: b.avatar, pin: texto(b, "pin", 8), pin2: texto(b, "pin2", 8) },
   });
   return ok(r, 201);

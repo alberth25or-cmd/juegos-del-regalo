@@ -31,7 +31,7 @@ const ESTADO: Record<string, { t: string; c: string }> = {
 };
 
 /** Panel del organizador. Cada botón llama al servidor, que vuelve a comprobar el rol. */
-export function PanelAdmin({ yoId, jugadores, equipos, desde, hasta }: { yoId: string; jugadores: Jug[]; equipos: Eq[]; desde: string; hasta: string }) {
+export function PanelAdmin({ yoId, jugadores, equipos, desde, hasta, prueba }: { yoId: string; jugadores: Jug[]; equipos: Eq[]; desde: string; hasta: string; prueba?: { dia: number; total: number } | null }) {
   const router = useRouter();
   const [pendiente, startTransition] = useTransition();
   const [ocupado, setOcupado] = useState<string | null>(null);
@@ -56,6 +56,8 @@ export function PanelAdmin({ yoId, jugadores, equipos, desde, hasta }: { yoId: s
   return (
     <div className="flex flex-col gap-6">
       {msg && <Aviso tono={msg.tipo}>{msg.t}</Aviso>}
+
+      {prueba && <SimularDia dia={prueba.dia} total={prueba.total} disabled={deshabilitado} onCambiar={(d) => accion("simular", { accion: "simularDia", dia: d }, `Ahora todos ven el día ${d}.`)} />}
 
       {/* Solicitudes */}
       <section>
@@ -222,6 +224,35 @@ export function PanelAdmin({ yoId, jugadores, equipos, desde, hasta }: { yoId: s
       {/* Temporada */}
       <FechasForm desde={desde} hasta={hasta} disabled={deshabilitado} onGuardar={(d, h) => accion("fechas", { accion: "fechas", desde: d, hasta: h }, "Fechas actualizadas.")} />
     </div>
+  );
+}
+
+function SimularDia({ dia, total, disabled, onCambiar }: { dia: number; total: number; disabled: boolean; onCambiar: (d: number) => void }) {
+  return (
+    <section className="px-box p-3" style={{ ["--bg" as string]: "var(--lavender)" }}>
+      <h2 className="font-pixel text-xl">🧪 Temporada de prueba</h2>
+      <p className="mt-1 text-[0.85rem]">Simula cualquier día para probar el calendario con tus amigos: cambian las frases de los NPCs, el arco de la historia y los eventos. No hay topes diarios de puntos.</p>
+      <div className="mt-3 flex items-center gap-2">
+        <button type="button" className="px-btn !min-h-[44px] !px-3" disabled={disabled || dia <= 1} onClick={() => onCambiar(dia - 1)} aria-label="Día anterior">
+          ◀
+        </button>
+        <span className="flex-1 text-center font-pixel text-2xl">
+          Día {dia} <span className="text-[0.9rem]">de {total}</span>
+        </span>
+        <button type="button" className="px-btn !min-h-[44px] !px-3" style={{ ["--bg" as string]: "var(--gold)" }} disabled={disabled || dia >= total} onClick={() => onCambiar(dia + 1)} aria-label="Día siguiente">
+          ▶
+        </button>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1">
+        {[1, 5, 10, 15, 20, 25, 30]
+          .filter((d) => d <= total)
+          .map((d) => (
+            <button key={d} type="button" className="px-chip !text-[0.75rem]" style={{ ["--chip" as string]: d === dia ? "var(--gold)" : "#fff" }} disabled={disabled} onClick={() => onCambiar(d)}>
+              Día {d}
+            </button>
+          ))}
+      </div>
+    </section>
   );
 }
 

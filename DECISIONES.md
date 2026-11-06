@@ -26,6 +26,11 @@ Mundo explorable (respuestas de Luis, 2026-11-05):
 - Riesgo aceptado: los canales de Realtime son públicos con la clave pública (el id de la
   temporada es un UUID imposible de adivinar). El chat oficial lo difunde el servidor.
 
+Ritmo y pruebas (respuestas de Luis, 2026-11-06):
+- **Todo abierto + rotación diaria:** sin candados por día; el ritmo lo dan el contenido que
+  rota, los topes diarios y los eventos especiales (que el organizador puede lanzar a mano).
+- **Temporada de prueba aparte:** sin topes, con día simulado y puntos separados de la real.
+
 ---
 
 ## Versión anterior (2026-11-04)
