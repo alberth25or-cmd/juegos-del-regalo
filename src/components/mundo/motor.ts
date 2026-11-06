@@ -30,6 +30,8 @@ interface Ente {
   pendiente?: boolean;
   casa?: { x: number; y: number; radio: number };
   proximoPaseo?: number;
+  /** Último número de movimiento recibido de este jugador (ordena red vs. presencia). */
+  seq?: number;
 }
 
 export type Accion =
@@ -186,14 +188,21 @@ export class Motor {
   }
 
   // ------------------------------------------------------------ jugadores
-  sincronizar(lista: { id: string; nombre: string; avatar: unknown; color: string | null; x: number; y: number; pendiente?: boolean }[]) {
+  sincronizar(lista: { id: string; nombre: string; avatar: unknown; color: string | null; x: number; y: number; pendiente?: boolean; seq?: number }[]) {
     const vistos = new Set<string>();
     for (const p of lista) {
       vistos.add(p.id);
       const e = this.otros.get(p.id);
-      if (!e) this.otros.set(p.id, this.crearEnte(p, { x: p.x, y: p.y }));
-      else {
+      if (!e) {
+        const n = this.crearEnte(p, { x: p.x, y: p.y });
+        n.seq = p.seq ?? 0;
+        this.otros.set(p.id, n);
+      } else {
         e.nombre = p.nombre;
+        // La presencia se publica con retraso: solo manda si es igual o más nueva que el último movimiento recibido.
+        const seq = p.seq ?? 0;
+        if (seq < (e.seq ?? 0)) continue;
+        e.seq = seq;
         if (e.ruta.length === 0 && (Math.abs(e.pos.x - p.x) > 0.5 || Math.abs(e.pos.y - p.y) > 0.5)) this.moverEnte(e, { x: Math.round(e.pos.x), y: Math.round(e.pos.y) }, { x: p.x, y: p.y });
       }
     }
@@ -213,9 +222,13 @@ export class Motor {
     return [...this.otros.values()].map((e) => ({ id: e.id, nombre: e.nombre }));
   }
 
-  moverOtro(id: string, de: Punto, a: Punto) {
+  moverOtro(id: string, de: Punto, a: Punto, seq?: number) {
     const e = this.otros.get(id);
     if (!e) return;
+    if (seq !== undefined) {
+      if (seq < (e.seq ?? 0)) return;
+      e.seq = seq;
+    }
     if (Math.hypot(e.pos.x - de.x, e.pos.y - de.y) > 2) e.pos = { ...de };
     this.moverEnte(e, de, a);
   }

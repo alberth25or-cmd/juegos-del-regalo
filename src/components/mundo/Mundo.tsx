@@ -189,7 +189,7 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
         setAqui(m.listaAqui());
       });
       r.alEvento((e: Evento) => {
-        if (e.tipo === "mover") m.moverOtro(e.id, e.de, e.a);
+        if (e.tipo === "mover") m.moverOtro(e.id, e.de, e.a, e.seq);
         else if (e.tipo === "emote") m.burbuja(e.id, e.emote, "emote");
         else if (e.tipo === "frase") m.burbuja(e.id, e.texto, "chat");
         else if (e.tipo === "saludo" && e.para === yoId) {
