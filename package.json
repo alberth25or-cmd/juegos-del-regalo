@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "migrate": "node scripts/migrate.mjs",
-    "test": "node --experimental-strip-types --no-warnings --test tests/*.test.ts",
+    "test": "node --experimental-strip-types --no-warnings --conditions=react-server --test tests/*.test.ts",
     "db:local": "node scripts/db-local.mjs",
     "sim": "node --experimental-strip-types --no-warnings scripts/sim-20.mjs",
     "hf:ejemplo": "node --experimental-strip-types --no-warnings scripts/higgsfield/seedance-ejemplo.ts",

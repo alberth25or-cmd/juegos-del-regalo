@@ -60,7 +60,7 @@ export const jugadorActual = cache(async (): Promise<Jugador | null> => {
   if (!token || !hasDatabase()) return null;
   const hash = hashLookup(token);
   const rows = await conTope(
-    db()`
+    () => db()`
       select p.id, p.season_id, s.name as season_name, s.invite_code, p.username, p.display_name, p.avatar,
              p.role, p.status, p.team_id, p.humor_level, p.allow_roast, p.allow_public_sharing,
              s.starts_at, s.ends_at, s.settings,

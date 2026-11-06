@@ -30,8 +30,9 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/mundo">["
   let color: string | null = null;
   try {
     yo = hasDatabase() ? await jugadorActual() : null;
-    if (yo?.teamId) {
-      const [t] = await conTope(db()`select color from cc.teams where id = ${yo.teamId}`);
+    const equipo = yo?.teamId;
+    if (equipo) {
+      const [t] = await conTope(() => db()`select color from cc.teams where id = ${equipo}`);
       color = (t?.color as string) ?? null;
     }
   } catch (e) {

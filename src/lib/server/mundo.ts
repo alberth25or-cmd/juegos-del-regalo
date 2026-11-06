@@ -66,7 +66,7 @@ export async function enviarChat(yo: Jugador, salaId: unknown, entrada: string):
 }
 
 export async function chatReciente(seasonId: string, salaId: SalaId, limite = 15): Promise<MensajeChat[]> {
-  const rows = await conTope(db()`
+  const rows = await conTope(() => db()`
     select m.id, m.player_id, p.display_name, m.body, m.created_at
     from cc.world_messages m join cc.players p on p.id = m.player_id
     where m.season_id = ${seasonId} and m.room = ${salaId} and not m.hidden and m.created_at > now() - interval '2 days'
@@ -90,7 +90,7 @@ export async function reportar(yo: Jugador, tipo: unknown, id: string, motivo: s
 /** Perfil público de otro jugador de la MISMA temporada. */
 export async function perfilPublico(yo: Jugador, id: string) {
   if (!/^[0-9a-f-]{36}$/i.test(id)) throw new ErrorDeUsuario("Jugador no encontrado.", 404);
-  const [r] = await conTope(db()`
+  const [r] = await conTope(() => db()`
     select p.id, p.display_name, p.avatar, p.status, t.name as team, t.color, t.emblem,
            coalesce(v.points, 0)::int as points, coalesce(v.xp, 0)::int as xp
     from cc.players p

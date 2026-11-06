@@ -33,7 +33,7 @@ export interface FilaEquipo {
 }
 
 export async function jugadoresDeTemporada(seasonId: string, soloActivos = true): Promise<FilaJugador[]> {
-  const rows = await conTope(db()`
+  const rows = await conTope(() => db()`
     select p.id, p.username, p.display_name, p.avatar, p.role, p.status, p.team_id, p.created_at,
            coalesce(t.points, 0)::int as points, coalesce(t.xp, 0)::int as xp, coalesce(t.coins, 0)::int as coins
     from cc.players p
@@ -66,7 +66,7 @@ export async function jugadoresDeTemporada(seasonId: string, soloActivos = true)
 }
 
 export async function equiposDeTemporada(seasonId: string) {
-  const rows = await conTope(db()`select id, name, slug, color, emblem from cc.teams where season_id = ${seasonId} order by created_at`);
+  const rows = await conTope(() => db()`select id, name, slug, color, emblem from cc.teams where season_id = ${seasonId} order by created_at`);
   return rows.map((r) => ({ id: r.id as string, name: r.name as string, slug: r.slug as string, color: r.color as string, emblem: r.emblem as string }));
 }
 
@@ -90,7 +90,7 @@ export interface Noticia {
 }
 
 export async function noticias(seasonId: string, limite = 12): Promise<Noticia[]> {
-  const rows = await conTope(db()`
+  const rows = await conTope(() => db()`
     select id, event_type, payload, created_at from cc.chaos_events
     where season_id = ${seasonId} and is_public
     order by created_at desc limit ${limite}
@@ -99,13 +99,13 @@ export async function noticias(seasonId: string, limite = 12): Promise<Noticia[]
 }
 
 export async function eventosDeTemporada(seasonId: string) {
-  const rows = await conTope(db()`select day, title, description, kind from cc.season_events where season_id = ${seasonId} order by day, title`);
+  const rows = await conTope(() => db()`select day, title, description, kind from cc.season_events where season_id = ${seasonId} order by day, title`);
   return rows.map((r) => ({ day: r.day as number, title: r.title as string, description: r.description as string, kind: r.kind as string }));
 }
 
 /** Resumen de mi progreso en Gift Catcher (hoy y récord). */
 export async function miGiftCatcher(playerId: string) {
-  const [r] = await conTope(db()`
+  const [r] = await conTope(() => db()`
     select
       coalesce(max(score) filter (where local_day = (now() at time zone 'America/Lima')::date), 0)::int as mejor_hoy,
       coalesce(max(score), 0)::int as record,
@@ -121,7 +121,7 @@ export async function miGiftCatcher(playerId: string) {
 
 /** Mejores puntajes de Gift Catcher de la temporada (récord de cada jugador). */
 export async function recordsGiftCatcher(seasonId: string, limite = 5) {
-  const rows = await conTope(db()`
+  const rows = await conTope(() => db()`
     select p.display_name, p.avatar, max(a.score)::int as record
     from cc.game_attempts a join cc.players p on p.id = a.player_id
     where a.season_id = ${seasonId} and a.game_slug = 'gift-catcher' and a.status = 'validated' and p.status = 'active'
@@ -133,7 +133,7 @@ export async function recordsGiftCatcher(seasonId: string, limite = 5) {
 
 /** Métricas básicas para el organizador (agregadas, sin datos privados). */
 export async function metricas(seasonId: string) {
-  const [r] = await conTope(db()`
+  const [r] = await conTope(() => db()`
     select
       (select count(*)::int from cc.players where season_id = ${seasonId} and status = 'active') as activos,
       (select count(*)::int from cc.players where season_id = ${seasonId} and status = 'pending') as pendientes,
