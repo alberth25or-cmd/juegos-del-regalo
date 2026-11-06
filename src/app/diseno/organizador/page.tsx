@@ -6,8 +6,8 @@ const USUARIOS = ["ana.r", "bruno22", "carla_v", "dani", "eli.m", "fer", "gabo",
 
 export default function OrganizadorDiseno() {
   return (
-    <main className="px-4 pb-12 pt-6">
-      <h1 className="mx-auto mb-4 max-w-5xl font-pixel text-[1.6rem]">Panel del organizador</h1>
+    <main className="px-4 pb-48 pt-8">
+      <h1 className="f-titulo mx-auto mb-5 max-w-5xl text-[2.2rem] font-semibold">Panel del organizador</h1>
       <PanelOrganizador agentes={AGENTES.slice(0, 14)} usuarios={USUARIOS.slice(0, 14)} capacidadInicial={SALA.capacidad} />
     </main>
   );

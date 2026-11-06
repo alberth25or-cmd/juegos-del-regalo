@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { PixelIcon } from "@/components/ui/PixelIcon";
 
@@ -35,10 +36,15 @@ export function FichaInscripcion({ alias, presupuesto }: { alias: string; presup
 
   if (lista)
     return (
-      <div className="px-panel mx-auto max-w-md p-6 text-center" style={{ ["--bc" as string]: "var(--ok)" }} role="status">
-        <PixelIcon name="check" size={48} className="mx-auto" />
-        <h2 className="mt-3 font-pixel text-xl">¡Ficha completa!</h2>
-        <p className="mt-2 text-[var(--texto-suave)]">Tu cabeza ya cuelga en el árbol. Espera el &quot;Empezar&quot; del organizador.</p>
+      <div className="clay mx-auto max-w-md p-7 text-center" role="status">
+        <span className="flotar mx-auto grid h-20 w-20 place-items-center rounded-full bg-[#e8f6ee]">
+          <PixelIcon name="check" size={44} />
+        </span>
+        <h2 className="f-titulo mt-4 text-[1.8rem] font-semibold">¡Ficha completa!</h2>
+        <p className="mt-2 text-[var(--tinta-suave)]">Tu cabeza ya cuelga en el árbol. Ahora toca esperar el &quot;Empezar&quot; del organizador.</p>
+        <Link href="/diseno/arbol" className="boton verde mt-5 w-full">
+          Ver el árbol
+        </Link>
       </div>
     );
 
@@ -54,54 +60,64 @@ export function FichaInscripcion({ alias, presupuesto }: { alias: string; presup
         else document.getElementById(Object.keys(e)[0])?.focus();
       }}
     >
-      <header>
-        <p className="font-pixel text-[0.85rem] text-[var(--texto-suave)]">FICHA DE {alias.toUpperCase()}</p>
-        <h1 className="mt-1 font-pixel text-[1.6rem] leading-tight">Tu pase al árbol</h1>
-        <p className="mt-2 text-[var(--texto-suave)]">
-          Lo que escribas aquí <b className="text-[var(--cream)]">solo lo verá quien te regale</b>, al final de la temporada.
+      <header className="text-center">
+        <p className="text-[0.85rem] font-extrabold uppercase tracking-[0.14em] text-[var(--oro)]">Ficha de {alias}</p>
+        <h1 className="f-titulo mt-1 text-[2.2rem] font-semibold leading-tight">Tu pase al árbol</h1>
+        <p className="mx-auto mt-2 max-w-[44ch] text-[var(--hielo)]">
+          Lo que escribas aquí <b className="text-white">solo lo verá quien te regale</b>, al final de la temporada.
         </p>
       </header>
 
-      <fieldset className="px-panel p-4">
+      <fieldset className="clay p-5">
         <legend className="sr-only">Opciones de regalo</legend>
-        <p className="font-pixel text-[1.05rem]">1 · Opciones de regalo</p>
-        <p className="px-hint mt-1">3 obligatorias y 1 opcional. Presupuesto de la sala: <b className="text-[var(--gold)]">S/{presupuesto}</b>.</p>
-        <div className="mt-3 flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] bg-[#ffe3e6]"><PixelIcon name="chest" size={26} /></span>
+          <div>
+            <p className="f-titulo text-[1.3rem] font-semibold leading-tight">¿Qué te gustaría recibir?</p>
+            <p className="ayuda">3 opciones obligatorias y 1 opcional. Presupuesto: <b className="text-[var(--rojo-boton)]">S/{presupuesto}</b></p>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {regalos.map((r, i) => {
             const id = `regalo${i}`;
             return (
               <div key={id}>
-                <label htmlFor={id} className="px-label !text-[0.85rem]">
-                  Opción {i + 1} {i === 3 && <span className="text-[var(--texto-tenue)]">(opcional)</span>}
+                <label htmlFor={id} className="etiqueta">
+                  Opción {i + 1} {i === 3 && <span className="font-semibold text-[var(--tinta-suave)]">(opcional)</span>}
                 </label>
                 <input
                   id={id}
-                  className="px-input"
+                  className="campo"
                   value={r}
                   maxLength={60}
-                  placeholder={["Ej.: Taza térmica", "Ej.: Libro de cocina peruana", "Ej.: Audífonos", "Ej.: Chocolates"][i]}
+                  placeholder={["Ej.: Taza térmica", "Ej.: Libro de cocina", "Ej.: Audífonos", "Ej.: Chocolates"][i]}
                   aria-invalid={!!errores[id]}
                   aria-describedby={errores[id] ? `${id}-err` : undefined}
                   onChange={(e) => setRegalos(regalos.map((v, k) => (k === i ? e.target.value : v)))}
                   onBlur={() => errores[id] && setErrores({ ...errores, [id]: validar()[id] ?? "" })}
                 />
-                {errores[id] && <p id={`${id}-err`} className="mt-1 text-[0.85rem] text-[var(--yo)]">{errores[id]}</p>}
+                {errores[id] && <p id={`${id}-err`} className="error mt-1">{errores[id]}</p>}
               </div>
             );
           })}
         </div>
       </fieldset>
 
-      <section className="px-panel p-4" aria-labelledby="datos-t">
-        <p id="datos-t" className="font-pixel text-[1.05rem]">2 · Así te reconocerán</p>
-        <p className="px-hint mt-1">Datos breves para que te describan sin decir tu nombre.</p>
-        <div className="mt-3 flex flex-col gap-4">
+      <section className="clay p-5" aria-labelledby="datos-t">
+        <div className="flex items-center gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] bg-[#e8f6ee]"><PixelIcon name="friend" size={26} /></span>
+          <div>
+            <p id="datos-t" className="f-titulo text-[1.3rem] font-semibold leading-tight">Así te reconocerán</p>
+            <p className="ayuda">Pistas para que te describan sin decir tu nombre.</p>
+          </div>
+        </div>
+        <div className="mt-4 flex flex-col gap-4">
           {DATOS.map((d) => (
             <fieldset key={d.id} aria-describedby={errores[d.id] ? `${d.id}-err` : undefined}>
-              <legend className="px-label !text-[0.85rem]">{d.label}</legend>
-              <div className="flex flex-wrap">
+              <legend className="etiqueta">{d.label}</legend>
+              <div className="flex flex-wrap gap-2">
                 {d.opciones.map((o, k) => (
-                  <label key={o} className="px-seg">
+                  <label key={o} className="opcion">
                     <input
                       type="radio"
                       name={d.id}
@@ -117,25 +133,25 @@ export function FichaInscripcion({ alias, presupuesto }: { alias: string; presup
                   </label>
                 ))}
               </div>
-              {errores[d.id] && <p id={`${d.id}-err`} className="mt-1 text-[0.85rem] text-[var(--yo)]">{errores[d.id]}</p>}
+              {errores[d.id] && <p id={`${d.id}-err`} className="error mt-1.5">{errores[d.id]}</p>}
             </fieldset>
           ))}
           <div>
-            <label htmlFor="rasgo" className="px-label !text-[0.85rem]">
-              Un rasgo que te delate <span className="text-[var(--texto-tenue)]">(opcional)</span>
+            <label htmlFor="rasgo" className="etiqueta">
+              Un rasgo que te delate <span className="font-semibold text-[var(--tinta-suave)]">(opcional)</span>
             </label>
-            <input id="rasgo" className="px-input" value={rasgo} maxLength={60} placeholder="Ej.: siempre llego con café" onChange={(e) => setRasgo(e.target.value)} aria-describedby="rasgo-h" />
-            <p id="rasgo-h" className="px-hint">{rasgo.length}/60</p>
+            <input id="rasgo" className="campo" value={rasgo} maxLength={60} placeholder="Ej.: siempre llego con café" onChange={(e) => setRasgo(e.target.value)} aria-describedby="rasgo-h" />
+            <p id="rasgo-h" className="ayuda mt-1 text-right">{rasgo.length}/60</p>
           </div>
         </div>
       </section>
 
-      <div className="sticky bottom-0 -mx-4 bg-[var(--noche)]/95 px-4 pb-[max(14px,env(safe-area-inset-bottom))] pt-3">
-        <p className="mb-1 text-center text-[0.85rem] text-[var(--texto-suave)]" aria-live="polite">
-          {faltan === 0 ? "Todo listo." : `Te ${faltan === 1 ? "falta 1 cosa" : `faltan ${faltan} cosas`}.`}
+      <div className="sticky bottom-0 z-10 -mx-4 bg-gradient-to-t from-[var(--cielo-1)] via-[rgb(11_22_64/0.9)] to-transparent px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-6">
+        <p className="mb-2 text-center text-[0.9rem] font-bold text-[var(--hielo)]" aria-live="polite">
+          {faltan === 0 ? "¡Todo listo!" : `Te ${faltan === 1 ? "falta 1 cosa" : `faltan ${faltan} cosas`}`}
         </p>
-        <button type="submit" className="px-btn w-full !text-[1.1rem]" style={{ ["--bg" as string]: "var(--cta)", color: "var(--cream)" }}>
-          Entrar al árbol
+        <button type="submit" className="boton w-full !text-[1.25rem]">
+          Colgarme en el árbol
         </button>
       </div>
     </form>

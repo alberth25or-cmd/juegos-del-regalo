@@ -5,7 +5,7 @@ const amigo = AGENTES.find((a) => a.alias === "Agente_Mazamorra")!;
 
 export default function AmigoSecretoDiseno() {
   return (
-    <main className="px-4 pb-12 pt-6">
+    <main className="px-4 pb-48 pt-8">
       <FichaAmigoSecreto
         f={{
           alias: amigo.alias,

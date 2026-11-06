@@ -1,5 +1,21 @@
 # Decisiones del proyecto
 
+## Rediseño festivo "Navidad de juguete" (2026-11-06, pedido de Cesar)
+
+La primera versión del tema (noche sobria) "se veía pobre y sosa". Decisiones de Cesar:
+- **Estilo navideño, alegre y que venda.** Se volvió a correr `ui-ux-pro-max`: estilo
+  Claymorphism + fuentes Fredoka/Nunito; paleta navideña propia (la base no tenía una).
+  Detalle en `design-system/los-juegos-del-regalo/MASTER.md`.
+- **Alias sin barra baja:** "Agente Picarón", "Agente Cau Cau". Reemplaza `Agente_<plato>`.
+- **Acceso a los juegos en local:** desde el stage 1 se abren Gift Catcher y Memory (modo demo,
+  sin base de datos). La Trivia necesita la base de datos y queda marcada así.
+
+Mías: cada stage se dibuja como un regalo (envuelto con etiqueta de fecha si está bloqueado); la
+interfaz pasa a clay pero los sprites siguen en pixel art; se agregó una vista previa jugable de
+"La manada" en `/diseno/manada` con votos de ejemplo.
+
+---
+
 ## Diseño de interfaz — Frente 1 (2026-11-06)
 
 Hecho con la skill `ui-ux-pro-max` (sistema de diseño + guías de UX) y aplicando `ponytail`
@@ -32,8 +48,8 @@ Sesión de brainstorming con Cesar (skill `brainstorming` de Superpowers). Dise�
 
 Decisiones de Cesar:
 - **Amigo secreto = la persona a la que TÚ le regalas** (no quien te regala).
-- **Alias anónimo, al azar y fijo:** `Agente_<comida peruana>` (Agente_Picarón, Agente_Rocoto,
-  Agente_Mazamorra…). Nadie escribe su nombre. El usuario de acceso y la contraseña sí son personales.
+- **Alias anónimo, al azar y fijo:** `Agente <comida peruana>` (Agente Picarón, Agente Rocoto,
+  Agente Mazamorra…; sin barra baja, ver rediseño festivo). Nadie escribe su nombre. El usuario de acceso y la contraseña sí son personales.
 - **La ficha de inscripción es el pase al árbol:** 3 o 4 opciones de regalo dentro del presupuesto
   (S/40 por defecto, configurable) y 4 datos breves para describirte + 1 opcional.
 - **Árbol navideño como sala de espera.** Nadie juega antes del "Empezar" del organizador. El

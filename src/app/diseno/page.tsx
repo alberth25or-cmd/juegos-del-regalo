@@ -7,7 +7,7 @@ export default function PantallaPrincipalDiseno() {
     <>
       <BarraAgente yo={YO} puesto={PUESTO} agentes={AGENTES} stages={STAGES} />
       <main>
-        <CarruselStages stages={STAGES} encabezado={`STAGE ${DIA.stage} DE ${DIA.de} · DÍA ${DIA.dia} DE ${DIA.total}`} />
+        <CarruselStages stages={STAGES} subtitulo={`Stage ${DIA.stage} de ${DIA.de} · Día ${DIA.dia} de ${DIA.total}`} titulo="Abre el regalo de hoy" />
       </main>
     </>
   );

@@ -30,59 +30,59 @@ export function PanelOrganizador({ agentes, usuarios, capacidadInicial }: { agen
 
   return (
     <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[1fr_1.1fr]">
-      <section className="px-panel p-5" aria-labelledby="conf-t">
-        <h2 id="conf-t" className="font-pixel text-[1.15rem]">Configuración de la sala</h2>
-        <p className="px-hint mt-1">Solo tú (el creador) ves esto. Juegas como un agente más.</p>
+      <section className="clay p-6" aria-labelledby="conf-t">
+        <h2 id="conf-t" className="f-titulo text-[1.5rem] font-semibold">Configuración de la sala</h2>
+        <p className="ayuda mt-1">Solo tú (el creador) ves esto. Juegas como un agente más.</p>
         <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3">
           <Campo id="cap" label="Capacidad máxima" hint="Hasta 40">
-            <input id="cap" type="number" inputMode="numeric" min={4} max={40} className="px-input" value={capacidad} onChange={(e) => setCapacidad(Math.min(40, Math.max(4, +e.target.value || 4)))} />
+            <input id="cap" type="number" inputMode="numeric" min={4} max={40} className="campo" value={capacidad} onChange={(e) => setCapacidad(Math.min(40, Math.max(4, +e.target.value || 4)))} />
           </Campo>
           <Campo id="int" label="Días entre stages" hint="Desde el Empezar">
-            <input id="int" type="number" inputMode="numeric" min={1} max={10} className="px-input" value={intervalo} onChange={(e) => setIntervalo(Math.min(10, Math.max(1, +e.target.value || 1)))} />
+            <input id="int" type="number" inputMode="numeric" min={1} max={10} className="campo" value={intervalo} onChange={(e) => setIntervalo(Math.min(10, Math.max(1, +e.target.value || 1)))} />
           </Campo>
           <Campo id="ini" label="Fecha de Empezar">
-            <input id="ini" type="date" className="px-input" value={inicio} onChange={(e) => setInicio(e.target.value)} />
+            <input id="ini" type="date" className="campo" value={inicio} onChange={(e) => setInicio(e.target.value)} />
           </Campo>
           <Campo id="pre" label="Presupuesto (S/)">
-            <input id="pre" type="number" inputMode="numeric" min={10} className="px-input" value={presupuesto} onChange={(e) => setPresupuesto(+e.target.value)} />
+            <input id="pre" type="number" inputMode="numeric" min={10} className="campo" value={presupuesto} onChange={(e) => setPresupuesto(+e.target.value)} />
           </Campo>
           <div className="col-span-2">
             <Campo id="pre-f" label="Premio final (solo texto)" hint="La app no maneja dinero.">
-              <input id="pre-f" className="px-input" maxLength={80} value={premio} onChange={(e) => setPremio(e.target.value)} />
+              <input id="pre-f" className="campo" maxLength={80} value={premio} onChange={(e) => setPremio(e.target.value)} />
             </Campo>
           </div>
         </div>
 
-        <h3 className="mt-5 font-pixel text-[0.95rem]">Calendario</h3>
+        <h3 className="f-titulo mt-6 text-[1.15rem] font-semibold">Calendario</h3>
         <ol className="mt-2 grid grid-cols-3 gap-1.5 text-[0.85rem] sm:grid-cols-6">
           {fechas.map((f, i) => (
-            <li key={f.n} className="bg-[var(--noche)] px-2 py-1.5 text-center">
-              <span className="block font-pixel text-[var(--gold)]">{i < 5 ? `S${i + 1}` : "Ficha"}</span>
+            <li key={f.n} className="rounded-[12px] bg-[#f3eef7] px-2 py-2 text-center text-[0.85rem] font-bold">
+              <span className="block font-extrabold text-[var(--verde)]">{i < 5 ? `S${i + 1}` : "Ficha"}</span>
               {f.f}
             </li>
           ))}
         </ol>
         {pasaIntercambio && (
-          <p className="mt-2 flex items-center gap-1.5 text-[0.85rem] text-[var(--yo)]" role="alert">
+          <p className="mt-2 flex items-center gap-1.5 text-[0.85rem] font-bold text-[var(--rojo-boton)]" role="alert">
             <PixelIcon name="bang" size={10} /> La ficha final cae después del intercambio (24 dic). Acorta el intervalo.
           </p>
         )}
 
-        <div className="mt-5 border-t-[3px] border-[var(--linea)] pt-4">
+        <div className="mt-6 border-t-2 border-dashed border-[#e2dcea] pt-5">
           {!confirmar ? (
-            <button type="button" className="px-btn w-full !text-[1.1rem]" style={{ ["--bg" as string]: "var(--cta)", color: "var(--cream)" }} onClick={() => setConfirmar(true)}>
+            <button type="button" className="boton w-full !text-[1.2rem]" onClick={() => setConfirmar(true)}>
               Empezar la temporada
             </button>
           ) : (
-            <div className="px-panel p-3" style={{ ["--bc" as string]: "var(--gold)", ["--bg" as string]: "var(--noche)" }} role="alertdialog" aria-labelledby="conf-emp">
+            <div className="rounded-[18px] bg-[#fff1d6] p-4" role="alertdialog" aria-labelledby="conf-emp">
               <p id="conf-emp" className="text-[0.95rem]">
                 Se hará el <b>sorteo</b> y se <b>cerrará la puerta</b>: nadie más podrá entrar. No se puede deshacer.
               </p>
               <div className="mt-3 flex gap-2">
-                <button type="button" className="px-btn flex-1" style={{ ["--bg" as string]: "var(--noche-3)", color: "var(--cream)" }} onClick={() => setConfirmar(false)} autoFocus>
+                <button type="button" className="boton claro flex-1" onClick={() => setConfirmar(false)} autoFocus>
                   Todavía no
                 </button>
-                <button type="button" className="px-btn flex-1" style={{ ["--bg" as string]: "var(--cta)", color: "var(--cream)" }} disabled title="Vista de diseño: no hace el sorteo">
+                <button type="button" className="boton flex-1" disabled title="Vista de diseño: no hace el sorteo">
                   Sí, empezar
                 </button>
               </div>
@@ -91,8 +91,8 @@ export function PanelOrganizador({ agentes, usuarios, capacidadInicial }: { agen
         </div>
       </section>
 
-      <section className="px-panel p-5" aria-label="Agentes">
-        <div role="tablist" aria-label="Vista de agentes" className="flex gap-1">
+      <section className="clay p-6" aria-label="Agentes">
+        <div role="tablist" aria-label="Vista de agentes" className="flex gap-1 rounded-[16px] bg-[#f3eef7] p-1">
           {(
             [
               ["avance", "Avance · por alias"],
@@ -107,8 +107,8 @@ export function PanelOrganizador({ agentes, usuarios, capacidadInicial }: { agen
               aria-selected={pestana === id}
               aria-controls={`pan-${id}`}
               onClick={() => setPestana(id)}
-              className="min-h-11 flex-1 px-2 font-pixel text-[0.85rem]"
-              style={pestana === id ? { background: "var(--gold)", color: "var(--ink)" } : { background: "var(--noche)", color: "var(--texto-suave)" }}
+              className="min-h-11 flex-1 rounded-[12px] px-2 text-[0.88rem] font-extrabold transition-colors"
+              style={pestana === id ? { background: "var(--verde)", color: "#fff" } : { color: "var(--tinta-suave)" }}
             >
               {txt}
             </button>
@@ -117,26 +117,26 @@ export function PanelOrganizador({ agentes, usuarios, capacidadInicial }: { agen
 
         {pestana === "avance" ? (
           <div role="tabpanel" id="pan-avance" aria-labelledby="tab-avance" className="mt-3">
-            <p className="text-[0.9rem] text-[var(--texto-suave)]">
-              <b className="text-[var(--cream)]">{agentes.length}/{capacidad}</b> agentes en el árbol · fichas completas: {agentes.length}
+            <p className="text-[0.92rem] text-[var(--tinta-suave)]">
+              <b className="text-[var(--tinta)]">{agentes.length}/{capacidad}</b> agentes en el árbol · fichas completas: {agentes.length}
             </p>
             <ul className="no-scrollbar mt-2 max-h-[340px] overflow-y-auto text-[0.9rem]">
               {[...agentes].sort((a, b) => a.alias.localeCompare(b.alias)).map((a) => (
-                <li key={a.alias} className="flex items-center justify-between border-b border-[var(--linea)] py-2">
+                <li key={a.alias} className="flex items-center justify-between border-b border-[#eee6f3] py-2 font-semibold">
                   <span>{a.alias}</span>
-                  <span className="text-[var(--texto-tenue)]">{NOMBRES[a.stage - 1]}</span>
+                  <span className="pastilla !text-[0.78rem]" style={{ ["--pb" as string]: "#e8f6ee", ["--pf" as string]: "var(--verde)" }}>{NOMBRES[a.stage - 1]}</span>
                 </li>
               ))}
             </ul>
           </div>
         ) : (
           <div role="tabpanel" id="pan-claves" aria-labelledby="tab-claves" className="mt-3">
-            <p className="text-[0.9rem] text-[var(--texto-suave)]">Reinicia la contraseña de quien la olvidó. Aquí no se ve su alias ni su avance.</p>
+            <p className="text-[0.92rem] text-[var(--tinta-suave)]">Reinicia la contraseña de quien la olvidó. Aquí no se ve su alias ni su avance.</p>
             <ul className="no-scrollbar mt-2 max-h-[340px] overflow-y-auto text-[0.9rem]">
               {usuarios.map((u) => (
-                <li key={u} className="flex items-center justify-between gap-2 border-b border-[var(--linea)] py-1.5">
+                <li key={u} className="flex items-center justify-between gap-2 border-b border-[#eee6f3] py-1.5 font-semibold">
                   <span>@{u}</span>
-                  <button type="button" className="min-h-11 px-3 font-pixel text-[0.8rem] text-[var(--gold)] underline-offset-4 hover:underline" disabled title="Vista de diseño">
+                  <button type="button" className="min-h-11 rounded-full px-3 text-[0.85rem] font-extrabold text-[var(--rojo-boton)] disabled:opacity-70" disabled title="Vista de diseño">
                     Reiniciar
                   </button>
                 </li>
@@ -145,7 +145,7 @@ export function PanelOrganizador({ agentes, usuarios, capacidadInicial }: { agen
           </div>
         )}
 
-        <p className="mt-4 flex gap-2 bg-[var(--noche)] p-3 text-[0.82rem] text-[var(--texto-suave)]">
+        <p className="mt-4 flex gap-2.5 rounded-[14px] bg-[#f3eef7] p-3 text-[0.85rem] text-[var(--tinta-suave)]">
           <PixelIcon name="lock" size={16} />
           <span>El panel nunca muestra el sorteo ni las respuestas. Aviso honesto: quien tenga acceso directo a la base de datos podría verlos.</span>
         </p>
@@ -157,9 +157,9 @@ export function PanelOrganizador({ agentes, usuarios, capacidadInicial }: { agen
 function Campo({ id, label, hint, children }: { id: string; label: string; hint?: string; children: React.ReactNode }) {
   return (
     <div>
-      <label htmlFor={id} className="px-label !text-[0.85rem]">{label}</label>
+      <label htmlFor={id} className="etiqueta">{label}</label>
       {children}
-      {hint && <p className="px-hint">{hint}</p>}
+      {hint && <p className="ayuda mt-1">{hint}</p>}
     </div>
   );
 }

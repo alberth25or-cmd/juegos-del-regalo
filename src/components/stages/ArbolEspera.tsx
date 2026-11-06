@@ -69,16 +69,16 @@ export function ArbolEspera({ agentes, capacidad }: { agentes: Agente[]; capacid
           <span key={i} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${p.x}%`, top: `${p.y}%` }}>
             {a ? (
               <span className={a.yo ? "relative z-10 block" : "block"}>
-                <Cabeza config={a.avatar} size={a.yo ? 34 : 30} yo={a.yo} title={a.yo ? "Tú" : undefined} />
+                <Cabeza config={a.avatar} size={a.yo ? 22 : 19} bola yo={a.yo} title={a.yo ? "Tú" : undefined} />
               </span>
             ) : (
-              <span className="block h-3 w-3 bg-[var(--linea)] shadow-[0_0_0_2px_var(--noche)]" aria-hidden />
+              <span className="block h-[26px] w-[26px] rounded-full border-2 border-dashed border-white/60 bg-white/10" aria-hidden />
             )}
           </span>
         );
       })}
       <span className="anim-twinkle absolute left-1/2 top-0 -translate-x-1/2" aria-hidden>
-        <PixelIcon name="sparkle" size={28} />
+        <PixelIcon name="star" size={34} />
       </span>
     </figure>
   );

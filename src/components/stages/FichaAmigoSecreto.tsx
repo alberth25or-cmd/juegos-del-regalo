@@ -1,4 +1,4 @@
-import { PixelIcon } from "@/components/ui/PixelIcon";
+import { PixelIcon, type IconName } from "@/components/ui/PixelIcon";
 import { Cabeza } from "./Cabeza";
 
 export interface DatosFicha {
@@ -13,61 +13,61 @@ export interface DatosFicha {
 /** Expediente privado del amigo secreto: solo lo ve quien regala. `null` = "Pasó". */
 export function FichaAmigoSecreto({ f }: { f: DatosFicha }) {
   return (
-    <article className="px-box relative mx-auto max-w-xl overflow-hidden p-5 text-[var(--ink)] sm:p-7" style={{ ["--bg" as string]: "var(--cream)" }}>
-      <p className="stamp-static absolute right-4 top-4 font-pixel text-[0.75rem] text-[var(--cta)] sm:text-[0.85rem]">PRIVADA Y CONFIDENCIAL</p>
-
-      <header className="flex items-center gap-4 border-b-[3px] border-dashed border-[var(--ink)]/30 pb-4 pt-6 sm:pt-2">
-        <span className="grid h-[76px] w-[76px] shrink-0 place-items-center bg-[var(--noche-2)]">
-          <Cabeza config={f.avatar} size={56} />
-        </span>
-        <div>
-          <p className="text-[0.85rem] text-[var(--ink-soft)]">Tu amigo secreto es</p>
-          <h1 className="font-pixel text-[1.5rem] leading-tight">{f.alias}</h1>
-          <p className="text-[0.85rem] text-[var(--ink-soft)]">El 24 dic dirás: &quot;mi regalo es para {f.alias}&quot;.</p>
-        </div>
+    <article className="clay relative mx-auto max-w-2xl overflow-hidden">
+      {/* Cabecera tipo sobre: papel rojo con lunares y sello */}
+      <header className="relative flex flex-col items-center px-6 pb-8 pt-9 text-center text-white" style={{ background: "radial-gradient(circle, rgb(255 255 255 / 0.18) 5px, transparent 6px) 0 0 / 30px 30px, radial-gradient(circle, rgb(255 255 255 / 0.18) 5px, transparent 6px) 15px 15px / 30px 30px, #c8102e" }}>
+        <span className="absolute right-4 top-4 rotate-6 rounded-full border-[3px] border-white/85 px-3 py-1 text-[0.72rem] font-black uppercase tracking-wider">Privada y confidencial</span>
+        <Cabeza config={f.avatar} size={46} bola />
+        <p className="mt-3 text-[0.95rem] font-bold text-white/90">Tu amigo secreto es</p>
+        <h1 className="f-titulo text-[2.3rem] font-semibold leading-tight">{f.alias}</h1>
+        <p className="mt-1 rounded-full bg-black/20 px-3 py-1 text-[0.9rem] font-semibold">El 24 dic dirás: &quot;mi regalo es para {f.alias}&quot;</p>
       </header>
 
-      <Seccion icono="chest" titulo="Quiere uno de estos">
-        <ol className="grid gap-2 sm:grid-cols-2">
-          {f.regalos.map((r, i) => (
-            <li key={r} className="flex items-start gap-2 bg-white/70 px-3 py-2">
-              <span className="font-pixel text-[var(--cta)]">{i + 1}.</span> {r}
-            </li>
-          ))}
-        </ol>
-      </Seccion>
+      <div className="grid gap-6 p-6 sm:p-8">
+        <Seccion icono="chest" titulo="Quiere uno de estos">
+          <ol className="grid gap-2.5 sm:grid-cols-2">
+            {f.regalos.map((r, i) => (
+              <li key={r} className="flex items-center gap-3 rounded-[16px] bg-white px-3.5 py-3 font-bold shadow-[0_0_0_2px_#eee6f3]">
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[var(--rojo-boton)] text-[0.85rem] font-black text-white">{i + 1}</span>
+                {r}
+              </li>
+            ))}
+          </ol>
+        </Seccion>
 
-      <Seccion icono="friend" titulo="Así se ve">
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-          {f.datos.map((d) => (
-            <div key={d.label} className="flex justify-between gap-2 border-b border-[var(--ink)]/15 py-1">
-              <dt className="text-[var(--ink-soft)]">{d.label}</dt>
-              <dd className="font-semibold">{d.valor}</dd>
-            </div>
-          ))}
-        </dl>
-      </Seccion>
+        <Seccion icono="friend" titulo="Así lo reconoces">
+          <dl className="flex flex-wrap gap-2">
+            {f.datos.map((d) => (
+              <div key={d.label} className="rounded-full bg-[#e8f6ee] px-3.5 py-1.5 text-[0.92rem]">
+                <dt className="inline font-semibold text-[var(--tinta-suave)]">{d.label}: </dt>
+                <dd className="inline font-extrabold text-[var(--verde)]">{d.valor}</dd>
+              </div>
+            ))}
+          </dl>
+        </Seccion>
 
-      <Seccion icono="heart" titulo="Amor y relaciones">
-        <Respuestas items={f.amor} />
-      </Seccion>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <Seccion icono="heart" titulo="Amor y relaciones">
+            <Respuestas items={f.amor} />
+          </Seccion>
+          <Seccion icono="chili" titulo="Picante">
+            <Respuestas items={f.picante} />
+          </Seccion>
+        </div>
 
-      <Seccion icono="chili" titulo="Picante">
-        <Respuestas items={f.picante} />
-      </Seccion>
-
-      <footer className="mt-6 border-t-[3px] border-dashed border-[var(--ink)]/30 pt-4 text-center text-[0.9rem] italic text-[var(--ink-soft)]">
-        Privada y confidencial. Guárdala para describir y reír el día del intercambio.
-      </footer>
+        <p className="rounded-[16px] bg-[#fff1d6] px-4 py-3 text-center text-[0.95rem] font-semibold text-[var(--tinta)]">
+          Privada y confidencial. Guárdala para describir y reír el día del intercambio.
+        </p>
+      </div>
     </article>
   );
 }
 
-function Seccion({ icono, titulo, children }: { icono: "chest" | "friend" | "heart" | "chili"; titulo: string; children: React.ReactNode }) {
+function Seccion({ icono, titulo, children }: { icono: IconName; titulo: string; children: React.ReactNode }) {
   return (
-    <section className="mt-5">
-      <h2 className="mb-2 flex items-center gap-2 font-pixel text-[1.05rem]">
-        <PixelIcon name={icono} size={18} /> {titulo}
+    <section>
+      <h2 className="f-titulo mb-2.5 flex items-center gap-2 text-[1.3rem] font-semibold">
+        <PixelIcon name={icono} size={22} /> {titulo}
       </h2>
       {children}
     </section>
@@ -78,12 +78,12 @@ function Respuestas({ items }: { items: { pregunta: string; respuesta: string | 
   return (
     <ul className="flex flex-col gap-2">
       {items.map((it) => (
-        <li key={it.pregunta} className="flex items-baseline justify-between gap-3 bg-white/70 px-3 py-2">
-          <span className="text-[0.92rem]">{it.pregunta}</span>
+        <li key={it.pregunta} className="rounded-[16px] bg-white px-3.5 py-2.5 shadow-[0_0_0_2px_#eee6f3]">
+          <p className="text-[0.9rem] text-[var(--tinta-suave)]">{it.pregunta}</p>
           {it.respuesta === null ? (
-            <span className="px-chip shrink-0 !text-[0.75rem]" style={{ ["--chip" as string]: "#e6dfd1", color: "var(--ink-soft)" }}>Pasó</span>
+            <p className="mt-0.5 text-[0.95rem] font-extrabold italic text-[var(--tinta-suave)]">Pasó</p>
           ) : (
-            <span className="shrink-0 font-pixel text-[var(--cta)]">{it.respuesta}</span>
+            <p className="f-titulo mt-0.5 text-[1.2rem] font-semibold text-[var(--rojo-boton)]">{it.respuesta}</p>
           )}
         </li>
       ))}

@@ -1,67 +1,73 @@
-# Sistema de diseño — Los Juegos del Regalo (reorientación)
+# Sistema de diseño: Los Juegos del Regalo ("Navidad de juguete")
 
-Fuente de verdad visual del Frente 1. Partió de `ui-ux-pro-max` (`--design-system`, consulta
-"social party game pixel art retro christmas mobile", dials variance 6 · motion 4 · density 5) y
-se ajustó a lo ya decidido en `docs/superpowers/specs/2026-11-06-reorientacion-design.md` §4.
-Vista viva con datos de ejemplo: **`/diseno`** (y sus subpáginas).
+Fuente de verdad visual. Vista viva con datos de ejemplo: **`/diseno`** y sus subpáginas.
 
-## Qué tomamos de ui-ux-pro-max y qué cambiamos
+## Historia
+
+1. **v1 (tema noche, 2026-11-06):** azul noche sobrio, pixel en títulos. Cesar la encontró
+   "pobre, sosa": no vendía ni se sentía navideña.
+2. **v2 (actual, 2026-11-06):** se volvió a correr `ui-ux-pro-max` con
+   `"christmas festive party game playful celebration gifts" --design-system --variance 8 --motion 7 --density 4`.
 
 | La herramienta propuso | Decisión | Por qué |
 |---|---|---|
-| Estilo **Pixel Art** | ✅ Se usa | Coincide con la regla 9 de `CLAUDE.md` |
-| Patrón *Hero-centric*, un solo CTA | ✅ Una tarjeta, un botón grande por pantalla | Es la opción B aprobada |
-| Rojo + azul neón + verde | ❌ → azul noche, dorado, rojo, crema | Paleta aprobada en el diseño (§4) |
-| Press Start 2P + VT323 | ❌ → Pixelify Sans (solo títulos) + DM Sans (texto) | El diseño pide pixel solo en títulos; VT323 en texto largo se lee mal en celular |
-| Stagger con GSAP | ❌ → transiciones CSS | Sin dependencias nuevas; las tarjetas ya animan con CSS |
-| Checklist: sin emojis como íconos, foco visible, `prefers-reduced-motion`, 375/768/1024/1440 | ✅ Se aplica completo | — |
+| Brutalismo naranja | ❌ | No es navidad ni alegre |
+| Estilo **Claymorphism** (búsqueda `style`: "playful, toy-like, chunky, thick borders, double shadows") | ✅ Base de toda la interfaz | Se siente juguete/regalo, alegre y táctil |
+| Fuentes **Fredoka + Nunito** (pareja "Playful Creative") | ✅ | Redondas y festivas; Nunito se lee bien en celular |
+| Paleta navideña | Sin resultado en la base (0 coincidencias) → paleta propia | Rojo, verde pino, dorado y crema sobre cielo nocturno |
+| Checklist (contraste, foco, `prefers-reduced-motion`, 375–1440) | ✅ | — |
 
-## Color (tokens en `src/app/globals.css`, sección "Tema noche")
+## Concepto
+
+**Cada stage es un regalo.** Bloqueado = regalo envuelto (papel con lunares, cinta dorada, lazo
+pixel) con una etiqueta colgante "Se abre el 5 dic". El de hoy = caja abierta con lazo rojo y un
+solo botón. Superado = caja con lazo dorado y sus juegos a mano.
+
+Ambiente: cielo nocturno con nieve que cae, guirnalda de focos que titilan bajo la barra y el
+paisaje pixel de Snowville (montañas y pinos con bastones de caramelo) fijo al fondo.
+
+Los sprites (cabezas, árbol, íconos) siguen en pixel art; la interfaz es clay.
+
+## Color (tokens en `src/app/globals.css`, sección "Navidad de juguete")
 
 | Token | Hex | Uso | Contraste |
 |---|---|---|---|
-| `--noche` | `#101a38` | Fondo de las pantallas de juego | — |
-| `--noche-2` | `#16284f` | Superficie: tarjetas, barra superior | crema 13.5:1 |
-| `--noche-3` | `#21407a` | Realce, brillo del fondo | — |
-| `--linea` | `#3a4f7d` | Bordes y rieles apagados | — |
-| `--cream` | `#fff6e5` | Texto principal | 13.5:1 sobre `--noche-2` |
-| `--texto-suave` | `#b9c3dd` | Texto secundario | 8.2:1 |
-| `--texto-tenue` | `#9aa6c8` | Fechas, ayudas | 6.0:1 |
-| `--gold` | `#f6b93b` | Bordes destacados, puntos, avance | 8.2:1 |
-| `--cta` | `#c8304a` | Botón principal (texto crema) | 4.9:1 ✅ |
-| `--cherry` | `#e2445c` | Solo decoración (marco "tú", sellos); **nunca fondo de texto** | 3.75:1 ❌ con crema |
-| `--yo` | `#ff8a99` | Texto que marca "tú" en listas | 6.4:1 |
-| `--ok` | `#7fd6a8` | Superado / completo | 8.3:1 |
+| `--cielo-1/2/3` | `#0b1640` → `#3a4c9e` | Fondo degradado | crema 16.5:1 |
+| `--papel` | `#fffaf0` | Tarjetas clay | — |
+| `--tinta` / `--tinta-suave` | `#2a2342` / `#5b5470` | Texto sobre papel | 14.2:1 / 6.9:1 |
+| `--rojo-boton` | `#c8102e` | Botón principal (texto blanco) | 5.9:1 |
+| `--verde` | `#1f7a4d` | Superado, selección, ranking | 5.3:1 con blanco |
+| `--oro` | `#ffc845` | Puntos, cinta, foco (texto tinta) | 9.6:1 |
+| `--hielo` | `#c6d0f5` | Texto secundario sobre cielo | 9.8:1 |
 
-El estado nunca depende solo del color: siempre va con ícono (candado, check) y texto
-("Se abre el 5 dic", "Superado").
+El estado nunca depende solo del color: siempre lleva texto ("¡Toca hoy!", "✓ Superado", "Se abre el…").
 
 ## Tipografía
 
-- Títulos y cifras: `font-pixel` (Pixelify Sans 600/700). Nunca en párrafos.
-- Texto: DM Sans, base 16 px, interlineado 1.5. Mínimo 13 px en etiquetas.
+- Títulos: Fredoka 600 (`.f-titulo`). Texto: Nunito 600–800, base 16 px.
+- Las fuentes se cargan solo en `/diseno` (layout); el resto de la app no cambia todavía.
 
-## Componentes (en `src/components/stages/`)
+## Componentes (`src/components/stages/`)
 
 | Componente | Qué es |
 |---|---|
-| `Cabeza` | La cabeza del avatar (gorro + cara + bufanda), recortada del sprite existente |
-| `BarraAgente` | Barra superior fija: tu cabeza + alias, puntos y puesto, riel de stages con cabezas agrupadas (máx. 3 + "+N" por stage) y ranking |
-| `CarruselStages` | Carrusel con *scroll-snap*: actual al centro, vecinos difuminados por distancia. Flechas, deslizar, ← →, puntos |
-| `TarjetaStage` | Contenido de cada stage según su estado: superado · actual · bloqueado |
-| `ArbolEspera` | Árbol pixel con las cabezas como adornos y huecos libres según la capacidad |
-| `FichaInscripcion` | Formulario: 3–4 regalos + 4 datos + 1 opcional, errores junto al campo |
-| `FichaAmigoSecreto` | Expediente en papel crema con sello "Privada y confidencial" |
-| `PanelOrganizador` | Configuración + pestañas separadas "Avance (por alias)" y "Contraseñas (por usuario)": nunca juntas |
+| `Decoracion` | `FondoNavidad` (nieve + paisaje) y `Guirnalda` |
+| `Cabeza` | Cabeza del avatar; `bola` la pone dentro de un adorno navideño; `yo` agrega aro rojo |
+| `BarraAgente` | Tu agente, puntos, riel "bastón de caramelo" con cabezas agrupadas, ranking con medallas |
+| `CarruselStages` + `TarjetaStage` | Carrusel de regalos (scroll-snap, flechas, ← →, puntos) |
+| `JuegoManada` | Pregunta del día con 4 opciones y resultado del grupo (vista previa) |
+| `ArbolEspera` | Árbol pixel con cabezas-adorno y huecos punteados |
+| `FichaInscripcion`, `FichaAmigoSecreto`, `PanelOrganizador` | Formularios y fichas en clay |
 
-Clases nuevas: `.tema-noche`, `.px-panel` (borde escalonado con color `--bc`), `.nieve-fondo`,
-`.carrusel` / `.slide[data-dist]`, `.px-seg` (opciones tipo chip para radios).
+Clases: `.clay`, `.vidrio`, `.boton` (+ `.verde`, `.oro`, `.claro`), `.pastilla`, `.opcion`,
+`.campo`, `.etiqueta`, `.papel-regalo`, `.etiqueta-regalo`, `.nevada`, `.paisaje`, `.foco`,
+`.flotar`, `.latido`, `.carrusel`.
 
-## Reglas de interacción
+## Reglas
 
-- Táctil ≥ 44 px; ningún dato depende de *hover*.
-- Un solo botón principal por pantalla (`px-btn` con `--bg: var(--cta)`).
-- Bloqueado = se puede mirar, no abrir: botón deshabilitado con la fecha, nunca un botón falso.
-- Movimiento: 1–2 elementos animados por vista; transiciones de 200–300 ms; con
-  `prefers-reduced-motion` se quitan transiciones y desenfoques animados.
-- Anonimato: en ninguna pantalla aparecen juntos usuario y alias.
+- Alias con espacios: **"Agente Picarón"**, nunca con barra baja (decisión de Cesar).
+- Táctil ≥ 44 px; nada depende de *hover*. Un botón principal por pantalla.
+- Bloqueado se ve, no se abre: sin botones falsos.
+- Movimiento: nieve, focos, lazo flotante y latido del stage actual; todo se apaga con
+  `prefers-reduced-motion`.
+- Anonimato: usuario y alias nunca aparecen juntos.

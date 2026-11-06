@@ -1,37 +1,40 @@
 import { PixelIcon } from "@/components/ui/PixelIcon";
 import { Cabeza } from "./Cabeza";
-import type { Agente, Stage } from "./datosEjemplo";
+import { Guirnalda } from "./Decoracion";
+import { plato, type Agente, type Stage } from "./datosEjemplo";
 
 const MAX_CABEZAS = 3;
+const MEDALLA = ["#ffc845", "#d7dde8", "#e59a5b"];
 
 /** Barra superior fija de las pantallas de juego: quién eres, cómo vas, dónde va cada agente y el ranking. */
 export function BarraAgente({ yo, puesto, agentes, stages }: { yo: Agente; puesto: number; agentes: Agente[]; stages: Stage[] }) {
   const total = agentes.length;
   return (
-    <header className="sticky top-0 z-30 border-b-[4px] border-[var(--gold)] bg-[var(--noche-2)]/95 backdrop-blur-sm">
-      <div className="mx-auto grid max-w-6xl gap-x-8 gap-y-2 px-4 pb-2 pt-3 lg:grid-cols-[230px_1fr_300px] lg:items-center lg:px-7 lg:py-3">
-        {/* Quién eres */}
-        <div className="flex items-center justify-between gap-3 lg:justify-start">
-          <div className="flex items-center gap-2.5">
-            <Cabeza config={yo.avatar} size={34} yo title="Tu cabeza" />
-            <div>
-              <p className="font-pixel text-[0.95rem] leading-tight">{yo.alias}</p>
-              <p className="hidden text-[0.8rem] text-[var(--texto-suave)] lg:block">
-                Puesto #{puesto} de {total}
-              </p>
+    <header className="sticky top-0 z-30">
+      <div className="bg-[rgb(11_22_64/0.88)] backdrop-blur-md">
+        <div className="mx-auto grid max-w-6xl gap-x-8 gap-y-3 px-4 pb-1 pt-3 lg:grid-cols-[250px_1fr_290px] lg:items-center lg:px-7 lg:pt-4">
+          {/* Quién eres */}
+          <div className="flex items-center justify-between gap-3 lg:justify-start">
+            <div className="flex items-center gap-3">
+              <Cabeza config={yo.avatar} size={30} yo title="Tu cabeza" />
+              <div>
+                <p className="f-titulo text-[1.2rem] font-semibold leading-tight">{yo.alias}</p>
+                <p className="text-[0.85rem] font-semibold text-[var(--hielo)]">
+                  Puesto {puesto} de {total}
+                </p>
+              </div>
             </div>
+            <p className="pastilla lg:hidden" aria-label={`${yo.puntos} puntos`}>
+              <PixelIcon name="coin" size={16} /> {yo.puntos} pts
+            </p>
           </div>
-          <p className="px-chip lg:hidden" style={{ ["--chip" as string]: "var(--noche)", color: "var(--gold)" }} aria-label={`${yo.puntos} puntos, puesto ${puesto} de ${total}`}>
-            <PixelIcon name="coin" size={14} /> {yo.puntos} · #{puesto}
-          </p>
+
+          <Riel agentes={agentes} stages={stages} />
+
+          <Ranking agentes={agentes} puesto={puesto} yo={yo} />
         </div>
-
-        {/* Riel de stages con las cabezas */}
-        <Riel agentes={agentes} stages={stages} />
-
-        {/* Ranking: top 3 + tú en celular; lista completa con scroll en computadora */}
-        <Ranking agentes={agentes} puesto={puesto} yo={yo} />
       </div>
+      <Guirnalda />
     </header>
   );
 }
@@ -40,9 +43,17 @@ function Riel({ agentes, stages }: { agentes: Agente[]; stages: Stage[] }) {
   const pos = (n: number) => 9 + ((n - 1) / (stages.length - 1)) * 82;
   const actual = stages.find((s) => s.estado === "actual")?.n ?? 1;
   return (
-    <div className="relative h-[62px] lg:h-[72px]" role="img" aria-label={stages.map((s) => `${s.corto}: ${agentes.filter((a) => a.stage === s.n).length} agentes`).join(", ")}>
-      <div className="absolute inset-x-[9%] top-[36px] h-[5px] bg-[var(--linea)]" />
-      <div className="absolute left-[9%] top-[36px] h-[5px] bg-[var(--gold)]" style={{ width: `${pos(actual) - 9}%` }} />
+    <div
+      className="relative h-[70px] lg:h-[84px]"
+      role="img"
+      aria-label={stages.map((s) => `${s.corto}: ${agentes.filter((a) => a.stage === s.n).length} agentes`).join(", ")}
+    >
+      {/* Camino: bastón de caramelo hasta el stage actual; nieve punteada después */}
+      <div className="absolute inset-x-[9%] top-[40px] h-[8px] rounded-full bg-[rgb(255_255_255/0.16)]" />
+      <div
+        className="absolute left-[9%] top-[40px] h-[8px] rounded-full"
+        style={{ width: `${pos(actual) - 9}%`, background: "repeating-linear-gradient(-45deg, #fff 0 7px, #e8283c 7px 14px)" }}
+      />
       {stages.map((s) => {
         const grupo = agentes.filter((a) => a.stage === s.n);
         const yo = grupo.find((a) => a.yo);
@@ -51,31 +62,31 @@ function Riel({ agentes, stages }: { agentes: Agente[]; stages: Stage[] }) {
         const visibles = otros.slice(0, yo ? MAX_CABEZAS - 1 : MAX_CABEZAS);
         const resto = grupo.length - visibles.length - (yo ? 1 : 0);
         const restoCel = grupo.length - 1;
-        const abierto = s.estado !== "bloqueado";
-        const mas = "ml-2.5 font-pixel text-[0.7rem] text-[var(--texto-suave)]";
+        const mas = "ml-2 rounded-full bg-[rgb(255_255_255/0.16)] px-1.5 text-[0.7rem] font-extrabold";
+        const fondo = s.estado === "superado" ? "var(--verde-claro)" : s.estado === "actual" ? "var(--oro)" : "rgb(255 255 255 / 0.18)";
         return (
           <div key={s.n} className="absolute top-0 flex -translate-x-1/2 flex-col items-center" style={{ left: `${pos(s.n)}%` }}>
-            <div className="flex h-[30px] items-end -space-x-2">
+            <div className="flex h-[28px] items-end -space-x-1.5">
               {visibles.map((a, i) => (
                 <span key={a.alias} className={i === 0 && !yo ? "" : "hidden lg:block"}>
                   <Cabeza config={a.avatar} size={20} />
                 </span>
               ))}
-              {yo && <Cabeza config={yo.avatar} size={20} yo />}
+              {yo && (
+                <span className="rounded-[4px] p-[2px]" style={{ background: "var(--rojo-boton)" }}>
+                  <Cabeza config={yo.avatar} size={18} />
+                </span>
+              )}
               {restoCel > 0 && <span className={`${mas} lg:hidden`}>+{restoCel}</span>}
               {resto > 0 && <span className={`${mas} hidden lg:inline`}>+{resto}</span>}
             </div>
             <span
-              className="mt-[1px] grid h-[22px] w-[22px] place-items-center font-pixel text-[0.72rem]"
-              style={{
-                background: "var(--noche-2)",
-                boxShadow: `0 0 0 3px ${abierto ? "var(--gold)" : "var(--linea)"}`,
-                color: abierto ? "var(--gold)" : "var(--texto-tenue)",
-              }}
+              className={`mt-[2px] grid h-[26px] w-[26px] place-items-center rounded-full text-[0.8rem] font-extrabold ${s.estado === "actual" ? "latido" : ""}`}
+              style={{ background: fondo, color: s.estado === "bloqueado" ? "var(--hielo)" : "var(--tinta)", boxShadow: "inset 0 -3px 0 rgb(0 0 0 / 0.15)" }}
             >
-              {s.n === 6 ? <PixelIcon name="chest" size={14} /> : s.n}
+              {s.estado === "superado" ? "✓" : s.n === 6 ? <PixelIcon name="chest" size={15} /> : s.n}
             </span>
-            <span className="mt-1 hidden whitespace-nowrap text-[0.72rem] text-[var(--texto-tenue)] lg:block">{s.corto}</span>
+            <span className="mt-1 hidden whitespace-nowrap text-[0.75rem] font-bold text-[var(--hielo)] lg:block">{s.corto}</span>
           </div>
         );
       })}
@@ -84,44 +95,58 @@ function Riel({ agentes, stages }: { agentes: Agente[]; stages: Stage[] }) {
 }
 
 function Ranking({ agentes, puesto, yo }: { agentes: Agente[]; puesto: number; yo: Agente }) {
-  const fila = (a: Agente, i: number) => (
-    <li
-      key={a.alias}
-      className={`flex justify-between gap-2 px-2 py-[3px] ${a.yo ? "sticky bottom-0 top-0" : ""}`}
-      style={a.yo ? { color: "var(--yo)", background: "linear-gradient(rgb(255 138 153 / 0.14), rgb(255 138 153 / 0.14)), var(--noche)" } : undefined}
-    >
-      <span className="truncate">
-        <span className="inline-block w-7 text-[var(--texto-tenue)]">#{i + 1}</span>
-        {a.yo ? `Tú (${a.alias.replace("Agente_", "")})` : a.alias}
-      </span>
-      <span className="text-[var(--gold)]">{a.puntos}</span>
-    </li>
-  );
   return (
     <>
-      {/* Celular */}
-      <ol className="flex gap-1.5 overflow-x-auto pb-1 font-pixel text-[0.72rem] lg:hidden" aria-label="Ranking">
+      {/* Celular: podio en una línea */}
+      <ol className="no-scrollbar flex gap-1.5 overflow-x-auto pb-1 text-[0.8rem] font-bold lg:hidden" aria-label="Ranking">
         {agentes.slice(0, 3).map((a, i) => (
-          <li key={a.alias} className="whitespace-nowrap bg-[var(--noche)] px-2 py-1">
-            <span className="text-[var(--gold)]">#{i + 1}</span> {a.alias.replace("Agente_", "")} {a.puntos}
+          <li key={a.alias} className="flex shrink-0 items-center gap-1.5 rounded-full bg-[rgb(255_255_255/0.1)] py-1 pl-1 pr-2.5">
+            <Medalla n={i + 1} />
+            {plato(a.alias)} <span className="text-[var(--oro)]">{a.puntos}</span>
           </li>
         ))}
         {puesto > 3 && (
-          <li className="whitespace-nowrap bg-[var(--noche)] px-2 py-1 text-[var(--yo)]">
-            #{puesto} Tú {yo.puntos}
+          <li className="flex shrink-0 items-center gap-1.5 rounded-full bg-[var(--rojo-boton)] py-1 pl-2.5 pr-2.5">
+            Tú · #{puesto} <span className="text-[var(--oro)]">{yo.puntos}</span>
           </li>
         )}
       </ol>
-      {/* Computadora */}
-      <div className="px-panel hidden lg:block" style={{ ["--bg" as string]: "var(--noche)", ["--bc" as string]: "var(--gold)" }}>
-        <p className="flex items-center justify-between px-2 pt-1.5 font-pixel text-[0.78rem] text-[var(--texto-suave)]">
-          <span className="flex items-center gap-1.5"><PixelIcon name="ranking" size={14} /> Ranking</span>
-          <span className="text-[var(--gold)]">{yo.puntos} pts</span>
+
+      {/* Computadora: tarjeta de ranking con scroll y tu fila siempre visible */}
+      <div className="clay hidden overflow-hidden !rounded-[18px] lg:block">
+        <p className="flex items-center justify-between bg-[var(--verde)] px-3 py-1.5 text-[0.85rem] font-extrabold text-white">
+          <span className="flex items-center gap-1.5">
+            <PixelIcon name="ranking" size={15} /> Ranking
+          </span>
+          <span>{yo.puntos} pts</span>
         </p>
-        <ol className="no-scrollbar max-h-[104px] overflow-y-auto py-1 font-pixel text-[0.78rem]" aria-label="Ranking completo" tabIndex={0}>
-          {agentes.map(fila)}
+        <ol className="no-scrollbar max-h-[108px] overflow-y-auto py-1 text-[0.85rem] font-bold" aria-label="Ranking completo" tabIndex={0}>
+          {agentes.map((a, i) => (
+            <li
+              key={a.alias}
+              className={`flex items-center justify-between gap-2 px-3 py-[3px] ${a.yo ? "sticky bottom-0 top-0 bg-[#ffe3e6] text-[var(--rojo-boton)]" : ""}`}
+            >
+              <span className="flex min-w-0 items-center gap-2">
+                {i < 3 ? <Medalla n={i + 1} /> : <span className="w-[18px] text-center text-[0.75rem] text-[var(--tinta-suave)]">{i + 1}</span>}
+                <span className="truncate">{a.yo ? `Tú · ${a.alias}` : a.alias}</span>
+              </span>
+              <span className="tabular-nums">{a.puntos}</span>
+            </li>
+          ))}
         </ol>
       </div>
     </>
+  );
+}
+
+function Medalla({ n }: { n: number }) {
+  return (
+    <span
+      className="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full text-[0.65rem] font-black text-[var(--tinta)]"
+      style={{ background: MEDALLA[n - 1], boxShadow: "inset 0 -2px 0 rgb(0 0 0 / 0.18)" }}
+      aria-label={`Puesto ${n}`}
+    >
+      {n}
+    </span>
   );
 }
