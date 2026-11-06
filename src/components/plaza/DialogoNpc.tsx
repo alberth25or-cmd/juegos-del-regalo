@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { NpcSprite } from "@/components/rpg/PixelSprite";
+import { Retrato } from "@/components/rpg/Retrato";
 import { NPCS, type NpcId } from "@/features/contenido/npcs";
 
 export interface LineaNpc {
@@ -60,6 +61,9 @@ export function DialogoNpc({ lineas }: { lineas: LineaNpc[] }) {
         style={{ ["--bg" as string]: "#1b1f4a", color: "var(--cream)" }}
         aria-live="polite"
       >
+        <span className="float-left mr-3 mt-1 overflow-hidden" style={{ boxShadow: "0 0 0 3px var(--gold)", background: npc.color }} aria-hidden>
+          <Retrato npc={linea.npc} size={76} />
+        </span>
         <span className="flex items-baseline justify-between gap-2">
           <span className="font-pixel text-[1.05rem]" style={{ color: "var(--gold)" }}>
             {npc.nombre}
@@ -70,7 +74,7 @@ export function DialogoNpc({ lineas }: { lineas: LineaNpc[] }) {
           {linea.texto.slice(0, n)}
           <span className="sr-only">{linea.texto.slice(n)}</span>
         </span>
-        <span className="mt-1 block text-right font-pixel text-[0.75rem]" style={{ animation: completo ? "bob 0.9s steps(2) infinite" : undefined, opacity: completo ? 1 : 0 }}>
+        <span className="clear-both mt-1 block text-right font-pixel text-[0.75rem]" style={{ animation: completo ? "bob 0.9s steps(2) infinite" : undefined, opacity: completo ? 1 : 0 }}>
           ▼ toca para seguir
         </span>
       </button>

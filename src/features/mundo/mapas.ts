@@ -187,7 +187,7 @@ const ANCHO = 46;
 const ALTO = 36;
 
 const EDIFICIOS: Edificio[] = [
-  { id: "fabrica", nombre: "Fábrica de Regalos", estilo: "fabrica", x: 3, y: 3, w: 8, h: 5, puerta: { x: 7, y: 7 }, color: "#a8453a" },
+  { id: "fabrica", nombre: "Fábrica de Regalos", estilo: "fabrica", x: 3, y: 3, w: 8, h: 5, puerta: { x: 6, y: 7 }, color: "#a8453a" },
   { id: "trofeos", nombre: "Salón de Trofeos", estilo: "trofeos", x: 19, y: 2, w: 8, h: 6, puerta: { x: 23, y: 7 }, color: "#d4a017" },
   { id: "arcade", nombre: "Arcade", estilo: "arcade", x: 35, y: 3, w: 8, h: 5, puerta: { x: 39, y: 7 }, color: "#7b4bb7" },
   { id: "tablon", nombre: "Tablón del Caos", estilo: "tablon", x: 3, y: 11, w: 7, h: 4, puerta: { x: 6, y: 14 }, color: "#2e9e78" },
@@ -202,7 +202,7 @@ function construirSnowville(): Sala {
   L.pintar(2, 17, ANCHO - 2, 2, "camino");
   L.pintar(22, 8, 2, ALTO - 10, "camino");
   L.pintar(2, 29, 22, 2, "camino");
-  L.pintar(7, 8, 33, 1, "camino");
+  L.pintar(6, 8, 34, 1, "camino");
   for (const e of EDIFICIOS) {
     const hasta = e.puerta.y === 7 ? 8 : e.puerta.y === 14 ? 17 : 29;
     L.pintar(e.puerta.x, e.puerta.y + 1, 1, hasta - e.puerta.y, "camino");

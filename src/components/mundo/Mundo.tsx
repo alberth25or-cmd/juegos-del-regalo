@@ -5,7 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { EMOTES, FRASES_RAPIDAS, MAX_CHAT } from "@/features/contenido/filtro";
 import { contextoDelDia, fraseDe, NPCS, type NpcId } from "@/features/contenido/npcs";
 import { sala as salaPorId, type Interaccion, type SalaId } from "@/features/mundo/mapas";
-import { Avatar, NpcSprite } from "@/components/rpg/PixelSprite";
+import { Avatar } from "@/components/rpg/PixelSprite";
+import { Retrato } from "@/components/rpg/Retrato";
 import { api } from "@/lib/cliente/api";
 import { limpiarArte, precargarImagenes } from "./arte";
 import { Motor, type Accion } from "./motor";
@@ -515,8 +516,8 @@ function DialogoNpcUnico({ npc, lineas, onCerrar }: { npc: NpcId; lineas: string
   const n = NPCS[npc];
   return (
     <button type="button" className="flex w-full items-end gap-3 text-left" onClick={() => (i + 1 < lineas.length ? setI(i + 1) : onCerrar())}>
-      <span className="anim-bob shrink-0">
-        <NpcSprite id={npc} size={72} />
+      <span className="shrink-0 self-end overflow-hidden" style={{ boxShadow: "0 0 0 3px var(--ink)", background: n.color }}>
+        <Retrato npc={npc} size={96} />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block font-pixel text-lg" style={{ color: n.color }}>

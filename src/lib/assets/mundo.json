@@ -1,0 +1,72 @@
+{
+  "arcade": {
+    "src": "/art/mundo/arcade.png",
+    "w": 128,
+    "h": 76
+  },
+  "arena": {
+    "src": "/art/mundo/arena.png",
+    "w": 128,
+    "h": 126
+  },
+  "cueva": {
+    "src": "/art/mundo/cueva.png",
+    "w": 64,
+    "h": 47
+  },
+  "fabrica": {
+    "src": "/art/mundo/fabrica.png",
+    "w": 128,
+    "h": 121
+  },
+  "maquina": {
+    "src": "/art/mundo/maquina.png",
+    "w": 30,
+    "h": 50
+  },
+  "mercado": {
+    "src": "/art/mundo/mercado.png",
+    "w": 96,
+    "h": 73
+  },
+  "mostrador": {
+    "src": "/art/mundo/mostrador.png",
+    "w": 112,
+    "h": 51
+  },
+  "retrato-auditor": {
+    "src": "/art/mundo/retrato-auditor.png",
+    "w": 112,
+    "h": 123
+  },
+  "retrato-duende": {
+    "src": "/art/mundo/retrato-duende.png",
+    "w": 112,
+    "h": 113
+  },
+  "retrato-muneco": {
+    "src": "/art/mundo/retrato-muneco.png",
+    "w": 112,
+    "h": 167
+  },
+  "retrato-rudolf": {
+    "src": "/art/mundo/retrato-rudolf.png",
+    "w": 112,
+    "h": 140
+  },
+  "retrato-santa": {
+    "src": "/art/mundo/retrato-santa.png",
+    "w": 112,
+    "h": 111
+  },
+  "tablon": {
+    "src": "/art/mundo/tablon.png",
+    "w": 112,
+    "h": 86
+  },
+  "trofeos": {
+    "src": "/art/mundo/trofeos.png",
+    "w": 128,
+    "h": 92
+  }
+}

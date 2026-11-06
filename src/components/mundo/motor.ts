@@ -522,7 +522,8 @@ export class Motor {
     // Humo de la chimenea de la fábrica
     const fab = this.sala.edificios.find((e) => e.estilo === "fabrica");
     if (fab) {
-      if (Math.random() < dt / 180) this.humo.push({ x: fab.x * T + 16, y: fab.y * T - 34, t });
+      // chimenea del dibujo de la fábrica (a ~72 % del ancho, sobre el techo)
+      if (Math.random() < dt / 180) this.humo.push({ x: fab.x * T + fab.w * T * 0.7, y: (fab.y + fab.h) * T - 116, t });
       this.humo = this.humo.filter((h) => t - h.t < 3200);
       for (const h of this.humo) {
         const e = (t - h.t) / 3200;
@@ -609,7 +610,7 @@ export class Motor {
   private dibujarAlto(d: Dibujable, t: number) {
     this.dibujarImg(d.img, d.x, d.y);
     // marquesina del arcade titilando
-    if (d.edificio?.estilo === "arcade" && Math.floor(t / 400) % 2) {
+    if (d.edificio?.estilo === "arcade" && !d.generado && Math.floor(t / 400) % 2) {
       const p = this.aPantalla(d.x + (d.edificio.w * T) / 2 - 28, d.y + 34 + 9);
       this.ctx.fillStyle = "#ffd23f";
       for (let x = 0; x < 56; x += 8) this.ctx.fillRect(p.x + x * this.k, p.y, 2 * this.k, 3 * this.k);

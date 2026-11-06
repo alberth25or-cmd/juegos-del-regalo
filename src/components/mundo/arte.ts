@@ -5,6 +5,7 @@
  * Cuando haya arte nuevo de Higgsfield, se reemplaza aquí sin tocar el motor.
  */
 import type { Edificio, Objeto, Sala, Suelo } from "@/features/mundo/mapas";
+import arteMundo from "@/lib/assets/mundo.json";
 
 export const T = 16;
 
@@ -38,6 +39,8 @@ const IMGS: Record<string, string> = {
   cofre: "/art/sprites/cofre.png",
   fotos: "/art/sprites/muro-fotos.png",
   tablero: "/art/sprites/tablero-plaza.png",
+  // Arte del mundo generado con la API de Higgsfield (scripts/higgsfield/generar-arte.ts)
+  ...Object.fromEntries(Object.entries(arteMundo as Record<string, { src: string }>).map(([k, v]) => [`mundo:${k}`, v.src])),
 };
 const cargadas: Record<string, HTMLImageElement> = {};
 
@@ -417,6 +420,14 @@ function mueble(tipo: "mostrador" | "estante" | "trofeos" | "mesa" | "podio" | "
 function edificio(e: Edificio) {
   const W = e.w * T;
   const H = e.h * T;
+  const gen = cargadas[`mundo:${e.id}`];
+  if (gen) {
+    // Arte de Higgsfield: apoyado en la base de su huella, centrado.
+    const alto = Math.round((gen.height / gen.width) * W);
+    const { c, g } = lienzo(W, Math.max(alto, H));
+    g.drawImage(gen, 0, Math.max(alto, H) - alto, W, alto);
+    return { c, ox: 0, oy: Math.max(alto, H) - H, generado: true };
+  }
   const extra = 34;
   const { c, g } = lienzo(W, H + extra);
   const base = extra;
@@ -440,7 +451,7 @@ function edificio(e: Edificio) {
         // estandarte dorado del salón
         px(g, W / 2 - 10, H + extra - (W * 111) / 117 + 26, 20, 8, "#d4a017");
         px(g, W / 2 - 3, H + extra - (W * 111) / 117 + 27, 6, 6, "#fff1b8");
-        return { c, ox: 0, oy: extra };
+        return { c, ox: 0, oy: extra, generado: false };
       }
       break;
     }
@@ -448,7 +459,7 @@ function edificio(e: Edificio) {
       if (dibujarImagen(g, "tienda", 0, H + extra - (W * 91) / 98, W)) {
         px(g, W - 12, base + 6, 8, 10, "#7b4bb7");
         px(g, W - 10, base + 8, 4, 6, "#ff8fb0");
-        return { c, ox: 0, oy: extra };
+        return { c, ox: 0, oy: extra, generado: false };
       }
       break;
     }
@@ -520,11 +531,23 @@ function edificio(e: Edificio) {
       break;
     }
   }
-  return { c, ox: 0, oy: extra };
+  return { c, ox: 0, oy: extra, generado: false };
+}
+
+/** Objeto con arte generado (si existe), del ancho de su huella. */
+function generado(clave: string, w: number) {
+  const img = cargadas[`mundo:${clave}`];
+  if (!img) return null;
+  const W = w * T;
+  const { c, g } = lienzo(W, Math.round((img.height / img.width) * W));
+  g.drawImage(img, 0, 0, c.width, c.height);
+  return c;
 }
 
 // --------------------------------------------------------- caché por sala
 export interface Dibujable {
+  /** dibujo generado con Higgsfield (sin efectos procedurales encima) */
+  generado?: boolean;
   /** baldosa base (para ordenar por profundidad) */
   yBase: number;
   x: number;
@@ -616,7 +639,8 @@ export function arteDeSala(s: Sala): ArteSala {
         break;
       }
       case "maquina": {
-        const d = alto(o, maquina(o.variante), 1, 2);
+        const gen = (o.variante ?? 0) === 0 ? generado("maquina", o.w) : null;
+        const d = alto(o, gen ?? maquina(o.variante), gen ? 0 : 1, 2);
         d.luz = { x: o.x * T + 16, y: o.y * T - 6, r: 34, color: ["255,140,170", "120,210,255", "255,220,120"][(o.variante ?? 0) % 3] };
         luces.push(d.luz);
         break;
@@ -635,7 +659,7 @@ export function arteDeSala(s: Sala): ArteSala {
       case "microfono":
       case "cueva":
       case "runa": {
-        const img = mueble(o.tipo, o.w, o.h, o.variante);
+        const img = (o.tipo === "cueva" || o.tipo === "mostrador" ? generado(o.tipo, o.w) : null) ?? mueble(o.tipo, o.w, o.h, o.variante);
         const d = alto(o, img, 0, o.tipo === "cueva" ? 6 : 2);
         if (o.tipo === "runa") {
           d.luz = { x: o.x * T + 8, y: o.y * T - 4, r: 30, color: o.variante ? "255,143,176" : "159,227,255" };
@@ -677,8 +701,8 @@ export function arteDeSala(s: Sala): ArteSala {
   }
 
   for (const e of s.edificios) {
-    const { c, oy } = edificio(e);
-    const d: Dibujable = { yBase: e.y + e.h, x: e.x * T, y: e.y * T - oy, img: c, edificio: e };
+    const { c, oy, generado: gen } = edificio(e);
+    const d: Dibujable = { yBase: e.y + e.h, x: e.x * T, y: e.y * T - oy, img: c, edificio: e, generado: gen };
     altos.push(d);
     // ventanas encendidas de noche
     luces.push({ x: (e.x + e.w / 2) * T, y: (e.y + e.h - 1) * T, r: 60, color: "255,210,140" });
