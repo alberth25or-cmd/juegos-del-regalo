@@ -43,6 +43,7 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/mundo">["
   const estado = yo ? estadoDe(yo) : null;
   return (
     <Mundo
+      key={salaInicial}
       salaInicial={salaInicial}
       realtime={puede ? realtimeConfig() : null}
       jugador={

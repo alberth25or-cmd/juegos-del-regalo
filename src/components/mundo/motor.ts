@@ -587,6 +587,7 @@ export class Motor {
         const r = l.r * this.k * f;
         const cx = p.x * f;
         const cy = p.y * f;
+        if (!Number.isFinite(cx + cy + r) || r <= 0) continue; // lienzo aún sin medir
         if (cx < -r || cy < -r || cx > this.oscuro.width + r || cy > this.oscuro.height + r) continue;
         const gr = o.createRadialGradient(cx, cy, 0, cx, cy, r);
         gr.addColorStop(0, "rgba(0,0,0,0.95)");

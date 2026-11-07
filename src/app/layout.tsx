@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { BottomNav, BottomNavStatic } from "@/components/nav/BottomNav";
 import { TimeMachine } from "@/components/atmosphere/TimeMachine";
 import { ModoLigero, SCRIPT_LIGERO } from "@/components/rendimiento/ModoLigero";
+import { MusicaGlobal } from "@/components/musica/MusicaGlobal";
 
 const pixelify = Pixelify_Sans({ variable: "--font-pixelify", subsets: ["latin", "latin-ext"], weight: ["400", "600", "700"] });
 const dm = DM_Sans({ variable: "--font-dm", subsets: ["latin", "latin-ext"] });
@@ -37,6 +38,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <TimeMachine />
           <Suspense fallback={<BottomNavStatic />}>
             <BottomNav />
+          </Suspense>
+          <Suspense fallback={null}>
+            <MusicaGlobal />
           </Suspense>
         </AtmosphereProvider>
       </body>

@@ -11,6 +11,8 @@ import { api } from "@/lib/cliente/api";
 import { limpiarArte, precargarImagenes } from "./arte";
 import { Motor, type Accion } from "./motor";
 import { crearRed, topico, type EstadoRed, type Evento, type Presencia, type Red } from "./red";
+import { BotonSonido } from "@/components/musica/MusicaGlobal";
+import { musica } from "@/lib/cliente/musica";
 
 export interface JugadorMundo {
   id: string;
@@ -81,6 +83,10 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
   const red = useRef<Red | null>(null);
   const salaRef = useRef<SalaId>(salaInicial);
   const [sala, setSala] = useState<SalaId>(salaInicial);
+  // Música: Jingle Bells afuera, We Wish You dentro de las casas.
+  useEffect(() => {
+    musica.pista(salaPorId(sala).exterior ? "nieve" : "casa");
+  }, [sala]);
   const [estado, setEstado] = useState<EstadoRed>(jugador ? "conectando" : "sin-red");
   const [aqui, setAqui] = useState<{ id: string; nombre: string }[]>([]);
   const [hoja, setHoja] = useState<Hoja>(null);
@@ -296,6 +302,7 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
             <button type="button" className="px-btn !min-h-[40px] !px-3 !text-[0.9rem]" style={{ ["--bg" as string]: "var(--gold)" }} onClick={() => setAyuda(true)} aria-label="Cómo se juega">
               ?
             </button>
+            <BotonSonido compacto />
           </div>
           <span className="px-chip !text-[0.85rem]" style={{ ["--chip" as string]: "var(--cream)" }}>
             📍 {s.nombre}
