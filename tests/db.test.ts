@@ -42,3 +42,43 @@ test("un error normal de SQL no se reintenta", async () => {
   );
   assert.equal(intentos, 1);
 });
+
+test("dos lecturas a la vez: el reinicio de una no tumba el reintento de la otra (9 nov)", async () => {
+  type Pool = { pend: Set<(e: unknown) => void>; end: () => Promise<void> };
+  const g = globalThis as { __ccSql?: unknown };
+  let cierres = 0;
+  const destruida = () => Object.assign(new Error("write CONNECTION_DESTROYED"), { code: "CONNECTION_DESTROYED" });
+  const nuevoPool = (): Pool => {
+    const p: Pool = {
+      pend: new Set(),
+      end: async () => {
+        cierres++;
+        for (const r of p.pend) r(destruida());
+        p.pend.clear();
+      },
+    };
+    return p;
+  };
+  // Como db(): usa el pool vigente o crea uno.
+  const pool = () => (g.__ccSql ??= nuevoPool()) as Pool;
+  const consulta = (valor: string) => {
+    const p = pool();
+    return new Promise<string>((res, rej) => {
+      p.pend.add(rej);
+      setTimeout(() => {
+        p.pend.delete(rej);
+        res(valor);
+      }, 40);
+    });
+  };
+  g.__ccSql = nuevoPool();
+  let intentosA = 0;
+  const b = conTope(() => consulta("B"), 2000);
+  const a = conTope(() => {
+    if (++intentosA > 1) return consulta("A");
+    pool();
+    return new Promise<string>((_, rej) => setTimeout(() => rej(Object.assign(new Error("reset"), { code: "ECONNRESET" })), 5));
+  }, 2000);
+  assert.deepEqual(await Promise.all([a, b]), ["A", "B"]);
+  assert.equal(cierres, 1, "el pool se reinició más de una vez");
+});

@@ -17,10 +17,21 @@ import postgres from "postgres";
  *      que no soporta la librería `postgres`);
  *   2. si una consulta se pasa del tope, se tira el pool entero (las conexiones muertas
  *      no vuelven solas) y las lecturas se reintentan una vez con conexión nueva.
+ * - Con Fluid, VARIAS visitas comparten el mismo pool. Por eso el pool se cierra en orden
+ *   (lo que otras visitas están consultando termina) y solo lo reinicia quien falló con el
+ *   pool VIGENTE: antes, el reinicio de una visita cortaba la consulta de otra, esa otra
+ *   reiniciaba de nuevo y cortaba el reintento de la primera ("CONNECTION_DESTROYED" del
+ *   9 nov: jugadores con sesión veían Memory y Gift Catcher en modo demo).
  */
 
 declare global {
   var __ccSql: ReturnType<typeof postgres> | undefined;
+  /** Cuántas veces se reinició el pool: identifica "qué pool" usó cada consulta. */
+  var __ccGen: number | undefined;
+}
+
+function generacion() {
+  return globalThis.__ccGen ?? 0;
 }
 
 const OCIOSA_SEG = 5;
@@ -57,11 +68,19 @@ export function db() {
   return globalThis.__ccSql;
 }
 
-/** Tira el pool (conexiones posiblemente muertas). La próxima consulta abre uno nuevo. */
-export function reiniciarPool() {
+/**
+ * Tira el pool (conexiones posiblemente muertas). La próxima consulta abre uno nuevo.
+ * `gen` = generación del pool con el que falló la consulta: si ya se reinició, no se
+ * vuelve a tirar (se tiraría el pool nuevo que otras visitas están usando).
+ */
+export function reiniciarPool(gen = generacion()) {
+  if (gen !== generacion()) return;
   const viejo = globalThis.__ccSql;
   globalThis.__ccSql = undefined;
-  if (viejo) void viejo.end({ timeout: 0 }).catch(() => {});
+  globalThis.__ccGen = gen + 1;
+  // Cierre en orden: lo que ya está corriendo termina; lo que siga colgado a los 5 s
+  // (conexión muerta) se corta. Las consultas nuevas ya van al pool nuevo.
+  if (viejo) void viejo.end({ timeout: 5 }).catch(() => {});
 }
 
 // ---- mantener viva la función hasta que se cierren las conexiones ociosas
@@ -102,7 +121,7 @@ type Trabajo<T> = PromiseLike<T> & { cancel?: () => unknown };
 
 class TopeVencido extends ErrorDeServicio {}
 
-async function unIntento<T>(trabajo: Trabajo<T>, ms: number, etiqueta: string): Promise<T> {
+async function unIntento<T>(trabajo: Trabajo<T>, ms: number, etiqueta: string, gen: number): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const limite = new Promise<never>((_, reject) => {
     timer = setTimeout(() => {
@@ -115,8 +134,8 @@ async function unIntento<T>(trabajo: Trabajo<T>, ms: number, etiqueta: string): 
   try {
     return await Promise.race([trabajo, limite]);
   } catch (e) {
-    // Tope vencido o conexión rota: las conexiones del pool pueden estar muertas.
-    if (e instanceof TopeVencido || esErrorDeConexion(e)) reiniciarPool();
+    // Tope vencido o conexión rota: las conexiones de ESE pool pueden estar muertas.
+    if (e instanceof TopeVencido || conexionMuerta(e)) reiniciarPool(gen);
     throw e;
   } finally {
     clearTimeout(timer);
@@ -124,9 +143,21 @@ async function unIntento<T>(trabajo: Trabajo<T>, ms: number, etiqueta: string): 
   }
 }
 
+const codigo = (e: unknown) => (e as { code?: string } | null)?.code;
+
+/** La conexión se rompió del lado de la red: el pool puede tener más conexiones muertas. */
+function conexionMuerta(e: unknown) {
+  const c = codigo(e);
+  return c === "CONNECT_TIMEOUT" || c === "CONNECTION_CLOSED" || c === "ECONNRESET" || c === "EPIPE" || c === "ETIMEDOUT";
+}
+
+/**
+ * Vale reintentar la lectura con un pool nuevo. Incluye ENDED/DESTROYED: los provoca un
+ * reinicio NUESTRO (la consulta iba en el pool viejo); no son motivo para reiniciar otra vez.
+ */
 function esErrorDeConexion(e: unknown) {
-  const code = (e as { code?: string } | null)?.code;
-  return code === "CONNECT_TIMEOUT" || code === "CONNECTION_CLOSED" || code === "CONNECTION_ENDED" || code === "CONNECTION_DESTROYED" || code === "ECONNRESET";
+  const c = codigo(e);
+  return conexionMuerta(e) || c === "CONNECTION_ENDED" || c === "CONNECTION_DESTROYED";
 }
 
 /**
@@ -137,12 +168,15 @@ function esErrorDeConexion(e: unknown) {
  *   tras congelarse la función), reintenta una vez con conexión nueva, dentro del mismo tope.
  */
 export async function conTope<T>(trabajo: Trabajo<T> | (() => Trabajo<T>), ms = TOPE_MS, etiqueta = "consulta"): Promise<T> {
-  if (typeof trabajo !== "function") return unIntento(trabajo, ms, etiqueta);
+  if (typeof trabajo !== "function") return unIntento(trabajo, ms, etiqueta, generacion());
   const primero = Math.round(ms * 0.45);
+  // La generación se lee justo antes de `trabajo()` (que llama a db() en el acto).
+  let gen = generacion();
   try {
-    return await unIntento(trabajo(), primero, etiqueta);
+    return await unIntento(trabajo(), primero, etiqueta, gen);
   } catch (e) {
     if (!(e instanceof TopeVencido) && !esErrorDeConexion(e)) throw e;
-    return unIntento(trabajo(), ms - primero, etiqueta);
+    gen = generacion();
+    return unIntento(trabajo(), ms - primero, etiqueta, gen);
   }
 }

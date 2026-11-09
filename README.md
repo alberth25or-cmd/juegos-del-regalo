@@ -37,5 +37,8 @@ Variables: ver `.env.example`. Nunca subas `.env.local`.
 
 ## Despliegue
 
+Push a `main` → Vercel compila y publica en el sitio real. Las ramas y Pull Requests generan
+una vista previa que **no** migra la base de datos. Para colaborar: `CONTRIBUTING.md`.
+
 Push a `main` → Vercel compila. `npm run build` aplica primero las migraciones de
 `db/migrations/` sobre Supabase (São Paulo) y luego compila Next.js.

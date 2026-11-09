@@ -75,4 +75,4 @@ tests/                node:test (`npm test`)
 ## Commits
 
 Mensajes en español, terminando con `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
-Nunca commitear `.env*` (salvo `.env.example`). Repo privado `alberth25or-cmd/juegos-del-regalo`.
+Nunca commitear `.env*` (salvo `.env.example`). Repo PÚBLICO `alberth25or-cmd/juegos-del-regalo` (nada de secretos). Colaborar: `CONTRIBUTING.md`.

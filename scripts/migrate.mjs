@@ -21,6 +21,14 @@ if (!raw) {
   process.exit(0);
 }
 
+// Las vistas previas de Vercel (ramas y Pull Requests) usan las MISMAS variables que
+// producción: si migraran, un cambio sin revisar tocaría la base de datos real. Solo migra
+// la publicación de `main` (producción).
+if (process.env.VERCEL_ENV === "preview") {
+  console.log("[migraciones] Vista previa de Vercel: se omiten (solo producción toca la base de datos).");
+  process.exit(0);
+}
+
 // La URL de la integración trae parámetros extra (p. ej. `supa=`) que el pooler rechaza.
 const url = new URL(raw);
 url.search = "";

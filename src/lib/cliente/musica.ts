@@ -42,7 +42,8 @@ const cache = new Map<NombrePista, { melodia: Nota[]; bajo: Nota[] }>();
 
 function leerSilencio() {
   try {
-    return typeof localStorage !== "undefined" && localStorage.getItem(CLAVE) === "0";
+    // Primero `window`: en el servidor (Node 26) tocar `localStorage` imprime una advertencia.
+    return typeof window !== "undefined" && window.localStorage.getItem(CLAVE) === "0";
   } catch {
     return false;
   }
