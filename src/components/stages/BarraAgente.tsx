@@ -1,12 +1,12 @@
 import { PixelIcon } from "@/components/ui/PixelIcon";
 import { Cabeza } from "./Cabeza";
 import { Guirnalda } from "./Decoracion";
-import { plato, type Agente, type Stage } from "./datosEjemplo";
+import { faltanHoy, plato, type Agente, type Stage } from "./datosEjemplo";
 
 const MAX_CABEZAS = 3;
 const MEDALLA = ["#ffc845", "#d7dde8", "#e59a5b"];
 
-/** Barra superior fija de las pantallas de juego: quién eres, cómo vas, dónde va cada agente y el ranking. */
+/** Barra superior fija de las pantallas de juego: quién eres, cómo vas, cómo va el día en cada casa y el ranking. */
 export function BarraAgente({ yo, puesto, agentes, stages }: { yo: Agente; puesto: number; agentes: Agente[]; stages: Stage[] }) {
   const total = agentes.length;
   return (
@@ -39,31 +39,37 @@ export function BarraAgente({ yo, puesto, agentes, stages }: { yo: Agente; puest
   );
 }
 
+/**
+ * Riel de casas. Todas están abiertas, así que no muestra "hasta dónde llegó cada uno" sino
+ * cómo va HOY: en cada casa, las cabezas de quienes ya respondieron todo lo del día (la tuya
+ * con marco rojo) y, en el círculo, ✓ si estás al día o cuántas te faltan.
+ */
 function Riel({ agentes, stages }: { agentes: Agente[]; stages: Stage[] }) {
   const pos = (n: number) => 9 + ((n - 1) / (stages.length - 1)) * 82;
-  const actual = stages.find((s) => s.estado === "actual")?.n ?? 1;
+  const ultimaAbierta = stages.filter((s) => s.estado !== "cerrada").at(-1)?.n ?? 1;
+  const primeraPendiente = stages.find((s) => s.estado === "nuevas")?.n;
+  const etiqueta = (s: Stage) =>
+    s.estado === "cerrada"
+      ? `${s.corto}: se abre el ${s.abre}`
+      : `${s.corto}: ${agentes.filter((a) => a.hoy.includes(s.n)).length} agentes al día, ${s.estado === "nuevas" ? `te faltan ${faltanHoy(s)}` : "estás al día"}`;
   return (
-    <div
-      className="relative h-[70px] lg:h-[84px]"
-      role="img"
-      aria-label={stages.map((s) => `${s.corto}: ${agentes.filter((a) => a.stage === s.n).length} agentes`).join(", ")}
-    >
-      {/* Camino: bastón de caramelo hasta el stage actual; nieve punteada después */}
+    <div className="relative h-[70px] lg:h-[84px]" role="img" aria-label={stages.map(etiqueta).join(". ")}>
+      {/* Camino: bastón de caramelo por todas las casas abiertas; nieve punteada hasta la ficha */}
       <div className="absolute inset-x-[9%] top-[40px] h-[8px] rounded-full bg-[rgb(255_255_255/0.16)]" />
       <div
         className="absolute left-[9%] top-[40px] h-[8px] rounded-full"
-        style={{ width: `${pos(actual) - 9}%`, background: "repeating-linear-gradient(-45deg, #fff 0 7px, #e8283c 7px 14px)" }}
+        style={{ width: `${pos(ultimaAbierta) - 9}%`, background: "repeating-linear-gradient(-45deg, #fff 0 7px, #e8283c 7px 14px)" }}
       />
       {stages.map((s) => {
-        const grupo = agentes.filter((a) => a.stage === s.n);
+        const grupo = agentes.filter((a) => a.hoy.includes(s.n));
         const yo = grupo.find((a) => a.yo);
         const otros = grupo.filter((a) => !a.yo);
-        // Celular: 1 cabeza por stage (la tuya si estás ahí); computadora: hasta MAX_CABEZAS.
+        // Celular: 1 cabeza por casa (la tuya si estás al día); computadora: hasta MAX_CABEZAS.
         const visibles = otros.slice(0, yo ? MAX_CABEZAS - 1 : MAX_CABEZAS);
         const resto = grupo.length - visibles.length - (yo ? 1 : 0);
         const restoCel = grupo.length - 1;
         const mas = "ml-2 rounded-full bg-[rgb(255_255_255/0.16)] px-1.5 text-[0.7rem] font-extrabold";
-        const fondo = s.estado === "superado" ? "var(--verde-claro)" : s.estado === "actual" ? "var(--oro)" : "rgb(255 255 255 / 0.18)";
+        const fondo = s.estado === "aldia" ? "var(--verde-claro)" : s.estado === "nuevas" ? "var(--oro)" : "rgb(255 255 255 / 0.18)";
         return (
           <div key={s.n} className="absolute top-0 flex -translate-x-1/2 flex-col items-center" style={{ left: `${pos(s.n)}%` }}>
             <div className="flex h-[28px] items-end -space-x-1.5">
@@ -81,10 +87,10 @@ function Riel({ agentes, stages }: { agentes: Agente[]; stages: Stage[] }) {
               {resto > 0 && <span className={`${mas} hidden lg:inline`}>+{resto}</span>}
             </div>
             <span
-              className={`mt-[2px] grid h-[26px] w-[26px] place-items-center rounded-full text-[0.8rem] font-extrabold ${s.estado === "actual" ? "latido" : ""}`}
-              style={{ background: fondo, color: s.estado === "bloqueado" ? "var(--hielo)" : "var(--tinta)", boxShadow: "inset 0 -3px 0 rgb(0 0 0 / 0.15)" }}
+              className={`mt-[2px] grid h-[26px] w-[26px] place-items-center rounded-full text-[0.8rem] font-extrabold ${s.n === primeraPendiente ? "latido" : ""}`}
+              style={{ background: fondo, color: s.estado === "cerrada" ? "var(--hielo)" : "var(--tinta)", boxShadow: "inset 0 -3px 0 rgb(0 0 0 / 0.15)" }}
             >
-              {s.estado === "superado" ? "✓" : s.n === 6 ? <PixelIcon name="chest" size={15} /> : s.n}
+              {s.estado === "aldia" ? "✓" : s.estado === "cerrada" ? <PixelIcon name="chest" size={15} /> : faltanHoy(s)}
             </span>
             <span className="mt-1 hidden whitespace-nowrap text-[0.75rem] font-bold text-[var(--hielo)] lg:block">{s.corto}</span>
           </div>

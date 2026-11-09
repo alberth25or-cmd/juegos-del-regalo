@@ -1,5 +1,37 @@
 # Decisiones del proyecto
 
+## Todas las casas abiertas + preguntas nuevas cada día (2026-11-09, pedido de Luis)
+
+Luis no quiere niveles bloqueados. **Esta sección manda sobre la reorientación del 6 nov donde choquen**
+("stages lineales con fecha + superado").
+
+Decisiones de Luis:
+- **Todo desbloqueado desde el "Empezar".** Las 5 casas (Calentamiento, La manada, Amor, Picante,
+  Juicio final) se abren el mismo día para todos. No hay candados ni "superar el anterior".
+- **Cada día salen preguntas nuevas del tema de cada casa.** La dinámica es diaria: entras, ves qué
+  casas tienen preguntas nuevas hoy y las respondes.
+
+Llamadas mías (se pueden cambiar):
+- **Cuántas por día** (configurable): Calentamiento = una partida de cada minijuego + trivia del día;
+  La manada 1; Amor 2; Picante 2; Juicio final 1 reto.
+- **Las de hoy vencen a las 23:59** (hora de Lima) y a medianoche salen las siguientes. Faltar sigue
+  restando (la propuesta de −5 por pregunta no respondida se extiende a todas las casas) y nunca
+  bloquea nada.
+- **La ficha del amigo secreto sí tiene fecha** (20 dic por defecto, la elige el organizador): es el
+  final del juego, no un nivel. Se arma con todo lo respondido en las casas durante la temporada.
+- **Cada casa muestra su estado del día:** con preguntas nuevas (globo rojo con cuántas faltan,
+  humo y corona) o al día (bandera dorada). El riel de la barra ya no dice "hasta dónde llegó cada
+  uno": muestra, por casa, quiénes ya están al día hoy.
+- **Panel del organizador:** desaparece "días entre stages"; queda la fecha de Empezar y la de la
+  ficha. El avance por alias pasa a "Hoy al día: 3/5".
+- Picante mantiene la confirmación de mayoría de edad, ahora la primera vez que se entra.
+- Hace falta un **banco de preguntas por casa** con al menos una por día de temporada (≈30 para La
+  manada, ≈60 para Amor y Picante con 2 por día). Sigue abierto quién las escribe (§12.4 del diseño).
+
+Hecho en `/diseno` con datos de ejemplo (no hay motor con base de datos todavía).
+
+---
+
 ## Rediseño festivo "Navidad de juguete" (2026-11-06, pedido de Cesar)
 
 La primera versión del tema (noche sobria) "se veía pobre y sosa". Decisiones de Cesar:

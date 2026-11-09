@@ -34,7 +34,7 @@ export default function ArbolDiseno() {
               <PixelIcon name="clock" size={18} className="mt-0.5 shrink-0" /> Nadie juega hasta que el organizador apriete &quot;Empezar&quot;.
             </li>
             <li className="flex items-start gap-2.5 rounded-[14px] bg-[#ffe3e6] px-3 py-2.5">
-              <PixelIcon name="lock" size={18} className="mt-0.5 shrink-0" /> Al empezar se hace el sorteo y se cierra la puerta.
+              <PixelIcon name="lock" size={18} className="mt-0.5 shrink-0" /> Al empezar se hace el sorteo, se cierra la puerta y se abren todas las casas.
             </li>
           </ul>
         </section>

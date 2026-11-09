@@ -6,7 +6,14 @@ import { avatarAlAzar, type ConfigAvatar } from "@/features/avatar";
 import { crearAzar } from "@/features/azar";
 import type { IconName } from "@/components/ui/PixelIcon";
 
-export type EstadoStage = "superado" | "actual" | "bloqueado";
+/**
+ * Dinámica (decisión de Luis, 2026-11-09): TODAS las casas se abren con el "Empezar" y cada día
+ * salen preguntas nuevas del tema de cada casa.
+ *  - nuevas: hoy tiene preguntas (o retos) que todavía no respondiste.
+ *  - aldia:  ya respondiste todas las de hoy; mañana salen más.
+ *  - cerrada: solo la ficha del amigo secreto, que se abre en su fecha para todos.
+ */
+export type EstadoCasa = "nuevas" | "aldia" | "cerrada";
 
 export interface Juego {
   nombre: string;
@@ -15,6 +22,8 @@ export interface Juego {
   /** Si es false, se muestra deshabilitado con su motivo. */
   disponible: boolean;
   nota?: string;
+  /** Ya lo jugaste hoy. */
+  hechoHoy?: boolean;
 }
 
 export interface Stage {
@@ -24,11 +33,18 @@ export interface Stage {
   corto: string;
   icono: IconName;
   descripcion: string;
-  estado: EstadoStage;
-  abre: string;
-  /** Color del papel de regalo cuando está bloqueado. */
+  estado: EstadoCasa;
+  /** Cuántas preguntas (o retos) nuevas salen cada día en esta casa. */
+  porDia: number;
+  /** Cuántas de las de hoy ya respondiste. */
+  hechasHoy: number;
+  /** "pregunta" o "reto", para los textos ("2 preguntas nuevas"). */
+  unidad: "pregunta" | "reto";
+  /** Solo la ficha (cerrada): cuándo se abre. */
+  abre?: string;
+  /** Color del techo de la casa. */
   papel: "rojo" | "verde" | "azul" | "morado";
-  avance?: string;
+  /** Puntos que llevas ganados en esta casa. */
   puntos?: number;
   accion?: { texto: string; href: string };
   juegos?: Juego[];
@@ -37,8 +53,8 @@ export interface Stage {
 export interface Agente {
   alias: string;
   avatar: ConfigAvatar;
-  /** Índice del stage donde va (1..6). */
-  stage: number;
+  /** Casas en las que ya respondió todo lo de hoy (1..5). */
+  hoy: number[];
   puntos: number;
   yo?: boolean;
 }
@@ -54,12 +70,13 @@ const PLATOS = [
 export const plato = (alias: string) => alias.replace(/^Agente\s+/, "");
 
 const azar = crearAzar(2026);
-const stageDe = [3, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 1];
+// Casas en las que ya está al día cada agente. Rocoto (tú) solo terminó el Calentamiento.
+const hoyDe = (p: string) => (p === "Rocoto" ? [1] : [1, 2, 3, 4, 5].filter(() => azar() < 0.55));
 
 export const AGENTES: Agente[] = PLATOS.map((p, i) => ({
   alias: `Agente ${p}`,
   avatar: avatarAlAzar(azar),
-  stage: stageDe[i],
+  hoy: hoyDe(p),
   puntos: Math.max(40, 520 - i * 22 - Math.floor(azar() * 12)),
   yo: p === "Rocoto",
 })).sort((a, b) => b.puntos - a.puntos);
@@ -70,26 +87,51 @@ export const PUESTO = AGENTES.indexOf(YO) + 1;
 export const STAGES: Stage[] = [
   {
     n: 1, nombre: "Calentamiento", corto: "Calentar", icono: "mission", papel: "verde",
-    descripcion: "Tres minijuegos para entrar en calor. Juega cada uno al menos una vez.",
-    estado: "superado", abre: "25 nov", puntos: 180,
+    descripcion: "Minijuegos para entrar en calor. Cada día: una partida de cada uno y una trivia nueva.",
+    estado: "aldia", porDia: 3, hechasHoy: 3, unidad: "reto", puntos: 180,
     juegos: [
-      { nombre: "Gift Catcher", href: "/arcade/gift-catcher", icono: "chest", disponible: true },
-      { nombre: "Memory Gifts", href: "/arcade/memory", icono: "sparkle", disponible: true },
-      { nombre: "Trivia", href: "/arena/trivia", icono: "ranking", disponible: false, nota: "Necesita la base de datos" },
+      { nombre: "Gift Catcher", href: "/arcade/gift-catcher", icono: "chest", disponible: true, hechoHoy: true },
+      { nombre: "Memory Gifts", href: "/arcade/memory", icono: "sparkle", disponible: true, hechoHoy: true },
+      { nombre: "Trivia del día", href: "/arena/trivia", icono: "ranking", disponible: false, nota: "Necesita la base de datos", hechoHoy: true },
     ],
   },
   {
     n: 2, nombre: "La manada", corto: "Manada", icono: "sheep", papel: "rojo",
-    descripcion: "Adivina lo que piensa la mayoría. Una pregunta por día: si coincides con el grupo, sumas.",
-    estado: "actual", abre: "30 nov", avance: "Llevas 2 de 5 · Hoy cierra a las 23:59",
+    descripcion: "Adivina lo que piensa la mayoría. Una pregunta nueva cada día: si coincides con el grupo, sumas.",
+    estado: "nuevas", porDia: 1, hechasHoy: 0, unidad: "pregunta", puntos: 40,
     accion: { texto: "Responder la de hoy", href: "/diseno/manada" },
   },
-  { n: 3, nombre: "Amor y relaciones", corto: "Amor", icono: "heart", papel: "morado", descripcion: "Preguntas directas de respuesta corta. Puedes pasar, pero resta puntos.", estado: "bloqueado", abre: "5 dic" },
-  { n: 4, nombre: "Picante", corto: "Picante", icono: "chili", papel: "rojo", descripcion: "Solo sí o no. Antes de entrar confirmas que eres mayor de edad.", estado: "bloqueado", abre: "10 dic" },
-  { n: 5, nombre: "Juicio final", corto: "Juicio", icono: "star", papel: "azul", descripcion: "El último reto y el cierre del ranking.", estado: "bloqueado", abre: "15 dic" },
-  { n: 6, nombre: "Tu amigo secreto", corto: "Ficha", icono: "chest", papel: "verde", descripcion: "Su ficha completa para describirlo el día del intercambio.", estado: "bloqueado", abre: "20 dic" },
+  {
+    n: 3, nombre: "Amor y relaciones", corto: "Amor", icono: "heart", papel: "morado",
+    descripcion: "Preguntas nuevas de amor cada día, de respuesta corta. Puedes pasar, pero resta puntos.",
+    estado: "nuevas", porDia: 2, hechasHoy: 1, unidad: "pregunta", puntos: 60,
+  },
+  {
+    n: 4, nombre: "Picante", corto: "Picante", icono: "chili", papel: "rojo",
+    descripcion: "Preguntas nuevas cada día, solo sí o no. La primera vez confirmas que eres mayor de edad.",
+    estado: "nuevas", porDia: 2, hechasHoy: 0, unidad: "pregunta", puntos: 20,
+  },
+  {
+    n: 5, nombre: "Juicio final", corto: "Juicio", icono: "star", papel: "azul",
+    descripcion: "Un reto nuevo cada día. El último día cierra el ranking.",
+    estado: "nuevas", porDia: 1, hechasHoy: 0, unidad: "reto", puntos: 0,
+  },
+  {
+    n: 6, nombre: "Tu amigo secreto", corto: "Ficha", icono: "chest", papel: "verde",
+    descripcion: "Su ficha completa, con todo lo que respondió en las casas, para describirlo el día del intercambio.",
+    estado: "cerrada", porDia: 0, hechasHoy: 0, unidad: "pregunta", abre: "20 dic",
+  },
 ];
 
-export const DIA = { stage: 2, de: 5, dia: 7, total: 30 };
+/** Pendientes de hoy en una casa. */
+export const faltanHoy = (s: Stage) => Math.max(0, s.porDia - s.hechasHoy);
+
+/** "1 pregunta nueva" / "2 retos nuevos". */
+export function cuantas(n: number, unidad: Stage["unidad"]) {
+  const plural = n === 1 ? "" : "s";
+  return unidad === "reto" ? `${n} reto${plural} nuevo${plural}` : `${n} pregunta${plural} nueva${plural}`;
+}
+
+export const DIA = { dia: 7, total: 30 };
 
 export const SALA = { capacidad: 20, presupuesto: 40, premio: "Canasta navideña para el primer lugar" };

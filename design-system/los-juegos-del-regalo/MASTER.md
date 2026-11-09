@@ -69,8 +69,10 @@ Reemplaza al carrusel de regalos: Cesar lo vio "atrapado en recuadros" y, al ale
 las tarjetas laterales se encogían a saltos y quedaban cortadas en los bordes.
 
 - **Casa = stage.** Techo del color del stage, placa con su ícono, número y nombre corto debajo.
-  Bloqueado: luces apagadas, nieve en la puerta y candado. Hoy: ventanas encendidas, humo y
-  corona. Superado: bandera dorada. Stage 6 (amigo secreto): cinta y lazo de regalo en el techo.
+  Desde el 9 nov todas están abiertas (decisión de Luis). Con preguntas nuevas hoy: ventanas
+  encendidas, humo, corona y globo rojo con cuántas faltan (alero izquierdo; a la derecha va tu
+  cabeza). Al día: bandera dorada. Ficha del amigo secreto: cinta y lazo de regalo en el techo; es la
+  única cerrada (luces apagadas y candado) hasta su fecha.
 - **Encuadre orgánico:** todo se mide en `--c` (ancho de una casa, `clamp` con `vw`), así casas,
   sendero y suelo escalan juntos a cualquier zoom. En pantallas anchas la aldea cabe completa y el
   suelo nevado ocupa el 100 % del ancho; si no cabe, los bordes se desvanecen con `mask-image`
@@ -81,7 +83,8 @@ las tarjetas laterales se encogían a saltos y quedaban cortadas en los bordes.
 
 - Alias con espacios: **"Agente Picarón"**, nunca con barra baja (decisión de Cesar).
 - Táctil ≥ 44 px; nada depende de *hover*. Un botón principal por pantalla.
-- Bloqueado se ve, no se abre: sin botones falsos.
-- Movimiento: nieve, focos, lazo flotante y latido del stage actual; todo se apaga con
+- Lo cerrado (solo la ficha) se ve, no se abre: sin botones falsos. Lo que aún no existe en la
+  vista de diseño dice "Próximamente".
+- Movimiento: nieve, focos, lazo flotante y latido de la primera casa con preguntas pendientes; todo se apaga con
   `prefers-reduced-motion`.
 - Anonimato: usuario y alias nunca aparecen juntos.

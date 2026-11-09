@@ -1,5 +1,5 @@
 import { PixelIcon } from "@/components/ui/PixelIcon";
-import type { Stage } from "./datosEjemplo";
+import { faltanHoy, type Stage } from "./datosEjemplo";
 
 /** Color del techo según el papel del stage (el mismo que usaba el regalo envuelto). */
 const TECHO: Record<Stage["papel"], [string, string]> = {
@@ -12,14 +12,16 @@ const TECHO: Record<Stage["papel"], [string, string]> = {
 /**
  * Casa de Snowville que representa un stage. Dibujada en SVG (bordes nítidos, estilo pixel)
  * y escalada con la unidad --c de la aldea, así nunca se deforma al alejar o acercar la página.
- *  - bloqueado: luces apagadas, nieve en la puerta y candado.
- *  - actual: ventanas encendidas, humo en la chimenea y corona en la puerta.
- *  - superado: encendida y con bandera dorada en el techo.
+ *  - nuevas: ventanas encendidas, humo en la chimenea, corona en la puerta y un globo con
+ *    cuántas preguntas nuevas te faltan hoy.
+ *  - aldia: encendida y con bandera dorada en el techo (ya respondiste todo lo de hoy).
+ *  - cerrada (solo la ficha): luces apagadas, nieve en la puerta y candado.
  * El stage 6 (amigo secreto) lleva cinta de regalo en el techo.
  */
 export function CasaStage({ s }: { s: Stage }) {
   const [techo, techoHondo] = TECHO[s.papel];
-  const luz = s.estado !== "bloqueado";
+  const luz = s.estado !== "cerrada";
+  const nuevas = s.estado === "nuevas";
   const regalo = s.n === 6;
   const ventana = luz ? "#ffd76a" : "#27336a";
 
@@ -33,7 +35,7 @@ export function CasaStage({ s }: { s: Stage }) {
         {/* Chimenea y humo */}
         <rect x="66" y="22" width="10" height="22" fill="#9a4b3c" />
         <rect x="64" y="20" width="14" height="5" fill="#fff" />
-        {s.estado === "actual" && (
+        {nuevas && (
           <g className="casa-humo" fill="#e6ecff" shapeRendering="auto">
             <circle cx="71" cy="14" r="3.5" />
             <circle cx="74" cy="8" r="4.5" />
@@ -78,12 +80,12 @@ export function CasaStage({ s }: { s: Stage }) {
         <rect x="40" y="72" width="20" height="30" fill={luz ? "#7a4a2a" : "#4a3328"} />
         <rect x="43" y="75" width="14" height="27" fill={luz ? "#9a5b34" : "#5a3d2e"} />
         <rect x="53" y="88" width="2.5" height="2.5" fill="var(--oro)" />
-        {s.estado === "actual" && <circle cx="50" cy="82" r="4.5" fill="none" stroke="#2f9e5f" strokeWidth="2.5" shapeRendering="auto" />}
-        {s.estado === "actual" && <rect x="48.5" y="85" width="3" height="3" fill="#e8283c" />}
+        {nuevas && <circle cx="50" cy="82" r="4.5" fill="none" stroke="#2f9e5f" strokeWidth="2.5" shapeRendering="auto" />}
+        {nuevas && <rect x="48.5" y="85" width="3" height="3" fill="#e8283c" />}
         {!luz && <ellipse cx="50" cy="101" rx="13" ry="4.5" fill="#fff" shapeRendering="auto" />}
 
-        {/* Bandera de superado */}
-        {s.estado === "superado" && !regalo && (
+        {/* Bandera de "al día" */}
+        {s.estado === "aldia" && !regalo && (
           <g>
             <rect x="49" y="2" width="2" height="15" fill="#5b5470" />
             <polygon points="51,3 63,6.5 51,10" fill="var(--oro)" />
@@ -99,11 +101,12 @@ export function CasaStage({ s }: { s: Stage }) {
           <PixelIcon name="bowOro" size={36} />
         </span>
       )}
-      {s.estado === "bloqueado" && (
+      {s.estado === "cerrada" && (
         <span className="casa-candado">
           <PixelIcon name="lock" size={18} />
         </span>
       )}
+      {nuevas && <span className="casa-aviso f-titulo">{faltanHoy(s)}</span>}
     </span>
   );
 }

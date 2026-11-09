@@ -9,6 +9,13 @@ Convención de este documento:
 - **[Propuesta]** lo puso Claude para completar el diseño. Se puede cambiar sin volver a discutir el resto.
 - **[Abierto]** falta que alguien lo decida. Ver §12.
 
+> **Cambio del 2026-11-09 (Luis): todas las casas abiertas + preguntas nuevas cada día.**
+> Donde este documento dice que cada stage "se abre en su fecha y solo si superaste el anterior"
+> (§2, §3, §3.4, §3.7, §5 "Ritmo", §6, §10.4), ya no aplica: las 5 casas se abren con el
+> "Empezar" y cada día salen preguntas nuevas del tema de cada una, que vencen a las 23:59.
+> Ya no existe "superar un stage" ni el intervalo entre stages; la única fecha es la de la ficha
+> del amigo secreto. Detalle en `DECISIONES.md` (sección del 9 nov).
+
 ---
 
 ## 1. Intención

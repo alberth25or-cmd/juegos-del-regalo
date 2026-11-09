@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Cabeza } from "./Cabeza";
 import { CasaStage } from "./CasaStage";
 import { DetalleStage } from "./DetalleStage";
-import type { Agente, Stage } from "./datosEjemplo";
+import { cuantas, faltanHoy, type Agente, type Stage } from "./datosEjemplo";
 
 /*
  * Geometría en "unidades de casa": una casa mide 100 × 110, cada columna 115 de ancho y las
@@ -32,21 +32,24 @@ function camino(n: number, hasta = n) {
 
 /**
  * Aldea de stages: cada stage es una casa de Snowville unida por un sendero en la nieve.
- * Tocar una casa abre su letrero abajo. En celular la aldea se desliza; en pantallas anchas
+ * Todas las casas están abiertas desde el "Empezar" y cada día traen preguntas nuevas;
+ * solo la ficha del amigo secreto espera su fecha. Tocar una casa abre su letrero abajo. En celular la aldea se desliza; en pantallas anchas
  * cabe completa y el suelo nevado llena todo el ancho (sin bordes cortados).
  */
 export function AldeaStages({ stages, titulo, subtitulo, yo }: { stages: Stage[]; titulo: string; subtitulo: string; yo: Agente }) {
+  // Empieza en la primera casa con preguntas pendientes hoy (o en la primera, si estás al día).
   const iActual = Math.max(
     0,
-    stages.findIndex((s) => s.estado === "actual"),
+    stages.findIndex((s) => s.estado === "nuevas"),
   );
   const [sel, setSel] = useState(iActual);
   const pista = useRef<HTMLDivElement>(null);
   const casas = useRef<(HTMLButtonElement | null)[]>([]);
   const n = stages.length;
   const d = camino(n);
-  // Tramo recorrido (hasta la casa actual): bastón de caramelo, como el riel de la barra.
-  const hecho = camino(n, iActual);
+  // Tramo abierto (todas las casas menos la ficha cerrada): bastón de caramelo, como el riel de la barra.
+  const abiertas = stages.filter((s) => s.estado !== "cerrada").length;
+  const hecho = camino(n, abiertas - 1);
 
   const centrar = (i: number, suave = true) => {
     const p = pista.current;
@@ -112,13 +115,13 @@ export function AldeaStages({ stages, titulo, subtitulo, yo }: { stages: Stage[]
                     className="casa"
                     data-estado={s.estado}
                     onClick={() => elegir(i)}
-                    aria-label={`${titulo}. ${s.estado === "bloqueado" ? `Se abre el ${s.abre}` : s.estado === "actual" ? "Toca hoy" : "Superado"}`}
+                    aria-label={`${titulo}. ${nota(s)}`}
                   >
                     <CasaStage s={s} />
                     <span className="casa-nombre">
                       <span className="f-titulo">{s.n === 6 ? "★" : s.n}</span> {s.corto}
                     </span>
-                    <span className="casa-nota">{s.estado === "bloqueado" ? s.abre : s.estado === "actual" ? "¡Hoy!" : "✓ Listo"}</span>
+                    <span className="casa-nota">{s.estado === "cerrada" ? s.abre : s.estado === "nuevas" ? `${faltanHoy(s)} nueva${faltanHoy(s) === 1 ? "" : "s"}` : "✓ Al día"}</span>
                   </button>
                   {i === iActual && (
                     <span className="aldea-tu" aria-hidden>
@@ -137,4 +140,10 @@ export function AldeaStages({ stages, titulo, subtitulo, yo }: { stages: Stage[]
       </div>
     </section>
   );
+}
+
+function nota(s: Stage) {
+  if (s.estado === "cerrada") return `Se abre el ${s.abre}`;
+  if (s.estado === "aldia") return "Al día: mañana salen más";
+  return `Hoy: ${cuantas(faltanHoy(s), s.unidad)}`;
 }

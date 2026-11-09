@@ -5,7 +5,7 @@ import { useState } from "react";
 import { PixelIcon } from "@/components/ui/PixelIcon";
 
 const PREGUNTA = {
-  dia: 3,
+  dia: 7,
   texto: "¿Qué es lo primero que se acaba en una fiesta navideña?",
   opciones: ["El panetón", "El chocolate caliente", "La paciencia", "El hielo"],
   // shortcut: votos inventados para la vista de diseño; el Frente 4 los calcula en el servidor al cierre.
@@ -25,14 +25,14 @@ export function JuegoManada() {
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-5">
       <Link href="/diseno" className="boton claro !min-h-11 self-start !px-4 !text-[0.95rem]">
-        ← Volver a los stages
+        ← Volver a las casas
       </Link>
 
       <section className="clay relative p-6 pt-9 sm:p-8 sm:pt-10">
         <span className="absolute inset-x-0 top-0 h-[14px] rounded-t-[24px] bg-[var(--rojo-boton)]" aria-hidden />
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="pastilla" style={{ ["--pb" as string]: "#ffe3e6", ["--pf" as string]: "var(--rojo-boton)" }}>
-            La manada · Pregunta {PREGUNTA.dia} de 5
+            La manada · Pregunta del día {PREGUNTA.dia}
           </span>
           <span className="flex items-center gap-1.5 whitespace-nowrap text-[0.85rem] font-bold text-[var(--tinta-suave)]">
             <PixelIcon name="clock" size={15} /> Cierra 23:59
