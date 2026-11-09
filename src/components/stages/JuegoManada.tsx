@@ -14,7 +14,7 @@ const PREGUNTA = {
 const COLORES = ["#c8102e", "#1f7a4d", "#d99a1c", "#2c4aa8"];
 const LETRAS = ["A", "B", "C", "D"];
 
-/** La manada: elige lo que crees que eligió la mayoría. Si coincides, +10. */
+/** La manada: elige lo que crees que eligió la mayoría. Si coincides, +10 monedas. */
 export function JuegoManada() {
   const [elegida, setElegida] = useState<number | null>(null);
   const [enviada, setEnviada] = useState(false);
@@ -40,7 +40,7 @@ export function JuegoManada() {
         </div>
 
         <h1 className="f-titulo mt-5 text-[1.9rem] font-semibold leading-tight [text-wrap:balance]">{PREGUNTA.texto}</h1>
-        <p className="mt-2 text-[var(--tinta-suave)]">No digas lo que tú piensas: adivina lo que eligió <b className="text-[var(--tinta)]">la mayoría</b>. Si coincides, ganas 10 puntos.</p>
+        <p className="mt-2 text-[var(--tinta-suave)]">No digas lo que tú piensas: adivina lo que eligió <b className="text-[var(--tinta)]">la mayoría</b>. Si coincides, ganas 10 monedas.</p>
 
         {!enviada ? (
           <>
@@ -77,7 +77,7 @@ export function JuegoManada() {
                 <PixelIcon name={acerto ? "star" : "sparkle"} size={34} />
               </span>
               <div>
-                <p className="f-titulo text-[1.35rem] font-semibold">{acerto ? "¡Piensas como la manada! +10" : "Esta vez la manada pensó distinto"}</p>
+                <p className="f-titulo text-[1.35rem] font-semibold">{acerto ? "¡Piensas como la manada! +10 monedas" : "Esta vez la manada pensó distinto"}</p>
                 <p className="text-[0.9rem] text-[var(--tinta-suave)]">Elegiste &quot;{PREGUNTA.opciones[elegida!]}&quot;.</p>
               </div>
             </div>

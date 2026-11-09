@@ -15,6 +15,12 @@ Convención de este documento:
 > "Empezar" y cada día salen preguntas nuevas del tema de cada una, que vencen a las 23:59.
 > Ya no existe "superar un stage" ni el intervalo entre stages; la única fecha es la de la ficha
 > del amigo secreto. Detalle en `DECISIONES.md` (sección del 9 nov).
+>
+> **También del 2026-11-09 (Luis): una sola moneda y fisgonear.** Donde dice "puntos" (§3.5 y
+> siguientes), léase **monedas**: es la única recompensa, el ranking es el saldo y gana quien más
+> tenga. La ficha del amigo secreto (§3.6) ya no se abre de golpe al final: se llena con sobres
+> cerrados a medida que tu amigo responde, uno gratis por día, y los demás se compran con monedas.
+> La ficha final destaca "lo más picante". Detalle en `DECISIONES.md`.
 
 ---
 

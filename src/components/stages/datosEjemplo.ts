@@ -44,8 +44,8 @@ export interface Stage {
   abre?: string;
   /** Color del techo de la casa. */
   papel: "rojo" | "verde" | "azul" | "morado";
-  /** Puntos que llevas ganados en esta casa. */
-  puntos?: number;
+  /** Monedas que llevas ganadas en esta casa. */
+  monedas?: number;
   accion?: { texto: string; href: string };
   juegos?: Juego[];
 }
@@ -55,7 +55,8 @@ export interface Agente {
   avatar: ConfigAvatar;
   /** Casas en las que ya respondió todo lo de hoy (1..5). */
   hoy: number[];
-  puntos: number;
+  /** Saldo de monedas: es lo que cuenta en el ranking (una sola moneda para todo). */
+  monedas: number;
   yo?: boolean;
 }
 
@@ -77,9 +78,9 @@ export const AGENTES: Agente[] = PLATOS.map((p, i) => ({
   alias: `Agente ${p}`,
   avatar: avatarAlAzar(azar),
   hoy: hoyDe(p),
-  puntos: Math.max(40, 520 - i * 22 - Math.floor(azar() * 12)),
+  monedas: Math.max(40, 520 - i * 22 - Math.floor(azar() * 12)),
   yo: p === "Rocoto",
-})).sort((a, b) => b.puntos - a.puntos);
+})).sort((a, b) => b.monedas - a.monedas);
 
 export const YO = AGENTES.find((a) => a.yo)!;
 export const PUESTO = AGENTES.indexOf(YO) + 1;
@@ -88,7 +89,7 @@ export const STAGES: Stage[] = [
   {
     n: 1, nombre: "Calentamiento", corto: "Calentar", icono: "mission", papel: "verde",
     descripcion: "Minijuegos para entrar en calor. Cada día: una partida de cada uno y una trivia nueva.",
-    estado: "aldia", porDia: 3, hechasHoy: 3, unidad: "reto", puntos: 180,
+    estado: "aldia", porDia: 3, hechasHoy: 3, unidad: "reto", monedas: 180,
     juegos: [
       { nombre: "Gift Catcher", href: "/arcade/gift-catcher", icono: "chest", disponible: true, hechoHoy: true },
       { nombre: "Memory Gifts", href: "/arcade/memory", icono: "sparkle", disponible: true, hechoHoy: true },
@@ -98,23 +99,23 @@ export const STAGES: Stage[] = [
   {
     n: 2, nombre: "La manada", corto: "Manada", icono: "sheep", papel: "rojo",
     descripcion: "Adivina lo que piensa la mayoría. Una pregunta nueva cada día: si coincides con el grupo, sumas.",
-    estado: "nuevas", porDia: 1, hechasHoy: 0, unidad: "pregunta", puntos: 40,
+    estado: "nuevas", porDia: 1, hechasHoy: 0, unidad: "pregunta", monedas: 40,
     accion: { texto: "Responder la de hoy", href: "/diseno/manada" },
   },
   {
     n: 3, nombre: "Amor y relaciones", corto: "Amor", icono: "heart", papel: "morado",
-    descripcion: "Preguntas nuevas de amor cada día, de respuesta corta. Puedes pasar, pero resta puntos.",
-    estado: "nuevas", porDia: 2, hechasHoy: 1, unidad: "pregunta", puntos: 60,
+    descripcion: "Preguntas nuevas de amor cada día, de respuesta corta. Puedes pasar, pero resta monedas.",
+    estado: "nuevas", porDia: 2, hechasHoy: 1, unidad: "pregunta", monedas: 60,
   },
   {
     n: 4, nombre: "Picante", corto: "Picante", icono: "chili", papel: "rojo",
     descripcion: "Preguntas nuevas cada día, solo sí o no. La primera vez confirmas que eres mayor de edad.",
-    estado: "nuevas", porDia: 2, hechasHoy: 0, unidad: "pregunta", puntos: 20,
+    estado: "nuevas", porDia: 2, hechasHoy: 0, unidad: "pregunta", monedas: 20,
   },
   {
     n: 5, nombre: "Juicio final", corto: "Juicio", icono: "star", papel: "azul",
     descripcion: "Un reto nuevo cada día. El último día cierra el ranking.",
-    estado: "nuevas", porDia: 1, hechasHoy: 0, unidad: "reto", puntos: 0,
+    estado: "nuevas", porDia: 1, hechasHoy: 0, unidad: "reto", monedas: 0,
   },
   {
     n: 6, nombre: "Tu amigo secreto", corto: "Ficha", icono: "chest", papel: "verde",

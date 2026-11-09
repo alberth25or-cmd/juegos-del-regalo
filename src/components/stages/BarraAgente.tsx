@@ -24,8 +24,8 @@ export function BarraAgente({ yo, puesto, agentes, stages }: { yo: Agente; puest
                 </p>
               </div>
             </div>
-            <p className="pastilla lg:hidden" aria-label={`${yo.puntos} puntos`}>
-              <PixelIcon name="coin" size={16} /> {yo.puntos} pts
+            <p className="pastilla lg:hidden" aria-label={`${yo.monedas} monedas`}>
+              <PixelIcon name="coin" size={16} /> {yo.monedas}
             </p>
           </div>
 
@@ -108,12 +108,12 @@ function Ranking({ agentes, puesto, yo }: { agentes: Agente[]; puesto: number; y
         {agentes.slice(0, 3).map((a, i) => (
           <li key={a.alias} className="flex shrink-0 items-center gap-1.5 rounded-full bg-[rgb(255_255_255/0.1)] py-1 pl-1 pr-2.5">
             <Medalla n={i + 1} />
-            {plato(a.alias)} <span className="text-[var(--oro)]">{a.puntos}</span>
+            {plato(a.alias)} <span className="text-[var(--oro)]">{a.monedas}</span>
           </li>
         ))}
         {puesto > 3 && (
           <li className="flex shrink-0 items-center gap-1.5 rounded-full bg-[var(--rojo-boton)] py-1 pl-2.5 pr-2.5">
-            Tú · #{puesto} <span className="text-[var(--oro)]">{yo.puntos}</span>
+            Tú · #{puesto} <span className="text-[var(--oro)]">{yo.monedas}</span>
           </li>
         )}
       </ol>
@@ -124,7 +124,9 @@ function Ranking({ agentes, puesto, yo }: { agentes: Agente[]; puesto: number; y
           <span className="flex items-center gap-1.5">
             <PixelIcon name="ranking" size={15} /> Ranking
           </span>
-          <span>{yo.puntos} pts</span>
+          <span className="flex items-center gap-1">
+            <PixelIcon name="coin" size={14} /> {yo.monedas}
+          </span>
         </p>
         <ol className="no-scrollbar max-h-[108px] overflow-y-auto py-1 text-[0.85rem] font-bold" aria-label="Ranking completo" tabIndex={0}>
           {agentes.map((a, i) => (
@@ -136,7 +138,7 @@ function Ranking({ agentes, puesto, yo }: { agentes: Agente[]; puesto: number; y
                 {i < 3 ? <Medalla n={i + 1} /> : <span className="w-[18px] text-center text-[0.75rem] text-[var(--tinta-suave)]">{i + 1}</span>}
                 <span className="truncate">{a.yo ? `Tú · ${a.alias}` : a.alias}</span>
               </span>
-              <span className="tabular-nums">{a.puntos}</span>
+              <span className="tabular-nums">{a.monedas}</span>
             </li>
           ))}
         </ol>

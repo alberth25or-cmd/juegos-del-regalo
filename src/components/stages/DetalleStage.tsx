@@ -26,7 +26,7 @@ export function DetalleStage({ s, id, etiqueta }: { s: Stage; id: string; etique
           )}
           {aldia && (
             <span className="pastilla" style={{ ["--pb" as string]: "#dff5e9", ["--pf" as string]: "var(--verde)" }}>
-              ✓ Al día{s.puntos ? ` · +${s.puntos} pts` : ""}
+              ✓ Al día{s.monedas ? ` · +${s.monedas} monedas` : ""}
             </span>
           )}
           {cerrada && (

@@ -88,3 +88,13 @@ las tarjetas laterales se encogían a saltos y quedaban cortadas en los bordes.
 - Movimiento: nieve, focos, lazo flotante y latido de la primera casa con preguntas pendientes; todo se apaga con
   `prefers-reduced-motion`.
 - Anonimato: usuario y alias nunca aparecen juntos.
+
+## Ficha del amigo secreto (v2, 2026-11-09)
+
+- Arriba, el saldo de monedas ("Tienes 452 monedas") y cuántos sobres quedan cerrados.
+- Sobre cerrado: fondo lila con borde punteado, la pregunta visible y "• • • •" en lugar de la
+  respuesta. Botón verde "Abrir gratis" mientras quede el sobre del día; si no, dorado
+  "Fisgonear · 40" con la moneda. Si no alcanza: "Te faltan N", deshabilitado.
+- Pagar pide confirmación en el mismo sobre y dice cuánto bajas en el ranking.
+- Ficha final: bloque crema "Lo más picante" arriba, numerado, con ajíes según el picor y
+  "Solo el 10 % respondió lo mismo" cuando es rara.

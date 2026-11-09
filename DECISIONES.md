@@ -1,5 +1,40 @@
 # Decisiones del proyecto
 
+## Una sola moneda, ficha progresiva y fisgonear (2026-11-09, pedido de Luis)
+
+Decisiones de Luis:
+- **Un solo sistema de recompensa: las MONEDAS.** Se ganan jugando y respondiendo, y se gastan
+  fisgoneando. El ranking es tu saldo y quien tiene más monedas al final gana el premio. No hay
+  puntos ni XP aparte. Reemplaza "solo puntos" de la reorientación del 6 nov.
+- **La ficha del amigo secreto se llena de a poco**, a medida que tu amigo responde.
+- **Fisgonear cuesta monedas:** quien quiera ver más respuestas de su amigo secreto paga por cada una.
+  El curioso tiene que ganar más monedas, y lo que gasta le baja en el ranking.
+- **La ficha final destaca lo más controversial o picante** que respondió.
+
+Llamadas mías (se pueden cambiar; reglas en `src/features/stages/ficha.ts`, con tests):
+- **Gratis desde el sorteo:** las opciones de regalo y los datos breves (resuelve §12.1: da tiempo de
+  comprar el regalo).
+- **Cada respuesta nueva llega como un sobre cerrado** (se ve la pregunta, no la respuesta). Un "Pasó"
+  se ve gratis porque no hay nada que mostrar.
+- **1 sobre gratis por día**, que tú eliges cuál abrir.
+- **Precio por sobre según la casa:** La manada 20 · Amor 40 · Picante 60 monedas. Antes de pagar se
+  avisa cuánto bajas ("de 452 a 412") porque las monedas también son tu puntaje.
+- **Lo más picante (ficha final, 20 dic):** se abren gratis las 3 respuestas con más puntaje =
+  picor de la pregunta × 2 + rareza × 2. El picor (1 a 3) se marca al escribir cada pregunta del banco;
+  la rareza sale de qué parte del grupo respondió lo mismo. Lo demás sigue cerrado y se puede seguir
+  comprando hasta el intercambio, para que pagar antes valga la pena.
+- **Seguridad:** el servidor nunca manda una respuesta cerrada al navegador; cada compra es una fila
+  negativa en el ledger, dentro de una transacción y sin cobrar dos veces el mismo sobre.
+- **Consentimiento:** en Amor y Picante hay que avisar que tu amigo secreto puede comprar tus
+  respuestas durante la temporada (antes solo las veía al final). "Paso" sigue existiendo.
+- Pendiente de decidir: aviso al fisgoneado ("👀 alguien fisgoneó 2 de tus respuestas hoy", sin decir
+  quién) · cuántas monedas da cada actividad, para equilibrar con los precios.
+
+El juego en línea de hoy (Snowville) todavía usa XP, monedas y puntos por separado; esto aplica al
+juego nuevo de las casas. Hecho en `/diseno` con datos de ejemplo.
+
+---
+
 ## Todas las casas abiertas + preguntas nuevas cada día (2026-11-09, pedido de Luis)
 
 Luis no quiere niveles bloqueados. **Esta sección manda sobre la reorientación del 6 nov donde choquen**
