@@ -1,7 +1,7 @@
 /**
  * Energía navideña — «Los 20 contra el desastre» (reglas puras).
  *
- * Toda la XP que gana cualquiera (Gift Catcher, Memory, trivia, votar…) es energía para
+ * Todas las monedas que gana cualquiera (Gift Catcher, Memory, trivia, votar…) es energía para
  * encender el árbol de la plaza. La meta escala con el grupo: 500 por jugador activo
  * (10 000 con 20 personas, como pide el documento), mínimo 3 000.
  */

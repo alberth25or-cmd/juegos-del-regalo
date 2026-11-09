@@ -21,6 +21,10 @@ Convención de este documento:
 > tenga. La ficha del amigo secreto (§3.6) ya no se abre de golpe al final: se llena con sobres
 > cerrados a medida que tu amigo responde, uno gratis por día, y los demás se compran con monedas.
 > La ficha final destaca "lo más picante". Detalle en `DECISIONES.md`.
+>
+> **Precios y pases (2026-11-09, Luis):** pasar cuesta monedas (Amor 40, Picante 60) con 6 pases por
+> casa; dejar vencer cuenta como pase. Picante se puede rechazar al entrar. Hay aviso al fisgoneado.
+> Todos los números están en `src/features/scoring/economia.ts` (§3.4 y §3.5 quedan reemplazados).
 
 ---
 

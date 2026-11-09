@@ -1,6 +1,6 @@
 import "server-only";
 import { avatarValido, type ConfigAvatar } from "@/features/avatar";
-import { nivel, promedioEquipo } from "@/features/scoring/reglas";
+import { promedioEquipo } from "@/features/scoring/reglas";
 import { conTope, db } from "./db";
 
 /** Lecturas para pantallas. Todas con tope de tiempo y sin consultas N+1. */
@@ -13,10 +13,8 @@ export interface FilaJugador {
   role: string;
   status: string;
   teamId: string | null;
-  points: number;
-  xp: number;
-  coins: number;
-  nivel: number;
+  /** Saldo de monedas: la única moneda del juego y lo que ordena el ranking. */
+  monedas: number;
   rank: number;
 }
 
@@ -35,18 +33,18 @@ export interface FilaEquipo {
 export async function jugadoresDeTemporada(seasonId: string, soloActivos = true): Promise<FilaJugador[]> {
   const rows = await conTope(() => db()`
     select p.id, p.username, p.display_name, p.avatar, p.role, p.status, p.team_id, p.created_at,
-           coalesce(t.points, 0)::int as points, coalesce(t.xp, 0)::int as xp, coalesce(t.coins, 0)::int as coins
+           coalesce(t.monedas, 0)::int as monedas
     from cc.players p
     left join cc.v_totals t on t.player_id = p.id
     where p.season_id = ${seasonId} ${soloActivos ? db()`and p.status = 'active'` : db()``}
-    order by points desc, xp desc, p.display_name asc
+    order by monedas desc, p.created_at asc, p.display_name asc
   `);
   let rank = 0;
   let prev = Number.NaN;
   return rows.map((r, i) => {
-    if (r.points !== prev) {
+    if (r.monedas !== prev) {
       rank = i + 1;
-      prev = r.points;
+      prev = r.monedas;
     }
     return {
       id: r.id,
@@ -56,10 +54,7 @@ export async function jugadoresDeTemporada(seasonId: string, soloActivos = true)
       role: r.role,
       status: r.status,
       teamId: r.team_id,
-      points: r.points,
-      xp: r.xp,
-      coins: r.coins,
-      nivel: nivel(r.xp),
+      monedas: r.monedas,
       rank,
     };
   });
@@ -70,11 +65,11 @@ export async function equiposDeTemporada(seasonId: string) {
   return rows.map((r) => ({ id: r.id as string, name: r.name as string, slug: r.slug as string, color: r.color as string, emblem: r.emblem as string }));
 }
 
-/** Ranking de equipos = promedio de puntos por integrante activo (regla visible en la pantalla). */
+/** Ranking de equipos = promedio de monedas por integrante activo (regla visible en la pantalla). */
 export function rankingEquipos(equipos: Awaited<ReturnType<typeof equiposDeTemporada>>, jugadores: FilaJugador[]): FilaEquipo[] {
   const filas = equipos.map((e) => {
     const miembros = jugadores.filter((j) => j.teamId === e.id);
-    const pts = miembros.map((m) => m.points);
+    const pts = miembros.map((m) => m.monedas);
     return { ...e, integrantes: miembros.length, total: pts.reduce((a, b) => a + b, 0), promedio: promedioEquipo(pts), rank: 0 };
   });
   filas.sort((a, b) => b.promedio - a.promedio || b.integrantes - a.integrantes || a.name.localeCompare(b.name));
@@ -115,13 +110,13 @@ export async function misStats(playerId: string, juego: string) {
       coalesce(max(score) filter (where local_day = (now() at time zone 'America/Lima')::date), 0)::int as mejor_hoy,
       coalesce(max(score), 0)::int as record,
       count(*) filter (where local_day = (now() at time zone 'America/Lima')::date)::int as partidas_hoy,
-      (select coalesce(sum(points), 0)::int from cc.score_ledger
+      (select coalesce(sum(points + coins), 0)::int from cc.score_ledger
         where player_id = ${playerId} and source_type = 'juego-dia'
-          and source_id = ${juego} || ':' || ((now() at time zone 'America/Lima')::date)::text) as puntos_hoy
+          and source_id = ${juego} || ':' || ((now() at time zone 'America/Lima')::date)::text) as monedas_hoy
     from cc.game_attempts
     where player_id = ${playerId} and game_slug = ${juego} and status = 'validated'
   `);
-  return { mejorHoy: r.mejor_hoy as number, record: r.record as number, partidasHoy: r.partidas_hoy as number, puntosHoy: r.puntos_hoy as number };
+  return { mejorHoy: r.mejor_hoy as number, record: r.record as number, partidasHoy: r.partidas_hoy as number, monedasHoy: r.monedas_hoy as number };
 }
 
 /** Mejores puntajes de Gift Catcher de la temporada (récord de cada jugador). */

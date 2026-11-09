@@ -73,7 +73,7 @@ export async function estadoVotacion(yo: Jugador): Promise<EstadoVotacion> {
   };
 }
 
-/** Un voto por persona y ronda; nunca por uno mismo. Votar da XP, monedas y puntos (una vez). */
+/** Un voto por persona y ronda; nunca por uno mismo. Votar da monedas (una vez, durante la temporada). */
 export async function votar(yo: Jugador, clave: unknown, objetivo: unknown) {
   if (yo.status !== "active") throw new ErrorDeUsuario("Cuando el organizador te apruebe, podrás votar.", 403);
   if (typeof objetivo !== "string" || !/^[0-9a-f-]{36}$/i.test(objetivo)) throw new ErrorDeUsuario("Elige a alguien de la lista.");
@@ -95,10 +95,10 @@ export async function votar(yo: Jugador, clave: unknown, objetivo: unknown) {
         returning id
       `;
       if (!v) throw new ErrorDeUsuario("Ya votaste en esta pregunta.", 409);
-      const puntos = est.fase === "en-curso" ? RECOMPENSA_VOTO.puntos : 0;
+      const monedas = est.fase === "en-curso" ? RECOMPENSA_VOTO.monedas : 0;
       await tx`
-        insert into cc.score_ledger (season_id, player_id, team_id, source_type, source_id, points, xp, coins, reason, idempotency_key)
-        values (${yo.seasonId}, ${yo.id}, ${yo.teamId}, 'voto', ${ronda.clave}, ${puntos}, ${RECOMPENSA_VOTO.xp}, ${RECOMPENSA_VOTO.coins},
+        insert into cc.score_ledger (season_id, player_id, team_id, source_type, source_id, coins, reason, idempotency_key)
+        values (${yo.seasonId}, ${yo.id}, ${yo.teamId}, 'voto', ${ronda.clave}, ${monedas},
                 '¿Quién es más probable…?: votar', ${`voto:${yo.seasonId}:${ronda.clave}:${yo.id}`})
         on conflict (idempotency_key) do nothing
       `;

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DURACION_MS, OBJETOS, generarLluvia, multiplicador, puntuar, type Caida } from "@/features/games/giftCatcher";
-import { GIFT_CATCHER, puntosDelDia } from "@/features/scoring/reglas";
+import { GIFT_CATCHER, monedasDelDia } from "@/features/scoring/reglas";
 import { fraseDe } from "@/features/contenido/npcs";
 import { avatarValido } from "@/features/avatar";
 import { avatarSprite, type SpriteDef } from "@/components/rpg/sprites";
@@ -14,7 +14,7 @@ import { OBJETO_SPRITES } from "./giftSprites";
 export interface StatsGift {
   record: number;
   mejorHoy: number;
-  puntosHoy: number;
+  monedasHoy: number;
 }
 
 interface Resultado {
@@ -23,10 +23,8 @@ interface Resultado {
   puntaje: number;
   mejorDelDia: number;
   record: number;
-  xp: number;
-  coins: number;
-  puntos: number;
-  puntosHoy: number;
+  monedas: number;
+  monedasHoy: number;
   topeHoy: number;
   pretemporada: boolean;
   atrapados?: Record<string, number>;
@@ -202,9 +200,9 @@ export function GiftCatcher({
     });
     if (resp.ok) {
       setResultado(resp.resultado);
-      setMisStats({ record: resp.resultado.record, mejorHoy: resp.resultado.mejorDelDia, puntosHoy: resp.resultado.puntosHoy });
+      setMisStats({ record: resp.resultado.record, mejorHoy: resp.resultado.mejorDelDia, monedasHoy: resp.resultado.monedasHoy });
     } else if (resp.status === 409) {
-      setError("Tu partida ya quedó registrada (se reenvió por mala señal). Revisa tus puntos en el ranking.");
+      setError("Tu partida ya quedó registrada (se reenvió por mala señal). Revisa tus monedas en el ranking.");
     } else {
       setError(`${resp.error} Tu puntaje: ${r.puntaje}.`);
     }
@@ -538,10 +536,10 @@ export function GiftCatcher({
             <div className="px-box grid grid-cols-3 gap-1 px-2 py-2 text-center" style={{ ["--bg" as string]: "var(--cream-2)" }}>
               <Dato t="Récord" v={misStats.record} />
               <Dato t="Mejor hoy" v={misStats.mejorHoy} />
-              <Dato t="Pts hoy" v={`${misStats.puntosHoy}/${GIFT_CATCHER.topeDiario}`} />
+              <Dato t="🪙 hoy" v={`${misStats.monedasHoy}/${GIFT_CATCHER.topeDiario}`} />
             </div>
           )}
-          {modo === "real" && pretemporada && <p className="px-hint">Pretemporada: ganas XP y monedas; los puntos del ranking cuentan desde el 25 de noviembre.</p>}
+          {modo === "real" && pretemporada && <p className="px-hint">Pretemporada: puedes practicar; las monedas cuentan desde el 25 de noviembre.</p>}
           {aviso && <p className="px-box px-3 py-2 text-[0.85rem]" style={{ ["--bg" as string]: "var(--cream-2)" }}>{aviso}</p>}
           {error && (
             <p className="px-box px-3 py-2 text-[0.85rem]" role="alert" style={{ ["--bg" as string]: "#f3c9d1" }}>
@@ -578,20 +576,19 @@ export function GiftCatcher({
             )}
           </div>
           {resultado?.valida && (
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <Premio e="✨" t="XP" v={`+${resultado.xp}`} />
-              <Premio e="🪙" t="Monedas" v={`+${resultado.coins}`} />
-              <Premio e="⭐" t="Puntos" v={resultado.pretemporada ? "—" : `+${resultado.puntos}`} />
+            <div className="grid grid-cols-2 gap-2 text-center">
+              <Premio e="🪙" t="Monedas" v={resultado.pretemporada ? "—" : `+${resultado.monedas}`} />
+              <Premio e="📅" t="Hoy en este juego" v={resultado.pretemporada ? "—" : resultado.topeHoy ? `${resultado.monedasHoy}/${resultado.topeHoy}` : `${resultado.monedasHoy}`} />
             </div>
           )}
           {resultado?.valida && (
             <p className="text-center text-[0.82rem] text-[var(--ink-soft)]">
               {resultado.pretemporada
-                ? "Pretemporada: los puntos del ranking empiezan el 25 de noviembre."
-                : resultado.puntos > 0
-                  ? `¡Nuevo mejor del día! Hoy llevas ${resultado.puntosHoy}/${resultado.topeHoy} pts.`
-                  : resultado.puntosHoy >= puntosDelDia(1e9)
-                    ? "Ya tienes el máximo de puntos de hoy. Sigue por el récord."
+                ? "Pretemporada: las monedas empiezan el 25 de noviembre."
+                : resultado.monedas > 0
+                  ? `¡Nuevo mejor del día! Hoy llevas ${resultado.monedasHoy}/${resultado.topeHoy} monedas.`
+                  : resultado.monedasHoy >= monedasDelDia(1e9)
+                    ? "Ya tienes el máximo de monedas de hoy. Sigue por el récord."
                     : `Tu mejor de hoy sigue siendo ${resultado.mejorDelDia}. Supéralo para sumar más.`}
               {resultado.record === resultado.puntaje && resultado.puntaje > 0 ? " 🏆 ¡Récord personal!" : ""}
             </p>

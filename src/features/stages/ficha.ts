@@ -12,11 +12,13 @@
  * viaja al navegador.
  */
 
+import { FISGONEAR } from "../scoring/economia.ts";
+
 /** Casas con respuestas que se pueden fisgonear. */
 export type CasaConRespuestas = 2 | 3 | 4;
 
-/** Precio en monedas de abrir un sobre, por casa (más íntimo = más caro). Configurable. */
-export const PRECIO_FISGONEO: Record<CasaConRespuestas, number> = { 2: 20, 3: 40, 4: 60 };
+/** Precio en monedas de abrir un sobre, por casa (más íntimo = más caro). Vive en economia.ts. */
+export const PRECIO_FISGONEO: Record<CasaConRespuestas, number> = FISGONEAR;
 
 /** Sobres que se abren gratis cada día. */
 export const SOBRES_GRATIS_POR_DIA = 1;

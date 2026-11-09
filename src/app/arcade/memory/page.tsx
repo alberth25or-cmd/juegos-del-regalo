@@ -27,8 +27,8 @@ async function Juego() {
     unstable_rethrow(e);
     console.error("[memory]", e);
   }
-  if (!yo) return <Memory modo="practica" stats={null} aviso="Modo demo: juega sin cuenta. Para guardar puntos necesitas una invitación." />;
+  if (!yo) return <Memory modo="practica" stats={null} aviso="Modo demo: juega sin cuenta. Para ganar monedas necesitas una invitación." />;
   if (yo.status !== "active") return <Memory modo="practica" stats={null} aviso="Práctica: cuando el organizador te apruebe, tus partidas se guardarán." />;
   const s = await misStats(yo.id, "memory");
-  return <Memory modo="real" stats={{ record: s.record, mejorHoy: s.mejorHoy, puntosHoy: s.puntosHoy }} />;
+  return <Memory modo="real" stats={{ record: s.record, mejorHoy: s.mejorHoy, monedasHoy: s.monedasHoy }} />;
 }

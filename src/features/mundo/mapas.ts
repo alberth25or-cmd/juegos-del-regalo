@@ -320,7 +320,7 @@ const FABRICA = () =>
       y: 2,
       w: 2,
       h: 1,
-      interaccion: { titulo: "Energía navideña", texto: "Los 20 contra el desastre: toda la XP que ganan entre todos enciende el árbol de la plaza.", href: "/energia" },
+      interaccion: { titulo: "Energía navideña", texto: "Los 20 contra el desastre: todas las monedas que ganan entre todos encienden el árbol de la plaza.", href: "/energia" },
     });
     L.objeto({ tipo: "estante", x: 1, y: 2, w: 3, h: 1 });
     L.npcs.push({ id: "duende", x: 8, y: 8, radio: 3 });
@@ -357,7 +357,7 @@ const MERCADO = () =>
         y: 3,
         w: 7,
         h: 1,
-        interaccion: { titulo: "La tienda del Muñeco", texto: "Gorros, marcos, emotes y objetos absurdos como el Calcetín sospechoso. Nada de lo que compres da puntos.", abre: "Fase 5" },
+        interaccion: { titulo: "La tienda del Muñeco", texto: "Gorros, marcos, emotes y objetos absurdos como el Calcetín sospechoso. Lo que gastes te baja en el ranking.", abre: "Fase 5" },
       });
       L.objeto({ tipo: "estante", x: 1, y: 2, w: 2, h: 1 });
       L.objeto({ tipo: "estante", x: 10, y: 2, w: 2, h: 1 });

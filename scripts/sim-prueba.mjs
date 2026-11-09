@@ -5,7 +5,7 @@
  *   node --experimental-strip-types scripts/sim-prueba.mjs
  */
 import { generarLluvia, OBJETOS, puntuar } from "../src/features/games/giftCatcher.ts";
-import { puntosDelDia } from "../src/features/scoring/reglas.ts";
+import { monedasDelDia } from "../src/features/scoring/reglas.ts";
 
 const BASE = process.env.SIM_URL || "http://localhost:3100";
 if (!/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(BASE)) throw new Error("Solo contra un servidor local.");
@@ -69,11 +69,11 @@ const cerrar = async (p) => {
 };
 const [c1, c2] = [await cerrar(p1), await cerrar(p2)];
 check(c1.resultado?.valida && c2.resultado?.valida, "ambas partidas válidas");
-check(c1.resultado.puntos === puntosDelDia(c1.resultado.puntaje) && c2.resultado.puntos === puntosDelDia(c2.resultado.puntaje), "en prueba cada partida suma sus puntos (sin tope diario)");
+check(c1.resultado.monedas === monedasDelDia(c1.resultado.puntaje) && c2.resultado.monedas === monedasDelDia(c2.resultado.puntaje), "en prueba cada partida suma sus monedas (sin tope diario)");
 check(c1.resultado.pretemporada === false, "en prueba no hay pretemporada");
 const rk = await j.pedir("/api/ranking");
 const mio = rk.jugadores.find((x) => x.id === yo.id);
-check(mio.points === c1.resultado.puntos + c2.resultado.puntos, `el ranking suma las dos (${mio.points} pts)`);
+check(mio.monedas === c1.resultado.monedas + c2.resultado.monedas, `el ranking suma las dos (${mio.monedas} monedas)`);
 
 console.log(fallos.length ? `\n✗ ${fallos.length} fallo(s):\n- ${fallos.join("\n- ")}` : "\n✓ Todo OK");
 process.exit(fallos.length ? 1 : 0);

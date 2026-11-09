@@ -7,9 +7,9 @@ const SECCIONES: { t: string; items: string[] }[] = [
   {
     t: "Cómo se gana",
     items: [
-      "XP sube tu nivel. Monedas compran cosméticos sin ventaja. Puntos deciden el ranking.",
-      "En cada juego cuenta tu mejor resultado del día, con un tope diario. Repetir mejora tu récord, no tus puntos.",
-      "Ranking de equipos = promedio de puntos por integrante activo. Cada persona cuenta lo mismo.",
+      "Todo se gana en monedas, y el ranking es cuántas monedas tienes. No hay puntos ni XP aparte.",
+      "En cada juego cuenta tu mejor resultado del día, con un tope diario. Repetir mejora tu récord, no tus monedas.",
+      "Ranking de equipos = promedio de monedas por integrante activo. Cada persona cuenta lo mismo.",
       "Faltar un día no te quita nada de lo que ya ganaste.",
     ],
   },
@@ -17,8 +17,8 @@ const SECCIONES: { t: string; items: string[] }[] = [
     t: "Juego limpio",
     items: [
       "El servidor revisa cada partida (duración y puntaje posible). Las partidas imposibles no cuentan.",
-      "Los puntos quedan en un libro que nadie puede editar. Si el organizador corrige algo, queda registrado con su motivo.",
-      "Comprar cosméticos nunca da puntos ni ventajas.",
+      "Las monedas quedan en un libro que nadie puede editar. Si el organizador corrige algo, queda registrado con su motivo.",
+      "Gastar monedas (por ejemplo, para fisgonear en el juego del amigo secreto) te baja en el ranking: piénsalo antes.",
     ],
   },
   {

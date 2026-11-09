@@ -59,7 +59,7 @@ async function Contenido() {
       </div>
       <PanelAdmin
         yoId={yo.id}
-        jugadores={jugadores.map((j) => ({ id: j.id, username: j.username, displayName: j.displayName, avatar: j.avatar, role: j.role, status: j.status, teamId: j.teamId, points: j.points }))}
+        jugadores={jugadores.map((j) => ({ id: j.id, username: j.username, displayName: j.displayName, avatar: j.avatar, role: j.role, status: j.status, teamId: j.teamId, monedas: j.monedas }))}
         equipos={equipos}
         desde={diaLocal(yo.startsAt)}
         hasta={diaLocal(yo.endsAt)}

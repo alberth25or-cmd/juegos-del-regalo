@@ -1,5 +1,37 @@
 # Decisiones del proyecto
 
+## Sistema de precios, pases con costo y monedas en todo el juego (2026-11-09, pedido de Luis)
+
+Decisiones de Luis:
+- **Pasar una pregunta cuesta monedas y hay un límite de pases.**
+- **Aviso al fisgoneado: sí.** "👀 Alguien fisgoneó 2 de tus respuestas hoy", sin decir quién ni cuáles.
+- **Un sistema de precios** equilibrado: fisgonear ni regalado ni imposible.
+- **Todo el sistema de recompensas con monedas, también en el juego en línea (Snowville).** Se
+  acabaron XP y puntos.
+
+Cómo quedó (llamadas mías, todas en `src/features/scoring/economia.ts` con tests de equilibrio en
+`tests/economia.test.ts`; la tabla se ve en `/diseno/organizador`):
+- **Se gana:** minijuegos hasta 100 por juego y día (20 por jugar + 80 por resultado, mejor partida
+  del día) · votar 10 · La manada 10 + 15 si coincides · Amor 20 por pregunta · Picante 30 · Juicio 30
+  · bono por estar al día en todas las casas 30. Un día típico ≈ 390 monedas.
+- **Cuesta:** fisgonear Manada 50 · Amor 100 · Picante 150. Abrir todo lo de un día (≈ 400) no
+  alcanza con un día típico: se puede fisgonear 2 o 3 al día, nunca todo.
+- **Pasar:** solo en Amor (40) y Picante (60), siempre más de lo que da responder. **6 pases por casa**
+  en toda la temporada.
+- **Dejar vencer no es un pase gratis:** en Amor y Picante cuesta lo mismo que pasar y gasta un pase;
+  sin pases cuesta el doble. En Manada y Juicio (sin "Paso") vencer cuesta 15.
+- **Picante es opcional:** al entrar por primera vez confirmas que eres mayor de edad o eliges "No juego
+  Picante" (no ganas ni pagas ahí; tu amigo secreto ve "No juega Picante"). Con pases caros y
+  limitados, esta salida protege el consentimiento.
+- **Aviso al fisgoneado:** cuántas respuestas tuyas se abrieron hoy, nada más. Como solo quien te
+  regala puede fisgonearte, no revela identidades.
+- **Snowville:** el servidor escribe solo en `coins`. La migración `005_una_sola_moneda.sql` agrega
+  `monedas = points + coins` a `cc.v_totals` (el ledger es append-only: lo que antes eran puntos de
+  ranking cuenta como monedas; la XP queda como historia). Ranking, equipos (promedio), energía del
+  árbol, votar, perfil y pantallas muestran monedas. En pretemporada se practica sin ganar monedas.
+
+---
+
 ## Una sola moneda, ficha progresiva y fisgonear (2026-11-09, pedido de Luis)
 
 Decisiones de Luis:

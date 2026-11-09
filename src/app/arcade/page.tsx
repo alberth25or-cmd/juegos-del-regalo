@@ -17,10 +17,9 @@ export default function ArcadePage() {
         ))}
       </div>
       <div className="px-box mt-6 p-3 text-[0.82rem]" style={{ ["--bg" as string]: "var(--cream-2)" }}>
-        <p className="font-pixel">¿Cómo se puntúa?</p>
+        <p className="font-pixel">¿Cuántas monedas da?</p>
         <ul className="mt-1 list-disc pl-5">
-          <li>Cada partida validada da XP y monedas.</li>
-          <li>Al ranking solo va tu mejor partida del día: 20 pts por jugar + hasta 80 por resultado.</li>
+                    <li>Tu mejor partida del día da monedas: 20 por jugar + hasta 80 por resultado (tope 100 por juego y día).</li>
           <li>El servidor revisa cada partida: puntajes imposibles no cuentan.</li>
         </ul>
       </div>

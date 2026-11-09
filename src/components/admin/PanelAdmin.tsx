@@ -14,7 +14,7 @@ interface Jug {
   role: string;
   status: string;
   teamId: string | null;
-  points: number;
+  monedas: number;
 }
 interface Eq {
   id: string;
@@ -147,7 +147,7 @@ export function PanelAdmin({ yoId, jugadores, equipos, desde, hasta, prueba }: {
                     {j.role === "admin" ? " · organizador" : ""}
                   </span>
                   <span className="block text-[0.72rem] text-[var(--ink-soft)]">
-                    @{j.username} · {j.points} pts
+                    @{j.username} · 🪙 {j.monedas}
                   </span>
                 </span>
                 <span className="px-chip !text-[0.7rem]" style={{ ["--chip" as string]: ESTADO[j.status]?.c }}>
@@ -191,13 +191,13 @@ export function PanelAdmin({ yoId, jugadores, equipos, desde, hasta, prueba }: {
                         className="px-chip !text-[0.72rem]"
                         disabled={deshabilitado}
                         onClick={() => {
-                          const n = window.prompt(`Ajuste de puntos para ${j.displayName} (ej. 20 o -15):`);
+                          const n = window.prompt(`Ajuste de monedas para ${j.displayName} (ej. 20 o -15):`);
                           if (!n) return;
                           const motivo = window.prompt("Motivo (queda registrado):");
                           if (motivo) void accion(`j${j.id}`, { accion: "ajustar", playerId: j.id, puntos: Number(n), motivo }, "Ajuste registrado.");
                         }}
                       >
-                        ± Pts
+                        ± 🪙
                       </button>
                       <button
                         type="button"
@@ -231,7 +231,7 @@ function SimularDia({ dia, total, disabled, onCambiar }: { dia: number; total: n
   return (
     <section className="px-box p-3" style={{ ["--bg" as string]: "var(--lavender)" }}>
       <h2 className="font-pixel text-xl">🧪 Temporada de prueba</h2>
-      <p className="mt-1 text-[0.85rem]">Simula cualquier día para probar el calendario con tus amigos: cambian las frases de los NPCs, el arco de la historia y los eventos. No hay topes diarios de puntos.</p>
+      <p className="mt-1 text-[0.85rem]">Simula cualquier día para probar el calendario con tus amigos: cambian las frases de los NPCs, el arco de la historia y los eventos. No hay topes diarios de monedas.</p>
       <div className="mt-3 flex items-center gap-2">
         <button type="button" className="px-btn !min-h-[44px] !px-3" disabled={disabled || dia <= 1} onClick={() => onCambiar(dia - 1)} aria-label="Día anterior">
           ◀
@@ -276,7 +276,7 @@ function FechasForm({ desde, hasta, disabled, onGuardar }: { desde: string; hast
           <input id="hasta" type="date" className="px-input" value={h} onChange={(e) => setH(e.target.value)} disabled={disabled} />
         </div>
       </div>
-      <p className="px-hint mt-1">Hora de Lima. Los puntos del ranking solo cuentan entre estas fechas.</p>
+      <p className="px-hint mt-1">Hora de Lima. Las monedas del ranking solo cuentan entre estas fechas.</p>
       <button type="button" className="px-btn mt-2 w-full !min-h-[44px]" style={{ ["--bg" as string]: "var(--lavender)" }} disabled={disabled || (d === desde && h === hasta)} onClick={() => onGuardar(d, h)}>
         Guardar fechas
       </button>

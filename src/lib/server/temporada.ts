@@ -295,7 +295,7 @@ export async function simularDia(adminId: string, seasonId: string, dia: number 
   );
 }
 
-/** Ajuste manual de puntos: movimiento compensatorio auditado (el ledger no se edita). */
+/** Ajuste manual de monedas: movimiento compensatorio auditado (el ledger no se edita). */
 export async function ajustarPuntos(adminId: string, seasonId: string, playerId: string, puntos: number, motivo: string) {
   if (!Number.isInteger(puntos) || puntos === 0 || Math.abs(puntos) > 500) throw new ErrorDeUsuario("El ajuste debe ser un número entero entre −500 y 500, distinto de 0.");
   const m = motivo.trim();
@@ -306,7 +306,7 @@ export async function ajustarPuntos(adminId: string, seasonId: string, playerId:
       if (!p) throw new ErrorDeUsuario("Jugador no encontrado.", 404);
       const [a] = await tx`insert into cc.admin_audit_log (season_id, actor_id, action, payload) values (${seasonId}, ${adminId}, 'ajustar_puntos', ${tx.json({ playerId, puntos, motivo: m })}) returning id`;
       await tx`
-        insert into cc.score_ledger (season_id, player_id, team_id, source_type, source_id, points, reason, idempotency_key, created_by)
+        insert into cc.score_ledger (season_id, player_id, team_id, source_type, source_id, coins, reason, idempotency_key, created_by)
         values (${seasonId}, ${playerId}, ${p.team_id}, 'ajuste', ${a.id}, ${puntos}, ${m}, ${`ajuste:${a.id}`}, ${adminId})
       `;
     }),

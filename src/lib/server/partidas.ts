@@ -2,7 +2,7 @@ import "server-only";
 import { DURACION_MS, MOTIVOS, validarPartida } from "@/features/games/giftCatcher";
 import { MOTIVOS_MEMORY, validarMemory } from "@/features/games/memory";
 import { MOTIVOS_TRIVIA, N_PREGUNTAS, preguntasPublicas, SEGUNDOS_POR_PREGUNTA, validarTrivia } from "@/features/games/trivia";
-import { deltaPuntos, GIFT_REFERENCIA, MEMORY_REFERENCIA, puntosDelDia, recompensaPartida, TRIVIA_REFERENCIA } from "@/features/scoring/reglas";
+import { deltaMonedas, GIFT_REFERENCIA, MEMORY_REFERENCIA, monedasDelDia, TRIVIA_REFERENCIA } from "@/features/scoring/reglas";
 import { ErrorDeUsuario } from "./api";
 import { conTope, db } from "./db";
 import { LIMITES, permitir } from "./limites";
@@ -79,10 +79,10 @@ export interface ResultadoPartida {
   puntaje: number;
   mejorDelDia: number;
   record: number;
-  xp: number;
-  coins: number;
-  puntos: number;
-  puntosHoy: number;
+  /** Monedas que ganó esta partida (solo si mejoró su mejor del día). */
+  monedas: number;
+  /** Monedas acumuladas hoy en este juego. */
+  monedasHoy: number;
   topeHoy: number;
   pretemporada: boolean;
   atrapados?: Record<string, number>;
@@ -93,7 +93,7 @@ export interface ResultadoPartida {
 /**
  * Termina y valida la partida en UNA transacción:
  * - solo se puede cerrar una vez (status 'started' → 'validated'/'rejected'),
- * - XP y monedas por partida, puntos solo por el mejor resultado del día (por juego),
+ * - monedas solo por el mejor resultado del día (por juego): repetir sube el récord, no las monedas,
  * - claves de idempotencia en el ledger: reintentar no duplica nada,
  * - un candado por jugador evita carreras si manda dos resultados a la vez.
  */
@@ -122,7 +122,7 @@ export async function terminarPartida(yo: Jugador, attemptId: string, datos: Rec
       if (!v.ok) {
         await tx`update cc.game_attempts set status = 'rejected', reject_reason = ${v.motivo.slice(0, 120)}, finished_at = now() where id = ${a.id}`;
         const [r] = await tx`select coalesce(max(score), 0)::int as record from cc.game_attempts where player_id = ${yo.id} and game_slug = ${slug} and status = 'validated'`;
-        return { valida: false, motivo: v.motivo, puntaje: 0, mejorDelDia: 0, record: r.record, xp: 0, coins: 0, puntos: 0, puntosHoy: 0, topeHoy: puntosDelDia(1e9), pretemporada };
+        return { valida: false, motivo: v.motivo, puntaje: 0, mejorDelDia: 0, record: r.record, monedas: 0, monedasHoy: 0, topeHoy: monedasDelDia(1e9), pretemporada };
       }
 
       const puntaje = v.puntaje;
@@ -133,30 +133,23 @@ export async function terminarPartida(yo: Jugador, attemptId: string, datos: Rec
         where id = ${a.id}
       `;
 
-      const recompensa = recompensaPartida(puntaje, def.referencia);
-      await tx`
-        insert into cc.score_ledger (season_id, player_id, team_id, source_type, source_id, xp, coins, reason, idempotency_key)
-        values (${yo.seasonId}, ${yo.id}, ${yo.teamId}, 'partida', ${a.id}, ${recompensa.xp}, ${recompensa.coins}, ${`${def.nombre}: partida`}, ${`partida:${a.id}`})
-        on conflict (idempotency_key) do nothing
-      `;
-
       const [{ mejor }] = await tx`
         select coalesce(max(score), 0)::int as mejor from cc.game_attempts
         where player_id = ${yo.id} and game_slug = ${slug} and local_day = ${a.dia}::date and status = 'validated'
       `;
       const dia = `${slug}:${a.dia}`;
       const [{ otorgado }] = await tx`
-        select coalesce(sum(points), 0)::int as otorgado from cc.score_ledger
+        select coalesce(sum(points + coins), 0)::int as otorgado from cc.score_ledger
         where player_id = ${yo.id} and source_type = 'juego-dia' and source_id = ${dia}
       `;
-      let puntos = 0;
+      let monedas = 0;
       if (!pretemporada && estado.fase === "en-curso") {
-        // En prueba no hay tope diario: cada partida suma sus puntos (para probar rápido).
-        puntos = yo.prueba ? puntosDelDia(puntaje, def.referencia) : deltaPuntos(mejor, otorgado, def.referencia);
-        if (puntos > 0) {
+        // En prueba no hay tope diario: cada partida suma sus monedas (para probar rápido).
+        monedas = yo.prueba ? monedasDelDia(puntaje, def.referencia) : deltaMonedas(mejor, otorgado, def.referencia);
+        if (monedas > 0) {
           await tx`
-            insert into cc.score_ledger (season_id, player_id, team_id, source_type, source_id, points, reason, idempotency_key)
-            values (${yo.seasonId}, ${yo.id}, ${yo.teamId}, 'juego-dia', ${dia}, ${puntos}, ${yo.prueba ? `${def.nombre} (prueba)` : `${def.nombre}: mejor del día`}, ${`dia:${dia}:${yo.id}:${a.id}`})
+            insert into cc.score_ledger (season_id, player_id, team_id, source_type, source_id, coins, reason, idempotency_key)
+            values (${yo.seasonId}, ${yo.id}, ${yo.teamId}, 'juego-dia', ${dia}, ${monedas}, ${yo.prueba ? `${def.nombre} (prueba)` : `${def.nombre}: mejor del día`}, ${`dia:${dia}:${yo.id}:${a.id}`})
           `;
         }
       }
@@ -172,11 +165,9 @@ export async function terminarPartida(yo: Jugador, attemptId: string, datos: Rec
         puntaje,
         mejorDelDia: mejor,
         record,
-        xp: recompensa.xp,
-        coins: recompensa.coins,
-        puntos,
-        puntosHoy: otorgado + puntos,
-        topeHoy: yo.prueba ? 0 : puntosDelDia(1e9),
+        monedas,
+        monedasHoy: otorgado + monedas,
+        topeHoy: yo.prueba ? 0 : monedasDelDia(1e9),
         pretemporada,
         atrapados: v.detalle.atrapados as Record<string, number> | undefined,
         rachaMax: v.detalle.rachaMax as number | undefined,

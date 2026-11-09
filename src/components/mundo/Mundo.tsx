@@ -40,8 +40,7 @@ interface PerfilVista {
   avatar: unknown;
   pendiente: boolean;
   equipo: { nombre: string; color: string; emblema: string } | null;
-  puntos: number;
-  nivel: number;
+  monedas: number;
 }
 
 type Hoja =
@@ -471,9 +470,8 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
                     {hoja.perfil === null && <p className="px-hint">No se pudo cargar su perfil.</p>}
                     {hoja.perfil && (
                       <div className="mt-1 flex flex-wrap gap-1 text-[0.75rem]">
-                        <span className="px-chip">Nv. {hoja.perfil.nivel}</span>
                         <span className="px-chip" style={{ ["--chip" as string]: "var(--gold)" }}>
-                          ⭐ {hoja.perfil.puntos}
+                          🪙 {hoja.perfil.monedas}
                         </span>
                         {hoja.perfil.equipo ? (
                           <span className="px-chip" style={{ ["--chip" as string]: hoja.perfil.equipo.color, color: "#fff" }}>

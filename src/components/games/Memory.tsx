@@ -20,7 +20,7 @@ function CaraCarta({ cara }: { cara: Cara }) {
  * Memory Gifts: 16 cartas, 8 pares. El mazo sale de la semilla del servidor; al terminar
  * se mandan los volteos y el servidor recalcula movimientos, tiempo y puntaje.
  */
-export function Memory({ modo, stats, aviso }: { modo: "real" | "practica"; stats: { record: number; mejorHoy: number; puntosHoy: number } | null; aviso?: string }) {
+export function Memory({ modo, stats, aviso }: { modo: "real" | "practica"; stats: { record: number; mejorHoy: number; monedasHoy: number } | null; aviso?: string }) {
   const [fase, setFase] = useState<Fase>("inicio");
   const [cartas, setCartas] = useState<Cara[]>([]);
   const [abiertas, setAbiertas] = useState<number[]>([]);
@@ -75,7 +75,7 @@ export function Memory({ modo, stats, aviso }: { modo: "real" | "practica"; stat
     const r = await api<{ resultado: ResultadoServidor }>(`/api/partidas/${p.id}`, { body: { volteos: p.volteos }, idempotente: true, tope: 12_000 });
     if (r.ok) {
       setResultado(r.resultado);
-      if (r.resultado.valida) setMis({ record: r.resultado.record, mejorHoy: r.resultado.mejorDelDia, puntosHoy: r.resultado.puntosHoy });
+      if (r.resultado.valida) setMis({ record: r.resultado.record, mejorHoy: r.resultado.mejorDelDia, monedasHoy: r.resultado.monedasHoy });
     } else setError(r.error);
     setFase("resultado");
   }, []);
@@ -175,7 +175,7 @@ export function Memory({ modo, stats, aviso }: { modo: "real" | "practica"; stat
 
       {fase === "resultado" && (
         <ResultadoJuego
-          r={resultado ?? (modo === "practica" ? { valida: true, puntaje: puntajeLocal, mejorDelDia: 0, record: 0, xp: 0, coins: 0, puntos: 0, puntosHoy: 0, topeHoy: 0, pretemporada: true } : null)}
+          r={resultado ?? (modo === "practica" ? { valida: true, puntaje: puntajeLocal, mejorDelDia: 0, record: 0, monedas: 0, monedasHoy: 0, topeHoy: 0, pretemporada: true } : null)}
           resumen={
             <span>
               {movimientos} movimientos · {segundos} s{movimientos === PARES ? " · ¡perfecto!" : ""}

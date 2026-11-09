@@ -73,6 +73,6 @@ export const EVENTOS_POR_DEFECTO: { day: number; title: string; description: str
   { day: 10, title: "Noche de roast", description: "Primera batalla de roast voluntaria y votación del grupo.", kind: "social" },
   { day: 15, title: "Guerra de equipos", description: "Reto por equipos con puntaje promedio. Gana el equipo, no el que más juega.", kind: "equipos" },
   { day: 20, title: "Caza al saboteador", description: "Alguien recibió una misión secreta. Descubran quién fue.", kind: "traicion" },
-  { day: 25, title: "Día de doble caos", description: "Todos los puntos del día valen doble. Última oportunidad de remontar.", kind: "evento" },
+  { day: 25, title: "Día de doble caos", description: "Todas las monedas del día valen doble. Última oportunidad de remontar.", kind: "evento" },
   { day: 30, title: "El juicio final", description: "Ceremonia de premios y revelación del amigo secreto.", kind: "final" },
 ];

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { cache } from "react";
 import { arcoDelDia, type EstadoTemporada } from "@/features/season/calendario";
 import { contextoDelDia, fraseDe, type NpcId } from "@/features/contenido/npcs";
-import { GIFT_CATCHER, nivel, xpParaNivel } from "@/features/scoring/reglas";
+import { GIFT_CATCHER } from "@/features/scoring/reglas";
 import { NpcSprite, Avatar } from "@/components/rpg/PixelSprite";
 import { DialogoNpc } from "@/components/plaza/DialogoNpc";
 import { Noticias } from "@/components/plaza/Noticias";
@@ -85,10 +85,6 @@ export async function PlazaCentral() {
   const [news, eventos, records] = await Promise.all([noticias(yo.seasonId, 8), eventosDeTemporada(yo.seasonId), recordsGiftCatcher(yo.seasonId, 5)]);
   const equipos = rankingEquipos(d.equipos, d.jugadores);
   const miEquipo = equipos.find((e) => e.id === yo.teamId);
-  const xp = fila?.xp ?? 0;
-  const nv = nivel(xp);
-  const desde = xpParaNivel(nv);
-  const hasta = xpParaNivel(nv + 1);
   const proximo = eventos.find((e) => e.day >= Math.max(1, dia));
   const arco = arcoDelDia(Math.max(1, dia));
 
@@ -96,7 +92,7 @@ export async function PlazaCentral() {
     <Seccion>
       {yo.prueba && (
         <Aviso>
-          🧪 <b>Temporada de prueba.</b> Aquí todo vale para probar: sin topes diarios y el organizador puede simular cualquier día. Los puntos no pasan a la temporada real.
+          🧪 <b>Temporada de prueba.</b> Aquí todo vale para probar: sin topes diarios y el organizador puede simular cualquier día. Las monedas no pasan a la temporada real.
         </Aviso>
       )}
       <Link href="/mundo" className="px-box shine flex items-center gap-3 p-3" style={{ ["--bg" as string]: "#1b1f4a", color: "var(--cream)" }}>
@@ -135,7 +131,7 @@ export async function PlazaCentral() {
         </div>
         <p className="mt-1 text-[0.85rem] text-[var(--ink-soft)]">
           {estado.fase === "pretemporada"
-            ? "Los puntos cuentan desde el 25 de noviembre. Mientras tanto practica Gift Catcher: ganas XP y monedas."
+            ? "Las monedas cuentan desde el 25 de noviembre. Mientras tanto puedes practicar los minijuegos."
             : arco.resumen}
         </p>
         <div className="mt-3 grid grid-cols-[repeat(30,minmax(0,1fr))] gap-[3px]" aria-label={`Día ${dia} de 30`}>
@@ -170,17 +166,12 @@ export async function PlazaCentral() {
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-2">
             <span className="truncate font-pixel text-lg">{yo.displayName}</span>
-            <span className="font-pixel text-[0.85rem]">Nv. {nv}</span>
-          </div>
-          <div className="mt-1 h-3 w-full bg-[#e4dccb]" style={{ boxShadow: "0 0 0 2px var(--ink)" }} aria-label={`XP ${xp}`}>
-            <div className="h-full bg-[var(--mint)]" style={{ width: `${Math.round(((xp - desde) / Math.max(1, hasta - desde)) * 100)}%` }} />
+            {fila && <span className="font-pixel text-[0.85rem]">Puesto #{fila.rank}</span>}
           </div>
           <div className="mt-2 flex flex-wrap gap-1.5 text-[0.75rem]">
             <span className="px-chip" style={{ ["--chip" as string]: "var(--gold)" }}>
-              ⭐ {fila?.points ?? 0} pts
+              🪙 {fila?.monedas ?? 0} monedas
             </span>
-            <span className="px-chip">🪙 {fila?.coins ?? 0}</span>
-            <span className="px-chip">✨ {xp} XP</span>
             {miEquipo ? (
               <span className="px-chip" style={{ ["--chip" as string]: miEquipo.color, color: "#fff" }}>
                 {miEquipo.emblem} {miEquipo.name} · #{miEquipo.rank}
@@ -190,7 +181,7 @@ export async function PlazaCentral() {
             )}
           </div>
           <p className="mt-1.5 text-[0.75rem] text-[var(--ink-soft)]">
-            Gift Catcher hoy: {gift.puntosHoy}/{GIFT_CATCHER.topeDiario} pts · récord {gift.record}
+            Gift Catcher hoy: {gift.monedasHoy}/{GIFT_CATCHER.topeDiario} monedas · récord {gift.record}
           </p>
         </div>
       </div>

@@ -3,18 +3,17 @@
 Diseño de juego adaptado del documento maestro (`docs/ESPECIFICACION.md`) y de los juegos de
 la versión anterior que funcionaron. Las fases dicen cuándo se construye cada uno (`PLAN.md`).
 
-## Monedas y puntos (separados, como pide el documento)
+## Una sola moneda: las monedas 🪙 (decisión de Luis, 2026-11-09)
 
-| Qué | Para qué | Cómo se gana | Límite |
-|---|---|---|---|
-| **XP** | Subir de nivel | Jugar y completar cosas | Sin tope; no se pierde |
-| **Monedas** 🪙 | Cosméticos del Mercado negro | Actividades, misiones, logros | Sin ventaja competitiva |
-| **Puntos** ⭐ | Ranking individual y de equipos | Resultados validados | Tope diario por actividad |
+Todo se gana y se gasta en **monedas**, y el ranking es cuántas monedas tienes. Ya no hay XP ni
+puntos aparte. Todos los precios y ganancias viven en `src/features/scoring/economia.ts` (con tests de
+equilibrio) y se ven en `/diseno/organizador`.
 
 Reglas del ranking:
-- Cada juego cuenta solo el **mejor resultado válido del día** (los demás intentos dan XP, no puntos).
-- Puntos = parte por participar + parte por resultado (así faltar un día no te hunde y jugar 100 veces no te salva).
-- **Ranking de equipos = promedio de puntos por integrante activo**, no la suma.
+- Cada minijuego da monedas solo por el **mejor resultado válido del día**: 20 por jugar + hasta 80 por
+  resultado (tope 100 por juego y día). Repetir sube tu récord, no tus monedas.
+- **Ranking de equipos = promedio de monedas por integrante activo**, no la suma.
+- Gastar monedas (fisgonear o pasar, en el juego de las casas) te baja en el ranking.
 - Todo movimiento queda en un libro (ledger) que nadie puede editar; el organizador corrige con movimientos compensatorios que quedan auditados.
 
 ## Zonas de Snowville
@@ -38,9 +37,8 @@ Reglas del ranking:
 - Combo: cada 5 regalos seguidos sin fallar, el multiplicador sube (x2, x3 máx.).
 - La lluvia acelera cada 15 s.
 - **Validación en servidor:** el servidor crea la partida con una semilla; la secuencia de objetos es la misma en el navegador y en el servidor, así que el servidor sabe el puntaje máximo posible. Rechaza partidas de menos de 55 s, de más de 3 min abiertas, con puntaje imposible o repetidas.
-- **Recompensa por partida:** XP = 10 + puntaje/20; monedas = 5 + puntaje/50.
-- **Puntos de ranking:** solo el mejor resultado del día: 20 por jugar + hasta 80 según el puntaje (tope 100/día).
-- Se puede jugar las veces que quieras; los puntos no suben por repetir.
+- **Monedas:** solo el mejor resultado del día: 20 por jugar + hasta 80 según el puntaje (tope 100/día).
+- Se puede jugar las veces que quieras; las monedas no suben por repetir.
 
 ## Adelantados de la Fase 2 (pedido de Luis, 6 nov)
 
@@ -60,9 +58,9 @@ partida suma.
 - **¿Quién es más probable…?** (`/votacion`, Tablón del Caos): un voto secreto por persona y
   ronda, nunca por uno mismo. Ronda = día de Lima (temporada real) o 4 minutos (prueba).
   Resultados ocultos hasta que votan todos o cierra la ronda, con comentario del Auditor.
-  Votar da +5 XP, +3 monedas y +10 puntos (una vez por ronda). 38 preguntas revisadas.
-- **Energía navideña** (`/energia`, árbol de la plaza y medidor de la Fábrica): toda la XP del
-  grupo es energía. Meta = 500 por jugador activo (10 000 con 20), mínimo 3 000. Hitos al
+  Votar da +10 monedas (una vez por ronda). 38 preguntas revisadas.
+- **Energía navideña** (`/energia`, árbol de la plaza y medidor de la Fábrica): todas las monedas que gana el
+  grupo son energía. Meta = 500 por jugador activo (10 000 con 20), mínimo 3 000. Hitos al
   25/50/75/100 % salen en Noticias; al 100 % cada jugador activo recibe 50 monedas. Las luces
   del árbol de la plaza se encienden según el porcentaje.
 
@@ -75,7 +73,7 @@ con los amigos en una tarde y nadie se queda con candados. El ritmo de 30 días 
 
 - **Contenido que rota cada día:** una pregunta nueva de ¿Quién es más probable…?, un
   acertijo nuevo, un tema nuevo de roast, frases nuevas de los NPCs.
-- **Topes diarios de puntos:** conviene volver cada día; jugar 5 horas seguidas no sirve.
+- **Topes diarios de monedas:** conviene volver cada día; jugar 5 horas seguidas no sirve.
 - **Arcos de la historia** (cambian el tono de los NPCs y la plaza):
 
 | Días | Arco |
@@ -95,7 +93,7 @@ Lo que todavía no está construido se muestra como **"Próximamente"** (no es u
 ## Temporada de prueba
 
 Al crear una temporada se puede marcar **🧪 Es una temporada de prueba**. Va aparte de la real:
-- sin topes diarios (cada partida suma sus puntos) y sin pretemporada,
+- sin topes diarios (cada partida suma sus monedas) y sin pretemporada,
 - el organizador puede **simular cualquier día** desde el panel (◀ ▶ o atajos día 1/5/10…),
 - un aviso 🧪 se ve en la plaza, el mundo y la cabecera para no confundirla con la real.
 

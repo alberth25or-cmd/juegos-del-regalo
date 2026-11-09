@@ -29,12 +29,12 @@ async function Juego() {
     console.error("[gift-catcher]", e);
   }
   if (!yo) {
-    return <GiftCatcher modo="practica" avatar={AVATAR_POR_DEFECTO} stats={null} pretemporada={false} aviso="Modo demo: juega sin cuenta. Para guardar puntos necesitas una invitación." />;
+    return <GiftCatcher modo="practica" avatar={AVATAR_POR_DEFECTO} stats={null} pretemporada={false} aviso="Modo demo: juega sin cuenta. Para ganar monedas necesitas una invitación." />;
   }
   if (yo.status !== "active") {
     return <GiftCatcher modo="practica" avatar={yo.avatar} stats={null} pretemporada={false} aviso="Práctica: cuando el organizador te apruebe, tus partidas se guardarán." />;
   }
   const stats = await miGiftCatcher(yo.id);
   const pretemporada = estadoDe(yo).fase === "pretemporada";
-  return <GiftCatcher modo="real" avatar={yo.avatar} stats={{ record: stats.record, mejorHoy: stats.mejorHoy, puntosHoy: stats.puntosHoy }} pretemporada={pretemporada} />;
+  return <GiftCatcher modo="real" avatar={yo.avatar} stats={{ record: stats.record, mejorHoy: stats.mejorHoy, monedasHoy: stats.monedasHoy }} pretemporada={pretemporada} />;
 }

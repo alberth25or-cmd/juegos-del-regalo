@@ -74,4 +74,4 @@ export function comentario(conteo: Conteo[], nombre: (id: string) => string, sem
 }
 
 /** Recompensa por votar (una vez por ronda; en temporada real, una ronda por día). */
-export const RECOMPENSA_VOTO = { xp: 5, coins: 3, puntos: 10 };
+export const RECOMPENSA_VOTO = { monedas: 10 };

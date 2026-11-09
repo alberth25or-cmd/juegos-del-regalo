@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PixelIcon } from "@/components/ui/PixelIcon";
+import { costoPasar, PASES_POR_CASA } from "@/features/scoring/economia";
 import { cuantas, faltanHoy, type Stage } from "./datosEjemplo";
 
 /**
@@ -45,6 +46,7 @@ export function DetalleStage({ s, id, etiqueta }: { s: Stage; id: string; etique
             <PixelIcon name="clock" size={16} />
             Hoy: {s.hechasHoy} de {s.porDia} · {aldia ? "a medianoche salen más" : "las de hoy vencen a las 23:59"}
           </p>
+          {s.pasesUsados !== undefined && (s.n === 3 || s.n === 4) && <Pases casa={s.n} usados={s.pasesUsados} />}
           {!s.juegos &&
             (aldia ? (
               <button type="button" className="boton claro w-full" disabled>
@@ -90,5 +92,16 @@ export function DetalleStage({ s, id, etiqueta }: { s: Stage; id: string; etique
         </ul>
       )}
     </article>
+  );
+}
+
+/** Pases que te quedan en la casa y cuánto cuesta pasar (economia.ts). */
+function Pases({ casa, usados }: { casa: 3 | 4; usados: number }) {
+  const p = costoPasar(casa, usados);
+  const quedan = Math.max(0, PASES_POR_CASA - usados);
+  return (
+    <p className="mb-3 rounded-[14px] bg-[#f3eef7] px-3 py-2 text-center text-[0.85rem] font-bold text-[var(--tinta-suave)]">
+      {p.permitido ? `Pasar cuesta ${p.monedas} monedas · te quedan ${quedan} de ${PASES_POR_CASA} pases` : `Sin pases en esta casa: solo queda responder`}
+    </p>
   );
 }

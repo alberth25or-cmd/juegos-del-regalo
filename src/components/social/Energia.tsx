@@ -72,7 +72,7 @@ export function Energia({ inicial }: { inicial: EstadoEnergia }) {
       <div className="flex items-start gap-2">
         <Retrato npc="duende" size={52} className="shrink-0" />
         <p className="px-box px-3 py-2 text-[0.9rem]" style={{ ["--bg" as string]: "var(--cream-2)" }}>
-          Todo lo que juegan suma energía: cada partida de Gift Catcher o Memory, cada juicio de trivia y cada voto. Al 100 % Santa reparte <b>50 monedas a cada uno</b>. ¡Es trabajo en equipo, compañeros!
+          Todas las monedas que ganan suman energía: Gift Catcher, Memory, la trivia y cada voto. Al 100 % Santa reparte <b>50 monedas a cada uno</b>. ¡Es trabajo en equipo, compañeros!
         </p>
       </div>
 

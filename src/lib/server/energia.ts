@@ -21,13 +21,13 @@ export async function energiaDe(seasonId: string): Promise<EstadoEnergia> {
   const [[r], equipos, top, anunciados] = await Promise.all([
     conTope(
       () => db()`
-      select (select coalesce(sum(xp), 0)::int from cc.score_ledger where season_id = ${seasonId} and xp > 0) as energia,
+      select (select coalesce(sum(l.points + l.coins), 0)::int from cc.score_ledger l where l.season_id = ${seasonId} and (l.points + l.coins) > 0 and l.source_type not in ('energia', 'ajuste')) as energia,
              (select count(*)::int from cc.players where season_id = ${seasonId} and status = 'active') as activos
     `,
     ),
     conTope(
       () => db()`
-      select t.id, t.name, t.color, t.emblem, coalesce(sum(l.xp) filter (where l.xp > 0), 0)::int as energia
+      select t.id, t.name, t.color, t.emblem, coalesce(sum(l.points + l.coins) filter (where (l.points + l.coins) > 0 and l.source_type not in ('energia', 'ajuste')), 0)::int as energia
       from cc.teams t left join cc.score_ledger l on l.team_id = t.id and l.season_id = ${seasonId}
       where t.season_id = ${seasonId}
       group by t.id, t.name, t.color, t.emblem
@@ -36,9 +36,9 @@ export async function energiaDe(seasonId: string): Promise<EstadoEnergia> {
     ),
     conTope(
       () => db()`
-      select p.id, p.display_name, p.avatar, coalesce(sum(l.xp), 0)::int as energia
+      select p.id, p.display_name, p.avatar, coalesce(sum(l.points + l.coins), 0)::int as energia
       from cc.score_ledger l join cc.players p on p.id = l.player_id
-      where l.season_id = ${seasonId} and l.xp > 0 and p.status = 'active'
+      where l.season_id = ${seasonId} and (l.points + l.coins) > 0 and l.source_type not in ('energia', 'ajuste') and p.status = 'active'
       group by p.id, p.display_name, p.avatar
       order by energia desc limit 5
     `,

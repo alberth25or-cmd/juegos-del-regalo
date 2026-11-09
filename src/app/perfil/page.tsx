@@ -60,7 +60,7 @@ async function Contenido() {
                 <li key={c.id} className="flex flex-col items-center text-[0.75rem]">
                   <Avatar config={c.avatar} size={34} />
                   <span className="max-w-[72px] truncate">{c.displayName}</span>
-                  <span className="font-pixel">{c.points} pts</span>
+                  <span className="font-pixel">🪙 {c.monedas}</span>
                 </li>
               ))}
             </ul>

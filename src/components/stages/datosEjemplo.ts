@@ -46,6 +46,8 @@ export interface Stage {
   papel: "rojo" | "verde" | "azul" | "morado";
   /** Monedas que llevas ganadas en esta casa. */
   monedas?: number;
+  /** Solo Amor y Picante: pases que ya usaste en la temporada. */
+  pasesUsados?: number;
   accion?: { texto: string; href: string };
   juegos?: Juego[];
 }
@@ -104,13 +106,15 @@ export const STAGES: Stage[] = [
   },
   {
     n: 3, nombre: "Amor y relaciones", corto: "Amor", icono: "heart", papel: "morado",
-    descripcion: "Preguntas nuevas de amor cada día, de respuesta corta. Puedes pasar, pero resta monedas.",
-    estado: "nuevas", porDia: 2, hechasHoy: 1, unidad: "pregunta", monedas: 60,
+    descripcion: "Preguntas nuevas de amor cada día, de respuesta corta. Puedes pasar, pero cuesta monedas y los pases son pocos.",
+    estado: "nuevas", porDia: 2, hechasHoy: 1, unidad: "pregunta", monedas: 60, pasesUsados: 2,
+    accion: { texto: "Responder las de hoy", href: "/diseno/amor" },
   },
   {
     n: 4, nombre: "Picante", corto: "Picante", icono: "chili", papel: "rojo",
-    descripcion: "Preguntas nuevas cada día, solo sí o no. La primera vez confirmas que eres mayor de edad.",
-    estado: "nuevas", porDia: 2, hechasHoy: 0, unidad: "pregunta", monedas: 20,
+    descripcion: "Preguntas nuevas cada día, solo sí o no. La primera vez confirmas que eres mayor de edad (o eliges no jugarla).",
+    estado: "nuevas", porDia: 2, hechasHoy: 0, unidad: "pregunta", monedas: 20, pasesUsados: 5,
+    accion: { texto: "Responder las de hoy", href: "/diseno/picante" },
   },
   {
     n: 5, nombre: "Juicio final", corto: "Juicio", icono: "star", papel: "azul",
@@ -134,5 +138,8 @@ export function cuantas(n: number, unidad: Stage["unidad"]) {
 }
 
 export const DIA = { dia: 7, total: 30 };
+
+/** Cuántas de tus respuestas abrió hoy quien te regala (el aviso no dice quién ni cuáles). */
+export const FISGONEOS_HOY = 2;
 
 export const SALA = { capacidad: 20, presupuesto: 40, premio: "Canasta navideña para el primer lugar" };

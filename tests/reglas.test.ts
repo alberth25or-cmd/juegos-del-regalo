@@ -8,7 +8,7 @@ import {
   puntuar,
   validarPartida,
 } from "../src/features/games/giftCatcher.ts";
-import { deltaPuntos, nivel, promedioEquipo, puntosDelDia, recompensaPartida } from "../src/features/scoring/reglas.ts";
+import { deltaMonedas as deltaPuntos, monedasDelDia as puntosDelDia, promedioEquipo } from "../src/features/scoring/reglas.ts";
 import { diaLocal, estadoConPrueba, estadoTemporada, inicioDelDia } from "../src/features/season/calendario.ts";
 import { repartirEquipos } from "../src/features/teams/repartir.ts";
 import { fraseDe, FRASES } from "../src/features/contenido/npcs.ts";
@@ -90,16 +90,7 @@ test("repetir no suma más del tope: solo la diferencia contra lo ya otorgado", 
   assert.equal(otorgado, 100);
 });
 
-test("recompensa por partida con topes", () => {
-  assert.deepEqual(recompensaPartida(0), { xp: 10, coins: 5 });
-  assert.deepEqual(recompensaPartida(100000), { xp: 60, coins: 30 });
-});
-
-test("niveles y promedio de equipo", () => {
-  assert.equal(nivel(0), 1);
-  assert.equal(nivel(49), 1);
-  assert.equal(nivel(50), 2);
-  assert.equal(nivel(200), 3);
+test("promedio de equipo", () => {
   assert.equal(promedioEquipo([]), 0);
   assert.equal(promedioEquipo([100, 0, 0, 0, 0]), 20);
   // Equipo de 5 con 1 jugador muy activo NO gana a un equipo parejo.

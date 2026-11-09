@@ -9,7 +9,7 @@
  * trampas, ranking individual y por equipos, y permisos de admin.
  */
 import { generarLluvia, OBJETOS, puntuar } from "../src/features/games/giftCatcher.ts";
-import { puntosDelDia } from "../src/features/scoring/reglas.ts";
+import { monedasDelDia } from "../src/features/scoring/reglas.ts";
 import { diaLocal } from "../src/features/season/calendario.ts";
 
 const BASE = process.env.SIM_URL || "http://localhost:3100";
@@ -145,13 +145,13 @@ check(cierres[5].resultado?.valida === false, "la partida con puntaje inflado se
 check(cierres.filter((c, i) => i !== 5).every((c) => c.resultado?.valida), `las ${M} partidas honestas son válidas`);
 cierres.forEach((c, i) => i !== 5 && !c.resultado?.valida && console.log("   ", i, c.status, c.error ?? c.resultado?.motivo));
 check(
-  cierres.filter((c, i) => i !== 5).every((c) => c.resultado.puntos === puntosDelDia(c.resultado.puntaje)),
-  "puntos del día = 20 + resultado (tope 100)",
+  cierres.filter((c, i) => i !== 5).every((c) => c.resultado.monedas === monedasDelDia(c.resultado.puntaje)),
+  "monedas del día = 20 + resultado (tope 100)",
 );
 
 // Reenvío por mala señal → no duplica
 r = await nuevos[0].pedir(`/api/partidas/${envios[0].id}`, envios[0].body);
-check(r.status === 409, "reenviar la misma partida no duplica puntos (409)");
+check(r.status === 409, "reenviar la misma partida no duplica monedas (409)");
 // Partida demasiado corta
 const corta = await nuevos[1].pedir("/api/partidas", {});
 r = await nuevos[1].pedir(`/api/partidas/${corta.attemptId}`, { puntaje: 0, duracionMs: 60_000, atrapados: [] });
@@ -168,9 +168,9 @@ const tam = rk.equipos.map((e) => e.integrantes);
 check(suma === N && Math.max(...tam) - Math.min(...tam) <= 1, `4 equipos parejos (${tam.join("/")})`);
 const e0 = rk.equipos[0];
 const miembros = rk.jugadores.filter((j) => j.teamId === e0.id);
-check(Math.abs(e0.promedio - miembros.reduce((a, j) => a + j.points, 0) / miembros.length) < 0.06, "el ranking de equipos usa el promedio");
+check(Math.abs(e0.promedio - miembros.reduce((a, j) => a + j.monedas, 0) / miembros.length) < 0.06, "el ranking de equipos usa el promedio");
 const tramposo = rk.jugadores.find((j) => j.displayName === "Jugador 5");
-check(tramposo && tramposo.points === 0, "el tramposo no sumó puntos");
+check(tramposo && tramposo.monedas === 0, "el tramposo no sumó monedas");
 
 // 8) 60 lecturas simultáneas de la plaza/ranking
 t0 = performance.now();

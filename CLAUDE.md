@@ -45,8 +45,10 @@ tests/                node:test (`npm test`)
 
 ## Reglas no negociables
 
-1. Puntos, XP y monedas solo los escribe el servidor, en `cc.score_ledger` (append-only:
-   un trigger impide UPDATE/DELETE). Las correcciones son filas compensatorias auditadas.
+1. Una sola moneda: las **monedas** (decisión de Luis, 2026-11-09). Solo las escribe el servidor,
+   en `cc.score_ledger.coins` (append-only: un trigger impide UPDATE/DELETE). El ranking es la suma
+   de monedas (`cc.v_totals.monedas`). Precios y ganancias: `src/features/scoring/economia.ts`.
+   Las correcciones son filas compensatorias auditadas.
 2. La identidad sale SIEMPRE de la cookie de sesión, nunca de un id enviado por el navegador.
 3. Partidas arcade: el servidor crea la partida (semilla + hora de inicio), valida duración,
    puntaje máximo posible para esa semilla y límites diarios. No confiar en el cliente.

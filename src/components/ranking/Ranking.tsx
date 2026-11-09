@@ -82,11 +82,10 @@ export function Ranking({ inicial }: { inicial: Datos }) {
                       {soyYo ? " (tú)" : ""}
                     </span>
                     <span className="block truncate text-[0.72rem] text-[var(--ink-soft)]">
-                      Nv. {j.nivel}
-                      {eq ? ` · ${eq.emblem} ${eq.name}` : " · sin equipo"}
+                      {eq ? `${eq.emblem} ${eq.name}` : "sin equipo"}
                     </span>
                   </span>
-                  <span className="font-pixel text-lg tabular-nums">{j.points}</span>
+                  <span className="font-pixel text-lg tabular-nums">🪙 {j.monedas}</span>
                 </li>
               );
             })}
@@ -104,7 +103,7 @@ export function Ranking({ inicial }: { inicial: Datos }) {
                 <span className="min-w-0 flex-1 leading-tight">
                   <span className="block truncate font-pixel">{e.name}</span>
                   <span className="block text-[0.72rem] text-[var(--ink-soft)]">
-                    {e.integrantes} integrante(s) · {e.total} pts en total
+                    {e.integrantes} integrante(s) · {e.total} monedas en total
                   </span>
                 </span>
                 <span className="text-right leading-tight">
@@ -115,7 +114,7 @@ export function Ranking({ inicial }: { inicial: Datos }) {
             ))}
           </ol>
           <p className="px-box px-3 py-2 text-[0.8rem]" style={{ ["--bg" as string]: "var(--cream-2)" }}>
-            <b>Regla:</b> gana el equipo con mejor <b>promedio</b> de puntos por integrante activo, no la suma. Así cuenta cada persona, no quien juega más horas.
+            <b>Regla:</b> gana el equipo con mejor <b>promedio</b> de monedas por integrante activo, no la suma. Así cuenta cada persona, no quien juega más horas.
           </p>
         </>
       )}

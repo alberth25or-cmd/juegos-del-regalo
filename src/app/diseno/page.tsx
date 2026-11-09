@@ -1,6 +1,7 @@
 import { BarraAgente } from "@/components/stages/BarraAgente";
 import { AldeaStages } from "@/components/stages/AldeaStages";
-import { AGENTES, DIA, faltanHoy, PUESTO, STAGES, YO } from "@/components/stages/datosEjemplo";
+import { AvisoFisgoneo } from "@/components/stages/AvisoFisgoneo";
+import { AGENTES, DIA, faltanHoy, FISGONEOS_HOY, PUESTO, STAGES, YO } from "@/components/stages/datosEjemplo";
 
 export default function PantallaPrincipalDiseno() {
   const faltan = STAGES.reduce((t, s) => t + faltanHoy(s), 0);
@@ -8,6 +9,7 @@ export default function PantallaPrincipalDiseno() {
     <>
       <BarraAgente yo={YO} puesto={PUESTO} agentes={AGENTES} stages={STAGES} />
       <main>
+        <AvisoFisgoneo veces={FISGONEOS_HOY} />
         <AldeaStages
           stages={STAGES}
           yo={YO}

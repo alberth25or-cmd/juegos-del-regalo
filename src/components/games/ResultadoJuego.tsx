@@ -9,10 +9,8 @@ export interface ResultadoServidor {
   puntaje: number;
   mejorDelDia: number;
   record: number;
-  xp: number;
-  coins: number;
-  puntos: number;
-  puntosHoy: number;
+  monedas: number;
+  monedasHoy: number;
   topeHoy: number;
   pretemporada: boolean;
   detalle?: Record<string, unknown>;
@@ -42,20 +40,19 @@ export function ResultadoJuego({
         {resumen && <div className="mt-2 text-[0.85rem] opacity-90">{resumen}</div>}
       </div>
       {r?.valida && (
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <Premio e="✨" t="XP" v={`+${r.xp}`} />
-          <Premio e="🪙" t="Monedas" v={`+${r.coins}`} />
-          <Premio e="⭐" t="Puntos" v={r.pretemporada ? "—" : `+${r.puntos}`} />
+        <div className="grid grid-cols-2 gap-2 text-center">
+          <Premio e="🪙" t="Monedas" v={r.pretemporada ? "—" : `+${r.monedas}`} />
+          <Premio e="📅" t="Hoy en este juego" v={r.pretemporada ? "—" : r.topeHoy ? `${r.monedasHoy}/${r.topeHoy}` : `${r.monedasHoy}`} />
         </div>
       )}
       {r?.valida && (
         <p className="text-center text-[0.82rem] text-[var(--ink-soft)]">
           {r.pretemporada
-            ? "Pretemporada: los puntos del ranking empiezan el 25 de noviembre."
+            ? "Pretemporada: las monedas empiezan el 25 de noviembre."
             : r.topeHoy === 0
               ? "Temporada de prueba: cada partida suma."
-              : r.puntos > 0
-                ? `¡Nuevo mejor del día! Hoy llevas ${r.puntosHoy}/${r.topeHoy} pts en este juego.`
+              : r.monedas > 0
+                ? `¡Nuevo mejor del día! Hoy llevas ${r.monedasHoy}/${r.topeHoy} monedas en este juego.`
                 : `Tu mejor de hoy sigue siendo ${r.mejorDelDia}. Supéralo para sumar más.`}
           {r.record === r.puntaje && r.puntaje > 0 ? " 🏆 ¡Récord personal!" : ""}
         </p>

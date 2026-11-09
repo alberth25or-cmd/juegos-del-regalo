@@ -134,7 +134,7 @@ export function Votacion({ inicial, yo }: { inicial: EstadoVotacion; yo: string 
       {e.miVoto && !e.resultado && (
         <div className="px-box anim-pop flex flex-col items-center gap-2 p-4 text-center">
           <p className="font-pixel text-lg">Votaste por {nombre(e.miVoto)} 🤫</p>
-          <p className="px-hint">Los resultados se revelan cuando voten todos o cuando cierre la pregunta. Ganaste +5 XP, +3 monedas y +10 puntos.</p>
+          <p className="px-hint">Los resultados se revelan cuando voten todos o cuando cierre la pregunta. Ganaste +10 monedas.</p>
         </div>
       )}
 

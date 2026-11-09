@@ -2,7 +2,6 @@ import "server-only";
 import { avatarValido } from "@/features/avatar";
 import { filtrarChat } from "@/features/contenido/filtro";
 import { esSala, type SalaId } from "@/features/mundo/mapas";
-import { nivel } from "@/features/scoring/reglas";
 import { ErrorDeUsuario } from "./api";
 import { conTope, db } from "./db";
 import { permitir } from "./limites";
@@ -92,7 +91,7 @@ export async function perfilPublico(yo: Jugador, id: string) {
   if (!/^[0-9a-f-]{36}$/i.test(id)) throw new ErrorDeUsuario("Jugador no encontrado.", 404);
   const [r] = await conTope(() => db()`
     select p.id, p.display_name, p.avatar, p.status, t.name as team, t.color, t.emblem,
-           coalesce(v.points, 0)::int as points, coalesce(v.xp, 0)::int as xp
+           coalesce(v.monedas, 0)::int as monedas
     from cc.players p
     left join cc.teams t on t.id = p.team_id
     left join cc.v_totals v on v.player_id = p.id
@@ -105,7 +104,6 @@ export async function perfilPublico(yo: Jugador, id: string) {
     avatar: avatarValido(r.avatar),
     pendiente: r.status === "pending",
     equipo: r.team ? { nombre: r.team as string, color: r.color as string, emblema: r.emblem as string } : null,
-    puntos: r.points as number,
-    nivel: nivel(r.xp),
+    monedas: r.monedas as number,
   };
 }

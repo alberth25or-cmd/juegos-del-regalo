@@ -75,7 +75,7 @@ check(r.ok && r.estado.resultado && r.estado.resultado.conteo[0].id === ids[3] &
 check(typeof r.estado.resultado?.comentario === "string" && !/\{n\}/.test(r.estado.resultado.comentario), "comentario del Auditor listo");
 const rk = await admin.pedir("/api/ranking");
 const fila = rk.jugadores.find((x) => x.id === ids[0]);
-check(fila && fila.points >= 10 && fila.xp >= 5, "votar dio puntos y XP");
+check(fila && fila.monedas >= 10, "votar dio monedas");
 
 // ------------------------------------------------------------- trivia
 console.log("\n— Juicio del Polo Norte (trivia)");
@@ -91,7 +91,7 @@ const t2 = r.attemptId;
 const seedT2 = r.seed;
 await espera(6500);
 r = await jugadores[1].pedir(`/api/partidas/${t2}`, { respuestas: preguntasDe(seedT2).map((q, i) => (i < 6 ? q.ok : (q.ok + 1) % 4)) });
-check(r.resultado?.valida && r.resultado.detalle.aciertos === 6 && r.resultado.puntos > 0, "6 de 8 correctas: válida y suma puntos");
+check(r.resultado?.valida && r.resultado.detalle.aciertos === 6 && r.resultado.monedas > 0, "6 de 8 correctas: válida y da monedas");
 check((await jugadores[1].pedir(`/api/partidas/${t2}`, { respuestas: [0, 0, 0, 0, 0, 0, 0, 0] })).status === 409, "no se puede mandar dos veces");
 r = await admin.pedir("/api/trivia/equipos");
 check(r.ok && Array.isArray(r.equipos), "promedio de equipos de hoy disponible");
@@ -131,7 +131,7 @@ check((await jugadores[2].pedir("/api/partidas", { juego: "no-existe" })).status
 // ------------------------------------------------------------- energía
 console.log("\n— Energía navideña");
 r = await admin.pedir("/api/energia");
-check(r.ok && r.energia.energia > 0 && r.energia.meta === 3000, `la energía suma la XP de todos (${r.energia?.energia}/${r.energia?.meta})`);
+check(r.ok && r.energia.energia > 0 && r.energia.meta === 3000, `la energía suma las monedas de todos (${r.energia?.energia}/${r.energia?.meta})`);
 check(r.energia.top.length > 0, "hay ranking de quién aportó más");
 
 console.log(fallos.length ? `\n✗ ${fallos.length} fallo(s)` : "\n✓ Todo OK");

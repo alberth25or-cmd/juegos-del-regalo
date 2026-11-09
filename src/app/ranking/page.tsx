@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Ranking" };
 export default function RankingPage() {
   return (
     <Pantalla title="Ranking" kicker="En vivo" npc="auditor">
-      <Suspense fallback={<Cargando texto="El Auditor está contando los puntos…" />}>
+      <Suspense fallback={<Cargando texto="El Auditor está contando las monedas…" />}>
         <Contenido />
       </Suspense>
     </Pantalla>

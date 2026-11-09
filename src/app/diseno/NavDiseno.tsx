@@ -7,6 +7,8 @@ import { BotonSonido } from "@/components/musica/MusicaGlobal";
 const VISTAS = [
   ["/diseno", "Principal"],
   ["/diseno/manada", "La manada"],
+  ["/diseno/amor", "Amor"],
+  ["/diseno/picante", "Picante"],
   ["/diseno/inscripcion", "Ficha"],
   ["/diseno/arbol", "Árbol"],
   ["/diseno/amigo-secreto", "Amigo secreto"],

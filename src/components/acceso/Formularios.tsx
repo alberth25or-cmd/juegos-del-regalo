@@ -136,7 +136,7 @@ export function UnirseForm({ codigo, temporada }: { codigo: string; temporada: s
     return (
       <div className="flex flex-col gap-3">
         <Aviso tono="ok">
-          ¡Listo! Ya eres parte de <b>{temporada}</b>. El organizador tiene que aprobarte para que puedas sumar puntos.
+          ¡Listo! Ya eres parte de <b>{temporada}</b>. El organizador tiene que aprobarte para que puedas ganar monedas.
         </Aviso>
         <div className="px-box px-3 py-2" style={{ ["--bg" as string]: "var(--cream-2)" }}>
           <p className="px-hint">Para entrar desde otro celular:</p>
