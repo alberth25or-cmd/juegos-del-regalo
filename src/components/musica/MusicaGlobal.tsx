@@ -59,8 +59,8 @@ export function MusicaGlobal() {
     if (p !== "mundo") musica.pista(p);
   }, [p]);
 
-  // El mundo y la vista de diseño tienen su propio 🔊 en su barra.
-  if (p === "mundo" || path.startsWith("/diseno")) return null;
+  // El mundo y la aldea de casas ("/" y /diseno/*) tienen su propio 🔊 en su barra.
+  if (p === "mundo" || path === "/" || path.startsWith("/diseno")) return null;
   return (
     <div className="fixed right-3 z-40" style={{ top: "max(12px, env(safe-area-inset-top))" }}>
       <BotonSonido compacto />

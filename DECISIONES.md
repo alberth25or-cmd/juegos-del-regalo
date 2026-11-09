@@ -1,5 +1,16 @@
 # Decisiones del proyecto
 
+## La aldea de casas es la pantalla principal (2026-11-09, pedido de Luis)
+
+- `https://juegos-del-regalo.vercel.app/` muestra la aldea de casas (antes en `/diseno`). Las demás
+  pantallas del juego nuevo siguen en `/diseno/*`; `/diseno` redirige a `/`.
+- Snowville sigue en `/mundo` y la entrada con usuario o creación de temporada en `/inicio` (enlaces
+  "Snowville" y "Entrar" en la barra de arriba). Después de entrar, se vuelve a `/`.
+- Ojo: la aldea todavía muestra **datos de ejemplo** (Agente Rocoto, 452 monedas): no está conectada a
+  las cuentas hasta construir los frentes 2–5.
+
+---
+
 ## Sistema de precios, pases con costo y monedas en todo el juego (2026-11-09, pedido de Luis)
 
 Decisiones de Luis:

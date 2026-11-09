@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { BotonSonido } from "@/components/musica/MusicaGlobal";
 
 const VISTAS = [
-  ["/diseno", "Principal"],
+  ["/", "Principal"],
   ["/diseno/manada", "La manada"],
   ["/diseno/amor", "Amor"],
   ["/diseno/picante", "Picante"],
@@ -13,6 +13,8 @@ const VISTAS = [
   ["/diseno/arbol", "Árbol"],
   ["/diseno/amigo-secreto", "Amigo secreto"],
   ["/diseno/organizador", "Organizador"],
+  ["/mundo", "Snowville"],
+  ["/inicio", "Entrar"],
 ] as const;
 
 export function NavDiseno() {

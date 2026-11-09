@@ -7,12 +7,16 @@ const fredoka = Fredoka({ variable: "--font-fredoka", subsets: ["latin", "latin-
 const nunito = Nunito({ variable: "--font-nunito", subsets: ["latin", "latin-ext"], weight: ["400", "600", "700", "800", "900"] });
 
 export const metadata: Metadata = {
-  title: "Diseño · Los Juegos del Regalo",
+  title: "Los Juegos del Regalo",
   robots: { index: false },
 };
 
-/** Vista de diseño: las pantallas de la reorientación con datos de ejemplo. */
-export default function DisenoLayout({ children }: LayoutProps<"/diseno">) {
+/**
+ * Pantalla principal del juego (decisión de Luis, 2026-11-09): la aldea de casas vive en "/" y
+ * las demás pantallas del juego nuevo en /diseno/*. Todo con datos de ejemplo hasta que los
+ * frentes 2–5 lo conecten a la base de datos. Snowville sigue en /mundo.
+ */
+export default function CasasLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className={`tema-fiesta ${fredoka.variable} ${nunito.variable}`}>
       <FondoNavidad />

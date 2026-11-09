@@ -13,7 +13,7 @@ y amigo secreto. En línea: https://juegos-del-regalo.vercel.app
 1. El organizador entra a `/crear`, crea la temporada y comparte el enlace `/i/CODIGO`.
 2. Cada amigo abre el enlace, crea su personaje pixel, su usuario y un PIN de 4 números.
 3. El organizador lo aprueba en `/admin` y arma los 4 equipos (a mano o al azar).
-4. Al entrar se ve **Snowville**: caminas tocando el suelo, entras a las casas y hablas con los NPCs; en el Arcade se juega **Gift Catcher**. El menú ☰ tiene ranking, noticias y perfil.
+4. La pantalla principal (`/`) es la **aldea de casas** del juego nuevo (por ahora con datos de ejemplo). **Snowville** sigue en `/mundo`: caminas tocando el suelo, entras a las casas y hablas con los NPCs; en el Arcade se juega **Gift Catcher**. El menú ☰ tiene ranking, noticias y perfil.
 5. El servidor valida cada partida; todo se gana en **monedas** y el ranking individual y por equipos (promedio) se actualiza solo.
 
 Para probar todo en una tarde: crea una **temporada de prueba** en `/crear` (sin topes diarios y con

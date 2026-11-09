@@ -46,7 +46,7 @@ export function JuegoPregunta({ casa, preguntas, pasesUsadosInicial, saldoInicia
 
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-5">
-      <Link href="/diseno" className="boton claro !min-h-11 self-start !px-4 !text-[0.95rem]">
+      <Link href="/" className="boton claro !min-h-11 self-start !px-4 !text-[0.95rem]">
         ← Volver a las casas
       </Link>
 

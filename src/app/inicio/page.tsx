@@ -8,8 +8,8 @@ import { hasDatabase } from "@/lib/server/db";
 import { jugadorActual } from "@/lib/server/sesion";
 
 /**
- * Inicio simple: qué es esto, cómo se juega en 3 pasos y un botón.
- * Si ya tienes sesión, entras directo al mundo.
+ * Entrada con cuenta: qué es esto, cómo se juega y los botones para entrar o crear temporada.
+ * La pantalla principal ("/") es la aldea de casas; si ya tienes sesión, vuelves ahí.
  */
 export default function Inicio() {
   return (
@@ -67,7 +67,7 @@ export default function Inicio() {
   );
 }
 
-/** Con sesión válida no hace falta esta pantalla: directo al mundo. */
+/** Con sesión válida no hace falta esta pantalla: a la pantalla principal. */
 async function SiTieneSesionAlMundo() {
   if (!hasDatabase()) return null;
   let entrar = false;
@@ -78,6 +78,6 @@ async function SiTieneSesionAlMundo() {
     unstable_rethrow(e);
     console.error("[inicio]", e);
   }
-  if (entrar) redirect("/mundo");
+  if (entrar) redirect("/");
   return null;
 }
