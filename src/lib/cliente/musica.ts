@@ -11,7 +11,7 @@
 import { duracion, leerVoz, PISTAS, type NombrePista, type Nota } from "@/features/musica/villancicos";
 
 const CLAVE = "jdr:sonido";
-const VOLUMEN = 0.1;
+const VOLUMEN = 0.07; // bajo a propósito: música de fondo, no protagonista
 const MIRADA = 0.3;
 
 interface Voz {

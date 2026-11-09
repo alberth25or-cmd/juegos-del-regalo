@@ -54,14 +54,28 @@ El estado nunca depende solo del color: siempre lleva texto ("¡Toca hoy!", "✓
 | `Decoracion` | `FondoNavidad` (nieve + paisaje) y `Guirnalda` |
 | `Cabeza` | Cabeza del avatar; `bola` la pone dentro de un adorno navideño; `yo` agrega aro rojo |
 | `BarraAgente` | Tu agente, puntos, riel "bastón de caramelo" con cabezas agrupadas, ranking con medallas |
-| `CarruselStages` + `TarjetaStage` | Carrusel de regalos (scroll-snap, flechas, ← →, puntos) |
+| `AldeaStages` + `CasaStage` + `DetalleStage` | Aldea de Snowville: una casa por stage unida por un sendero (bastón de caramelo hasta hoy). Tocar una casa abre su letrero abajo; ← → cambian de casa |
 | `JuegoManada` | Pregunta del día con 4 opciones y resultado del grupo (vista previa) |
 | `ArbolEspera` | Árbol pixel con cabezas-adorno y huecos punteados |
 | `FichaInscripcion`, `FichaAmigoSecreto`, `PanelOrganizador` | Formularios y fichas en clay |
 
 Clases: `.clay`, `.vidrio`, `.boton` (+ `.verde`, `.oro`, `.claro`), `.pastilla`, `.opcion`,
 `.campo`, `.etiqueta`, `.papel-regalo`, `.etiqueta-regalo`, `.nevada`, `.paisaje`, `.foco`,
-`.flotar`, `.latido`, `.carrusel`.
+`.flotar`, `.latido`, `.aldea*`, `.casa*`, `.letrero`.
+
+## Aldea de stages (v3, 2026-11-09)
+
+Reemplaza al carrusel de regalos: Cesar lo vio "atrapado en recuadros" y, al alejar la página,
+las tarjetas laterales se encogían a saltos y quedaban cortadas en los bordes.
+
+- **Casa = stage.** Techo del color del stage, placa con su ícono, número y nombre corto debajo.
+  Bloqueado: luces apagadas, nieve en la puerta y candado. Hoy: ventanas encendidas, humo y
+  corona. Superado: bandera dorada. Stage 6 (amigo secreto): cinta y lazo de regalo en el techo.
+- **Encuadre orgánico:** todo se mide en `--c` (ancho de una casa, `clamp` con `vw`), así casas,
+  sendero y suelo escalan juntos a cualquier zoom. En pantallas anchas la aldea cabe completa y el
+  suelo nevado ocupa el 100 % del ancho; si no cabe, los bordes se desvanecen con `mask-image`
+  en vez de cortar. Nada de escalones de tamaño ni desenfoque por distancia.
+- Accesibilidad: patrón `tablist` (casas = `tab`, letrero = `tabpanel`), flechas ← →.
 
 ## Reglas
 

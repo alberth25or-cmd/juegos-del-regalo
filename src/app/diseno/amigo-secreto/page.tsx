@@ -1,7 +1,7 @@
 import { FichaAmigoSecreto } from "@/components/stages/FichaAmigoSecreto";
 import { AGENTES } from "@/components/stages/datosEjemplo";
 
-const amigo = AGENTES.find((a) => a.alias === "Agente_Mazamorra")!;
+const amigo = AGENTES.find((a) => a.alias === "Agente Mazamorra")!;
 
 export default function AmigoSecretoDiseno() {
   return (
