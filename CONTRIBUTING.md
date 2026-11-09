@@ -32,6 +32,7 @@ npm test                 # reglas críticas
 npm run lint
 npm run sim              # 20 jugadores a la vez contra TU servidor local (SIM_N=40 para 40)
 npm run sim:juegos       # votación, trivia, memory y energía
+npm run sim:casas        # juego de las casas: ficha, sorteo, preguntas, pasar, fisgonear
 ```
 
 Las simulaciones solo corren contra `localhost`, nunca contra el sitio real.

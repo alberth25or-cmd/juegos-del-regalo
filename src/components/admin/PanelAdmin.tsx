@@ -14,7 +14,6 @@ interface Jug {
   role: string;
   status: string;
   teamId: string | null;
-  monedas: number;
 }
 interface Eq {
   id: string;
@@ -147,7 +146,7 @@ export function PanelAdmin({ yoId, jugadores, equipos, desde, hasta, prueba }: {
                     {j.role === "admin" ? " · organizador" : ""}
                   </span>
                   <span className="block text-[0.72rem] text-[var(--ink-soft)]">
-                    @{j.username} · 🪙 {j.monedas}
+                    @{j.username}
                   </span>
                 </span>
                 <span className="px-chip !text-[0.7rem]" style={{ ["--chip" as string]: ESTADO[j.status]?.c }}>

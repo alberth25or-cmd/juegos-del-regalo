@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PixelIcon } from "@/components/ui/PixelIcon";
 import { costoPasar, PASES_POR_CASA } from "@/features/scoring/economia";
-import { cuantas, faltanHoy, type Stage } from "./datosEjemplo";
+import { cuantas, faltanHoy, textoCerrada, type Stage } from "./datosEjemplo";
 
 /**
  * Letrero de madera bajo la aldea: lo que hay dentro de la casa elegida.
@@ -32,7 +32,7 @@ export function DetalleStage({ s, id, etiqueta }: { s: Stage; id: string; etique
           )}
           {cerrada && (
             <span className="pastilla" style={{ ["--pb" as string]: "#ece7f2", ["--pf" as string]: "var(--tinta-suave)" }}>
-              Se abre el {s.abre}
+              {textoCerrada(s)}
             </span>
           )}
           <h2 className="f-titulo mt-1.5 text-[1.5rem] font-semibold leading-tight [text-wrap:balance]">{titulo}</h2>
@@ -40,7 +40,13 @@ export function DetalleStage({ s, id, etiqueta }: { s: Stage; id: string; etique
         </div>
       </div>
 
-      {!cerrada && (
+      {!cerrada && s.n === 6 && s.accion && (
+        <Link href={s.accion.href} className="boton mt-5 w-full !text-[1.2rem]">
+          {s.accion.texto}
+        </Link>
+      )}
+
+      {!cerrada && s.porDia > 0 && (
         <div className="mt-5">
           <p className="mb-3 flex items-center justify-center gap-1.5 text-center text-[0.9rem] font-bold text-[var(--tinta-suave)]">
             <PixelIcon name="clock" size={16} />
@@ -66,7 +72,7 @@ export function DetalleStage({ s, id, etiqueta }: { s: Stage; id: string; etique
 
       {cerrada && (
         <button type="button" className="boton mt-5 w-full" disabled>
-          Se abre el {s.abre} para todos
+          {textoCerrada(s)}
         </button>
       )}
 

@@ -64,3 +64,24 @@ export function avatarAlAzar(azar: () => number = Math.random): ConfigAvatar {
   }
   return out as ConfigAvatar;
 }
+
+/**
+ * Cabeza del AGENTE en el juego de las casas: sale del alias, no del personaje de Snowville.
+ * Si usáramos el avatar que cada uno armó (y que se ve con su nombre en el mundo), cualquiera
+ * reconocería quién es cada agente. Misma entrada → misma cabeza en todos lados.
+ */
+export function avatarDeAlias(alias: string): ConfigAvatar {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < alias.length; i++) {
+    h ^= alias.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  let a = h >>> 0;
+  return avatarAlAzar(() => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  });
+}

@@ -2,10 +2,13 @@ import { ArbolEspera } from "@/components/stages/ArbolEspera";
 import { Guirnalda } from "@/components/stages/Decoracion";
 import { AGENTES, SALA, YO } from "@/components/stages/datosEjemplo";
 import { PixelIcon } from "@/components/ui/PixelIcon";
+import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { cargarCasas } from "../../cargar";
 
 const INSCRITOS = AGENTES.slice(0, 14).concat(AGENTES.slice(0, 14).some((a) => a.yo) ? [] : [YO]);
 
-export default function ArbolDiseno() {
+function ArbolEjemplo() {
   const faltan = SALA.capacidad - INSCRITOS.length;
   return (
     <>
@@ -41,4 +44,19 @@ export default function ArbolDiseno() {
       </main>
     </>
   );
+}
+
+/** Con sesión, el árbol real vive en la pantalla principal (antes del "Empezar"). */
+export default function ArbolPage() {
+  return (
+    <Suspense fallback={null}>
+      <Contenido />
+    </Suspense>
+  );
+}
+
+async function Contenido() {
+  const c = await cargarCasas();
+  if (c.tipo === "real") redirect("/");
+  return <ArbolEjemplo />;
 }

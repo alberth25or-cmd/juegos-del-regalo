@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { PixelIcon } from "@/components/ui/PixelIcon";
+import { api } from "@/lib/cliente/api";
 
 const DATOS = [
   { id: "genero", label: "Género", opciones: ["Hombre", "Mujer", "Prefiero no decir"] },
@@ -14,15 +15,22 @@ const DATOS = [
 type Errores = Record<string, string>;
 
 /**
- * Ficha de inscripción: el pase al árbol. Diseño con validación en el navegador;
- * shortcut: no guarda nada, el Frente 2 la conecta a /api y valida en el servidor.
+ * Ficha de inscripción: el pase al árbol. Valida en el navegador y, con `real`, la guarda en el
+ * servidor (que vuelve a validar). Sin `real` es la vista de ejemplo y no guarda nada.
  */
-export function FichaInscripcion({ alias, presupuesto }: { alias: string; presupuesto: number }) {
-  const [regalos, setRegalos] = useState(["", "", "", ""]);
-  const [datos, setDatos] = useState<Record<string, string>>({});
-  const [rasgo, setRasgo] = useState("");
+export function FichaInscripcion({ alias, presupuesto, real }: { alias: string; presupuesto: number; real?: { inicial: { regalos: string[]; datos: Record<string, string> } | null } }) {
+  const ini = real?.inicial;
+  const [regalos, setRegalos] = useState(() => [0, 1, 2, 3].map((i) => ini?.regalos[i] ?? ""));
+  const [datos, setDatos] = useState<Record<string, string>>(() => {
+    const { rasgo: _r, ...resto } = ini?.datos ?? {};
+    void _r;
+    return resto;
+  });
+  const [rasgo, setRasgo] = useState(ini?.datos.rasgo ?? "");
   const [errores, setErrores] = useState<Errores>({});
   const [lista, setLista] = useState(false);
+  const [enviando, setEnviando] = useState(false);
+  const [errorServidor, setErrorServidor] = useState("");
 
   const validar = (): Errores => {
     const e: Errores = {};
@@ -42,7 +50,7 @@ export function FichaInscripcion({ alias, presupuesto }: { alias: string; presup
         </span>
         <h2 className="f-titulo mt-4 text-[1.8rem] font-semibold">¡Ficha completa!</h2>
         <p className="mt-2 text-[var(--tinta-suave)]">Tu cabeza ya cuelga en el árbol. Ahora toca esperar el &quot;Empezar&quot; del organizador.</p>
-        <Link href="/diseno/arbol" className="boton verde mt-5 w-full">
+        <Link href={real ? "/" : "/diseno/arbol"} className="boton verde mt-5 w-full">
           Ver el árbol
         </Link>
       </div>
@@ -52,19 +60,25 @@ export function FichaInscripcion({ alias, presupuesto }: { alias: string; presup
     <form
       noValidate
       className="mx-auto flex max-w-xl flex-col gap-6"
-      onSubmit={(ev) => {
+      onSubmit={async (ev) => {
         ev.preventDefault();
         const e = validar();
         setErrores(e);
-        if (Object.keys(e).length === 0) setLista(true);
-        else document.getElementById(Object.keys(e)[0])?.focus();
+        if (Object.keys(e).length > 0) return document.getElementById(Object.keys(e)[0])?.focus();
+        if (!real) return setLista(true);
+        setEnviando(true);
+        setErrorServidor("");
+        const r = await api("/api/casas", { body: { accion: "ficha", regalos: regalos.map((x) => x.trim()).filter(Boolean), datos: { ...datos, rasgo: rasgo.trim() } } });
+        setEnviando(false);
+        if (r.ok) setLista(true);
+        else setErrorServidor(r.error);
       }}
     >
       <header className="text-center">
         <p className="text-[0.85rem] font-extrabold uppercase tracking-[0.14em] text-[var(--oro)]">Ficha de {alias}</p>
         <h1 className="f-titulo mt-1 text-[2.2rem] font-semibold leading-tight">Tu pase al árbol</h1>
         <p className="mx-auto mt-2 max-w-[44ch] text-[var(--hielo)]">
-          Lo que escribas aquí <b className="text-white">solo lo verá quien te regale</b>, al final de la temporada.
+          Lo que escribas aquí <b className="text-white">solo lo verá quien te regale</b>. Tus opciones de regalo las ve desde el sorteo, para que le dé tiempo de comprar.
         </p>
       </header>
 
@@ -150,8 +164,13 @@ export function FichaInscripcion({ alias, presupuesto }: { alias: string; presup
         <p className="mb-2 text-center text-[0.9rem] font-bold text-[var(--hielo)]" aria-live="polite">
           {faltan === 0 ? "¡Todo listo!" : `Te ${faltan === 1 ? "falta 1 cosa" : `faltan ${faltan} cosas`}`}
         </p>
-        <button type="submit" className="boton w-full !text-[1.25rem]">
-          Colgarme en el árbol
+        {errorServidor && (
+          <p className="error mb-2 text-center" role="alert">
+            {errorServidor}
+          </p>
+        )}
+        <button type="submit" className="boton w-full !text-[1.25rem]" disabled={enviando}>
+          {enviando ? "Guardando…" : ini ? "Guardar cambios" : "Colgarme en el árbol"}
         </button>
       </div>
     </form>

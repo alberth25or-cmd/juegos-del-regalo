@@ -15,6 +15,8 @@ export interface FilaJugador {
   teamId: string | null;
   /** Saldo de monedas: la única moneda del juego y lo que ordena el ranking. */
   monedas: number;
+  /** Alias anónimo del juego de las casas (null si todavía no tiene). */
+  alias: string | null;
   rank: number;
 }
 
@@ -32,7 +34,7 @@ export interface FilaEquipo {
 
 export async function jugadoresDeTemporada(seasonId: string, soloActivos = true): Promise<FilaJugador[]> {
   const rows = await conTope(() => db()`
-    select p.id, p.username, p.display_name, p.avatar, p.role, p.status, p.team_id, p.created_at,
+    select p.id, p.username, p.display_name, p.avatar, p.role, p.status, p.team_id, p.created_at, p.alias,
            coalesce(t.monedas, 0)::int as monedas
     from cc.players p
     left join cc.v_totals t on t.player_id = p.id
@@ -55,9 +57,24 @@ export async function jugadoresDeTemporada(seasonId: string, soloActivos = true)
       status: r.status,
       teamId: r.team_id,
       monedas: r.monedas,
+      alias: (r.alias as string | null) ?? null,
       rank,
     };
   });
+}
+
+/**
+ * Ranking que viaja al navegador: SOLO alias y monedas. Sin id, usuario, nombre, avatar ni
+ * equipo: con cualquiera de esos datos se podría saber quién es cada agente.
+ */
+export function rankingAnonimo(jugadores: FilaJugador[], yoId: string) {
+  const yo = jugadores.find((j) => j.id === yoId);
+  return {
+    jugadores: jugadores
+      .filter((j) => j.alias)
+      .map((j) => ({ ...j, id: j.alias as string, username: "", displayName: j.alias as string, avatar: {} as FilaJugador["avatar"], teamId: null, role: "player" as const })),
+    yo: yo?.alias ?? "",
+  };
 }
 
 export async function equiposDeTemporada(seasonId: string) {

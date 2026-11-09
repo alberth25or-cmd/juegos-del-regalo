@@ -22,7 +22,7 @@ export function NavDiseno() {
   return (
     <div className="flex items-center gap-2 bg-black/35 py-1.5 pl-3 pr-2">
       <nav aria-label="Pantallas de diseño" className="no-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto text-[0.82rem] font-bold">
-        <span className="mr-2 shrink-0 rounded-full bg-[var(--oro)] px-2.5 py-0.5 text-[0.75rem] font-extrabold text-[var(--tinta)]">Vista de diseño</span>
+        <span className="mr-2 shrink-0 rounded-full bg-[var(--oro)] px-2.5 py-0.5 text-[0.75rem] font-extrabold text-[var(--tinta)]">Christmas Chaos</span>
         {VISTAS.map(([href, txt]) => (
           <Link
             key={href}

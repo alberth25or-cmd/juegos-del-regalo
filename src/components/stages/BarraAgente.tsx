@@ -90,7 +90,7 @@ function Riel({ agentes, stages }: { agentes: Agente[]; stages: Stage[] }) {
               className={`mt-[2px] grid h-[26px] w-[26px] place-items-center rounded-full text-[0.8rem] font-extrabold ${s.n === primeraPendiente ? "latido" : ""}`}
               style={{ background: fondo, color: s.estado === "cerrada" ? "var(--hielo)" : "var(--tinta)", boxShadow: "inset 0 -3px 0 rgb(0 0 0 / 0.15)" }}
             >
-              {s.estado === "aldia" ? "✓" : s.estado === "cerrada" ? <PixelIcon name="chest" size={15} /> : faltanHoy(s)}
+              {s.estado === "cerrada" ? <PixelIcon name={s.n === 6 ? "chest" : "lock"} size={15} /> : s.n === 6 ? <PixelIcon name="chest" size={15} /> : s.estado === "aldia" ? "✓" : faltanHoy(s)}
             </span>
             <span className="mt-1 hidden whitespace-nowrap text-[0.75rem] font-bold text-[var(--hielo)] lg:block">{s.corto}</span>
           </div>

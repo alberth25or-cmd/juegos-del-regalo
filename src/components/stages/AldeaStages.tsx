@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Cabeza } from "./Cabeza";
 import { CasaStage } from "./CasaStage";
 import { DetalleStage } from "./DetalleStage";
-import { cuantas, faltanHoy, type Agente, type Stage } from "./datosEjemplo";
+import { cuantas, faltanHoy, textoCerrada, type Agente, type Stage } from "./datosEjemplo";
 
 /*
  * Geometría en "unidades de casa": una casa mide 100 × 110, cada columna 115 de ancho y las
@@ -121,7 +121,7 @@ export function AldeaStages({ stages, titulo, subtitulo, yo }: { stages: Stage[]
                     <span className="casa-nombre">
                       <span className="f-titulo">{s.n === 6 ? "★" : s.n}</span> {s.corto}
                     </span>
-                    <span className="casa-nota">{s.estado === "cerrada" ? s.abre : s.estado === "nuevas" ? `${faltanHoy(s)} nueva${faltanHoy(s) === 1 ? "" : "s"}` : "✓ Al día"}</span>
+                    <span className="casa-nota">{s.estado === "cerrada" ? s.abre : s.n === 6 ? "Ver ficha" : s.porDia === 0 ? "—" : s.estado === "nuevas" ? `${faltanHoy(s)} nueva${faltanHoy(s) === 1 ? "" : "s"}` : "✓ Al día"}</span>
                   </button>
                   {i === iActual && (
                     <span className="aldea-tu" aria-hidden>
@@ -143,7 +143,8 @@ export function AldeaStages({ stages, titulo, subtitulo, yo }: { stages: Stage[]
 }
 
 function nota(s: Stage) {
-  if (s.estado === "cerrada") return `Se abre el ${s.abre}`;
+  if (s.estado === "cerrada") return textoCerrada(s);
+  if (s.n === 6) return "Ver la ficha de tu amigo secreto";
   if (s.estado === "aldia") return "Al día: mañana salen más";
   return `Hoy: ${cuantas(faltanHoy(s), s.unidad)}`;
 }

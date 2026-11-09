@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { avatarDeAlias } from "@/features/avatar";
 import { Avatar } from "@/components/rpg/PixelSprite";
 import { api } from "@/lib/cliente/api";
 import type { FilaEquipo, FilaJugador } from "@/lib/server/consultas";
@@ -39,7 +40,6 @@ export function Ranking({ inicial }: { inicial: Datos }) {
     };
   }, []);
 
-  const equipoDe = new Map(d.equipos.map((e) => [e.id, e]));
 
   return (
     <div className="flex flex-col gap-3">
@@ -68,21 +68,20 @@ export function Ranking({ inicial }: { inicial: Datos }) {
         ) : (
           <ol className="flex flex-col gap-2">
             {d.jugadores.map((j) => {
-              const eq = j.teamId ? equipoDe.get(j.teamId) : undefined;
               const soyYo = j.id === d.yo;
               return (
                 <li key={j.id} className="px-box flex items-center gap-2 px-2 py-1.5" style={{ ["--bg" as string]: soyYo ? "var(--cream-2)" : "#fff", margin: "2px 0" }}>
                   <span className="w-8 text-center font-pixel text-lg">{MEDALLA[j.rank - 1] ?? j.rank}</span>
                   <span className="flex h-10 w-9 shrink-0 items-end justify-center bg-[var(--sky)]">
-                    <Avatar config={j.avatar} size={28} />
+                    <Avatar config={avatarDeAlias(j.alias ?? j.id)} size={28} />
                   </span>
                   <span className="min-w-0 flex-1 leading-tight">
                     <span className="block truncate font-pixel">
-                      {j.displayName}
+                      {j.alias ?? "Agente sin alias"}
                       {soyYo ? " (tú)" : ""}
                     </span>
                     <span className="block truncate text-[0.72rem] text-[var(--ink-soft)]">
-                      {eq ? `${eq.emblem} ${eq.name}` : "sin equipo"}
+                      {"Anónimo: las monedas solo se ven con alias"}
                     </span>
                   </span>
                   <span className="font-pixel text-lg tabular-nums">🪙 {j.monedas}</span>

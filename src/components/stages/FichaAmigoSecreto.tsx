@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { PixelIcon, type IconName } from "@/components/ui/PixelIcon";
 import { masPicantes, precio, puedePagar, SOBRES_GRATIS_POR_DIA, type CasaConRespuestas, type RespuestaFicha } from "@/features/stages/ficha";
+import { api } from "@/lib/cliente/api";
+import type { FichaAmigo } from "@/lib/server/casas";
 import { Cabeza } from "./Cabeza";
 
 export interface DatosFicha {
@@ -11,7 +13,7 @@ export interface DatosFicha {
   regalos: string[];
   datos: { label: string; valor: string }[];
   /** Todo lo que tu amigo secreto respondió hasta hoy, en orden. */
-  respuestas: RespuestaFicha[];
+  respuestas: (RespuestaFicha & { abierta?: boolean; estado?: string })[];
   /** Sobres que ya abriste antes de hoy (gratis o pagando). */
   abiertas: string[];
 }
@@ -30,20 +32,48 @@ const CASAS: { n: CasaConRespuestas; titulo: string; icono: IconName }[] = [
  *  - La ficha final destaca "lo más picante" (más picor y más raro) para todos.
  * shortcut: vista de diseño; en el juego real el servidor nunca manda una respuesta cerrada.
  */
-export function FichaAmigoSecreto({ f, saldoInicial, dia }: { f: DatosFicha; saldoInicial: number; dia: number }) {
-  const [vista, setVista] = useState<"temporada" | "final">("temporada");
-  const [abiertas, setAbiertas] = useState(() => new Set(f.abiertas));
+export interface FichaReal {
+  final: boolean;
+  gratisHoy: number;
+  destacadas: string[];
+  juegaPicante: boolean | null;
+}
+
+export function FichaAmigoSecreto({ f: inicial, saldoInicial, dia, real }: { f: DatosFicha; saldoInicial: number; dia: number; real?: FichaReal }) {
+  const [f, setF] = useState(inicial);
+  const [r2, setR2] = useState(real);
+  const [vista, setVista] = useState<"temporada" | "final">(real?.final ? "final" : "temporada");
+  const [abiertas, setAbiertas] = useState(() => new Set(real ? inicial.respuestas.filter((r) => r.abierta).map((r) => r.id) : inicial.abiertas));
   const [saldo, setSaldo] = useState(saldoInicial);
-  const [gratis, setGratis] = useState(SOBRES_GRATIS_POR_DIA);
+  const [gratis, setGratis] = useState(real ? real.gratisHoy : SOBRES_GRATIS_POR_DIA);
   const [confirmar, setConfirmar] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [ocupado, setOcupado] = useState(false);
 
   const final = vista === "final";
-  const destacadas = masPicantes(f.respuestas);
-  const abierta = (r: RespuestaFicha) => r.respuesta === null || abiertas.has(r.id) || (final && destacadas.includes(r));
+  const idsDestacadas = r2 ? r2.destacadas : masPicantes(f.respuestas).map((r) => r.id);
+  const destacadas = idsDestacadas.map((id) => f.respuestas.find((r) => r.id === id)).filter((r): r is DatosFicha["respuestas"][number] => !!r);
+  const abierta = (r: RespuestaFicha) => r.respuesta === null || abiertas.has(r.id) || (final && idsDestacadas.includes(r.id));
   const cerradas = f.respuestas.filter((r) => !abierta(r)).length;
   const pasadas = f.respuestas.filter((r) => r.respuesta === null).length;
 
-  const abrir = (r: RespuestaFicha, pagando: boolean) => {
+  const abrir = async (r: RespuestaFicha, pagando: boolean) => {
+    if (r2) {
+      // Juego real: el servidor decide si es gratis o cuánto cuesta, y devuelve la ficha nueva.
+      setOcupado(true);
+      setError("");
+      const res = await api<{ ficha: FichaAmigo }>("/api/casas/amigo", { body: { respuesta: r.id } });
+      setOcupado(false);
+      setConfirmar(null);
+      if (!res.ok) return setError(res.error);
+      const n = res.ficha;
+      setF({ ...f, respuestas: n.respuestas, regalos: n.regalos, datos: n.datos });
+      setAbiertas(new Set(n.respuestas.filter((x) => x.abierta).map((x) => x.id)));
+      setSaldo(n.monedas);
+      setGratis(n.gratisHoy);
+      setR2({ final: n.final, gratisHoy: n.gratisHoy, destacadas: n.destacadas, juegaPicante: n.juegaPicante });
+      return;
+    }
     if (pagando) {
       if (!puedePagar(saldo, r)) return;
       setSaldo((s) => s - precio(r));
@@ -54,6 +84,7 @@ export function FichaAmigoSecreto({ f, saldoInicial, dia }: { f: DatosFicha; sal
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4">
+      {!r2 && (
       <div className="clay flex gap-1 !rounded-[16px] p-1" role="tablist" aria-label="Momento de la ficha">
         {(
           [
@@ -74,6 +105,7 @@ export function FichaAmigoSecreto({ f, saldoInicial, dia }: { f: DatosFicha; sal
           </button>
         ))}
       </div>
+      )}
 
       <article className="clay relative overflow-hidden">
         {/* Cabecera tipo sobre: papel rojo con lunares y sello */}
@@ -152,6 +184,12 @@ export function FichaAmigoSecreto({ f, saldoInicial, dia }: { f: DatosFicha; sal
 
           {CASAS.map((c) => {
             const items = f.respuestas.filter((r) => r.casa === c.n);
+            if (c.n === 4 && r2?.juegaPicante === false)
+              return (
+                <Seccion key={c.n} icono={c.icono} titulo={c.titulo}>
+                  <p className="rounded-[16px] bg-[#f3eef7] px-3.5 py-2.5 font-bold text-[var(--tinta-suave)]">No juega Picante.</p>
+                </Seccion>
+              );
             if (!items.length) return null;
             return (
               <Seccion key={c.n} icono={c.icono} titulo={c.titulo}>
@@ -161,13 +199,13 @@ export function FichaAmigoSecreto({ f, saldoInicial, dia }: { f: DatosFicha; sal
                       key={r.id}
                       r={r}
                       abierta={abierta(r)}
-                      destacada={final && destacadas.includes(r)}
+                      destacada={final && idsDestacadas.includes(r.id)}
                       gratis={gratis > 0}
                       saldo={saldo}
                       confirmando={confirmar === r.id}
                       onPedir={() => setConfirmar(r.id)}
                       onCancelar={() => setConfirmar(null)}
-                      onAbrir={(pagando) => abrir(r, pagando)}
+                      onAbrir={(pagando) => void abrir(r, pagando)}
                     />
                   ))}
                 </ul>
@@ -175,6 +213,12 @@ export function FichaAmigoSecreto({ f, saldoInicial, dia }: { f: DatosFicha; sal
             );
           })}
 
+          {error && (
+            <p className="error text-center" role="alert">
+              {error}
+            </p>
+          )}
+          {ocupado && <p className="text-center text-[0.9rem] font-bold text-[var(--tinta-suave)]">Abriendo el sobre…</p>}
           <p className="rounded-[16px] bg-[#fff1d6] px-4 py-3 text-center text-[0.95rem] font-semibold text-[var(--tinta)]">
             {final ? "Puedes seguir abriendo sobres hasta el intercambio. " : ""}Privada y confidencial. Guárdala para describir y reír el día del intercambio.
           </p>
@@ -212,7 +256,7 @@ function Sobre({
       <p className="text-[0.9rem] text-[var(--tinta-suave)]">{r.pregunta}</p>
       {abierta ? (
         r.respuesta === null ? (
-          <p className="mt-0.5 text-[0.95rem] font-extrabold italic text-[var(--tinta-suave)]">Pasó</p>
+          <p className="mt-0.5 text-[0.95rem] font-extrabold italic text-[var(--tinta-suave)]">{(r as { estado?: string }).estado === "vencida" ? "No respondió a tiempo" : "Pasó"}</p>
         ) : (
           <p className="f-titulo mt-0.5 flex flex-wrap items-center gap-2 text-[1.2rem] font-semibold text-[var(--rojo-boton)]">
             {r.respuesta}

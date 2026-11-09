@@ -14,7 +14,8 @@
     "hf:ejemplo": "node --experimental-strip-types --no-warnings scripts/higgsfield/seedance-ejemplo.ts",
     "hf:arte": "node --experimental-strip-types --no-warnings scripts/higgsfield/generar-arte.ts",
     "sim:prueba": "node --experimental-strip-types --no-warnings scripts/sim-prueba.mjs",
-    "sim:juegos": "node --experimental-strip-types --no-warnings scripts/sim-juegos.mjs"
+    "sim:juegos": "node --experimental-strip-types --no-warnings scripts/sim-juegos.mjs",
+    "sim:casas": "node --experimental-strip-types --no-warnings scripts/sim-casas.mjs"
   },
   "dependencies": {
     "@supabase/realtime-js": "2.118.0",

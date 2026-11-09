@@ -470,9 +470,6 @@ export function Mundo({ jugador, realtime, salaInicial }: { jugador: JugadorMund
                     {hoja.perfil === null && <p className="px-hint">No se pudo cargar su perfil.</p>}
                     {hoja.perfil && (
                       <div className="mt-1 flex flex-wrap gap-1 text-[0.75rem]">
-                        <span className="px-chip" style={{ ["--chip" as string]: "var(--gold)" }}>
-                          🪙 {hoja.perfil.monedas}
-                        </span>
                         {hoja.perfil.equipo ? (
                           <span className="px-chip" style={{ ["--chip" as string]: hoja.perfil.equipo.color, color: "#fff" }}>
                             {hoja.perfil.equipo.emblema} {hoja.perfil.equipo.nombre}

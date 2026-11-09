@@ -11,10 +11,10 @@ de las otras carpetas de plugins del espacio de trabajo (`ui-ux-pro-max-skill/`,
 |---|---|---|---|
 | 0 | **Ideas, decisiones y estilo** ✅ | Diseño, decisiones y bocetos (esta sesión) | — |
 | 1 | **Diseño de interfaz** ✅ | Hecho en `/diseno` con datos de ejemplo; tokens y reglas en `design-system/los-juegos-del-regalo/MASTER.md`. Sistema visual y pantallas en celular y computadora: árbol de espera, barra superior (cabezas + ranking), carrusel de stages (opción B), ficha de inscripción, ficha del amigo secreto, panel del organizador. Partir de `docs/superpowers/bocetos/` | 0 |
-| 2 | **Inscripción y árbol** | Enlace → registro con alias al azar → ficha obligatoria → árbol con capacidad → "Empezar" (sorteo secreto + puerta cerrada) | 1 |
-| 3 | **Motor de casas y ranking** | Todas las casas abiertas desde el "Empezar" y preguntas nuevas cada día por casa (vencen 23:59; ver decisión del 9 nov), penalidades, ranking individual siempre visible; se retiran los equipos y queda una sola moneda (monedas: ranking y fisgoneo) | 2 |
-| 4 | **Contenido de stages** | S1 con los minijuegos existentes, S2 La manada, S3 Amor, S4 Picante (con "Paso" y consentimiento), S5 Juicio final | 3 |
-| 5 | **Ficha final y panel del organizador** | Ficha privada del amigo secreto; configuración solo para el creador; panel que nunca revela sorteo, alias ni respuestas | 3 |
+| 2 | **Inscripción y árbol** ✅ | Enlace → registro con alias al azar → ficha obligatoria → árbol con capacidad → "Empezar" (sorteo secreto + puerta cerrada) | 1 |
+| 3 | **Motor de casas y ranking** ✅ | Todas las casas abiertas desde el "Empezar" y preguntas nuevas cada día por casa (vencen 23:59; ver decisión del 9 nov), penalidades, ranking individual siempre visible; se retiran los equipos y queda una sola moneda (monedas: ranking y fisgoneo) | 2 |
+| 4 | **Contenido de stages** (✅ salvo Juicio final) | S1 con los minijuegos existentes, S2 La manada, S3 Amor, S4 Picante (con "Paso" y consentimiento), S5 Juicio final | 3 |
+| 5 | **Ficha final y panel del organizador** ✅ | Ficha privada del amigo secreto; configuración solo para el creador; panel que nunca revela sorteo, alias ni respuestas | 3 |
 
 Antes del frente 2 hay que cerrar las preguntas abiertas del §12 del diseño, sobre todo si las
 opciones de regalo se ven antes del 20 dic.

@@ -23,6 +23,8 @@ function texto(n: NoticiaVista) {
       const juego = { memory: "Memory Gifts", trivia: "el Juicio del Polo Norte" }[String(n.payload.juego ?? "")] ?? "Gift Catcher";
       return { e: "🏆", t: `${nombre} rompió su récord en ${juego}: ${String(n.payload.puntaje ?? "")} pts.` };
     }
+    case "casas_abiertas":
+      return { e: "🏘️", t: `¡Empezó el juego! ${String(n.payload.agentes ?? "")} agentes, sorteo hecho y todas las casas abiertas.` };
     case "energia_hito":
       return { e: "🎄", t: `${String(n.payload.hito ?? "")} % de energía: ${String(n.payload.mensaje ?? "")}` };
     default:

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { Ranking } from "@/components/ranking/Ranking";
 import { Aviso, Cargando, Pantalla } from "@/components/ui/Pantalla";
-import { equiposDeTemporada, jugadoresDeTemporada, rankingEquipos } from "@/lib/server/consultas";
+import { equiposDeTemporada, jugadoresDeTemporada, rankingAnonimo, rankingEquipos } from "@/lib/server/consultas";
 import { hasDatabase } from "@/lib/server/db";
 import { jugadorActual } from "@/lib/server/sesion";
 
@@ -33,5 +33,5 @@ async function Contenido() {
     );
   }
   const [jugadores, equipos] = await Promise.all([jugadoresDeTemporada(yo.seasonId), equiposDeTemporada(yo.seasonId)]);
-  return <Ranking inicial={{ jugadores, equipos: rankingEquipos(equipos, jugadores), yo: yo.id }} />;
+  return <Ranking inicial={{ ...rankingAnonimo(jugadores, yo.id), equipos: rankingEquipos(equipos, jugadores) }} />;
 }

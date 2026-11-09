@@ -71,8 +71,10 @@ const [c1, c2] = [await cerrar(p1), await cerrar(p2)];
 check(c1.resultado?.valida && c2.resultado?.valida, "ambas partidas válidas");
 check(c1.resultado.monedas === monedasDelDia(c1.resultado.puntaje) && c2.resultado.monedas === monedasDelDia(c2.resultado.puntaje), "en prueba cada partida suma sus monedas (sin tope diario)");
 check(c1.resultado.pretemporada === false, "en prueba no hay pretemporada");
+// El ranking solo muestra alias (el alias se asigna al abrir las casas).
+const alias = (await j.pedir("/api/casas")).estado?.yo.alias;
 const rk = await j.pedir("/api/ranking");
-const mio = rk.jugadores.find((x) => x.id === yo.id);
+const mio = rk.jugadores.find((x) => x.id === alias);
 check(mio.monedas === c1.resultado.monedas + c2.resultado.monedas, `el ranking suma las dos (${mio.monedas} monedas)`);
 
 console.log(fallos.length ? `\n✗ ${fallos.length} fallo(s):\n- ${fallos.join("\n- ")}` : "\n✓ Todo OK");

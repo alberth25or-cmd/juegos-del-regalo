@@ -105,17 +105,18 @@ export async function temporadaPorInvitacion(codigo: string) {
   const c = normalizeInviteCode(codigo);
   if (c.length < 6) return null;
   const [s] = await conTope(db()`
-    select s.id, s.name, s.status, s.starts_at, s.ends_at,
+    select s.id, s.name, s.status, s.starts_at, s.ends_at, (s.settings ? 'casas') as cerrada,
            (select count(*)::int from cc.players p where p.season_id = s.id and p.status = 'active') as activos
     from cc.seasons s where s.invite_code = ${c}
   `);
-  return s ? { id: s.id as string, name: s.name as string, status: s.status as string, activos: s.activos as number, codigo: c } : null;
+  return s ? { id: s.id as string, name: s.name as string, status: s.status as string, activos: s.activos as number, codigo: c, cerrada: s.cerrada === true } : null;
 }
 
 export async function unirse(input: { codigo: string; jugador: DatosJugador }) {
   const s = await temporadaPorInvitacion(input.codigo);
   if (!s) throw new ErrorDeUsuario("Esta invitación no existe. Pídele el enlace al organizador.", 404);
   if (s.status === "completed") throw new ErrorDeUsuario("Esta temporada ya terminó.");
+  if (s.cerrada) throw new ErrorDeUsuario("El juego ya empezó y la puerta se cerró: ya no entran agentes nuevos.");
   const j = validarDatosJugador(input.jugador);
   const pinHash = await hashPin(j.pin);
   const sql = db();

@@ -1,5 +1,25 @@
 # Decisiones del proyecto
 
+## El juego de las casas ya es real (2026-11-09, pedido de Luis: "que ya sea para poder jugar")
+
+Conectado a la base de datos (migración `006_casas.sql`, servidor en `src/lib/server/casas.ts`,
+reglas puras en `src/features/casas/reglas.ts`, preguntas en `src/features/contenido/casas.ts`):
+- **Ficha → árbol → "Empezar"** (en `/diseno/organizador`, solo el organizador): alias para todos,
+  sorteo secreto entre quienes tienen ficha, se cierra la puerta y se abren las casas. Si la temporada
+  aún no empezaba, **empieza ese día** (así también cuentan las monedas de los minijuegos).
+- **Preguntas del día** por casa, en orden propio de cada temporada: La manada 30 días, Amor y Picante
+  25 días con 2 por día; después se repiten (hay que agregar más al banco si la temporada es más larga).
+- **Cobro perezoso:** vencidas y el +15 de La manada se liquidan la próxima vez que el jugador entra,
+  con claves de idempotencia (nunca se cobra dos veces). El saldo puede quedar negativo.
+- **Juicio final**: "Próximamente" (falta definir su contenido).
+- **Anonimato** (llamadas mías): la cabeza del agente sale del alias, no del personaje de Snowville
+  (si no, cualquiera lo reconocería). Las monedas solo se muestran junto a alias: el ranking de
+  Snowville pasó a alias, y se quitaron las monedas del perfil público y del panel /admin. El ranking
+  que llega al navegador no trae id, usuario, nombre, avatar ni equipo.
+- Sin sesión, `/` muestra la vista de ejemplo con un aviso para entrar.
+
+---
+
 ## La aldea de casas es la pantalla principal (2026-11-09, pedido de Luis)
 
 - `https://juegos-del-regalo.vercel.app/` muestra la aldea de casas (antes en `/diseno`). Las demás

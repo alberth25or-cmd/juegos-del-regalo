@@ -160,16 +160,18 @@ check(r.resultado?.valida === false, "partida terminada en segundos se rechaza")
 r = await nuevos[2].pedir(`/api/partidas/${envios[3].id}`, envios[3].body);
 check(r.status === 404, "no se puede cerrar la partida de otro");
 
-// 7) Ranking
+// 7) Ranking (anónimo: solo alias y monedas; el alias se asigna al abrir las casas)
+const alias = await Promise.all(nuevos.map((c) => c.pedir("/api/casas").then((x) => x.estado?.yo.alias)));
 const rk = await nuevos[0].pedir("/api/ranking");
+check(rk.jugadores.every((j) => !j.username && /^Agente /.test(j.displayName) && !j.teamId), "el ranking no revela quién es quién");
 check(rk.jugadores?.length === N, `ranking con ${N} jugadores (${rk.jugadores?.length})`);
 const suma = rk.equipos.reduce((a, e) => a + e.integrantes, 0);
 const tam = rk.equipos.map((e) => e.integrantes);
 check(suma === N && Math.max(...tam) - Math.min(...tam) <= 1, `4 equipos parejos (${tam.join("/")})`);
 const e0 = rk.equipos[0];
-const miembros = rk.jugadores.filter((j) => j.teamId === e0.id);
-check(Math.abs(e0.promedio - miembros.reduce((a, j) => a + j.monedas, 0) / miembros.length) < 0.06, "el ranking de equipos usa el promedio");
-const tramposo = rk.jugadores.find((j) => j.displayName === "Jugador 5");
+check(Math.abs(e0.promedio - e0.total / e0.integrantes) < 0.06, "el ranking de equipos usa el promedio");
+const iTramposo = todos.findIndex((c) => c.nombre === "j4"); // displayName "Jugador 5"
+const tramposo = rk.jugadores.find((j) => j.id === alias[iTramposo]);
 check(tramposo && tramposo.monedas === 0, "el tramposo no sumó monedas");
 
 // 8) 60 lecturas simultáneas de la plaza/ranking
@@ -178,7 +180,7 @@ const lecturas = await Promise.all(Array.from({ length: N * 3 }, (_, k) => nuevo
 check(lecturas.every((l) => l.ok), `${N * 3} lecturas simultáneas en ${Math.round(performance.now() - t0)} ms`);
 
 // 9) El ledger no se puede editar ni con un ajuste raro
-r = await admin.pedir("/api/admin", { accion: "ajustar", playerId: rk.jugadores[0].id, puntos: 9999, motivo: "prueba" });
+r = await admin.pedir("/api/admin", { accion: "ajustar", playerId: (await nuevos[0].pedir("/api/yo")).yo.id, puntos: 9999, motivo: "prueba" });
 check(r.status === 400, "ajustes fuera de rango se rechazan");
 
 tiempos.sort((a, b) => a - b);

@@ -128,6 +128,9 @@ export const STAGES: Stage[] = [
   },
 ];
 
+/** Texto de una casa cerrada: "Se abre el 20 dic" o el aviso tal cual ("Próximamente"). */
+export const textoCerrada = (s: Stage) => (s.abre && /\d/.test(s.abre) ? `Se abre el ${s.abre}` : (s.abre ?? "Cerrada"));
+
 /** Pendientes de hoy en una casa. */
 export const faltanHoy = (s: Stage) => Math.max(0, s.porDia - s.hechasHoy);
 

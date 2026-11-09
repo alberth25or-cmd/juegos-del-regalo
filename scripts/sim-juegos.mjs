@@ -73,8 +73,9 @@ check((await jugadores[0].pedir("/api/votacion", { clave, objetivo: ids[2] })).s
 r = await jugadores[3].pedir("/api/votacion", { clave, objetivo: ids[1] });
 check(r.ok && r.estado.resultado && r.estado.resultado.conteo[0].id === ids[3] && r.estado.resultado.conteo[0].votos === 3, "con todos los votos se revela: el más votado tiene 3");
 check(typeof r.estado.resultado?.comentario === "string" && !/\{n\}/.test(r.estado.resultado.comentario), "comentario del Auditor listo");
+const aliasAdmin = (await admin.pedir("/api/casas")).estado?.yo.alias;
 const rk = await admin.pedir("/api/ranking");
-const fila = rk.jugadores.find((x) => x.id === ids[0]);
+const fila = rk.jugadores.find((x) => x.id === aliasAdmin);
 check(fila && fila.monedas >= 10, "votar dio monedas");
 
 // ------------------------------------------------------------- trivia

@@ -1,0 +1,131 @@
+/**
+ * Reglas puras del juego de las casas (sin base de datos; las usa el servidor y los tests).
+ */
+import { crearAzar, mezclar } from "../azar.ts";
+import { PLATOS, PREGUNTAS_AMOR, PREGUNTAS_MANADA, PREGUNTAS_PICANTE, type PreguntaAbierta, type PreguntaManada } from "../contenido/casas.ts";
+
+/** Semilla estable a partir de un texto (FNV-1a). */
+export function semilla(texto: string) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < texto.length; i++) {
+    h ^= texto.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
+const orden = <T>(lista: readonly T[], seasonId: string, casa: string) => mezclar(lista, crearAzar(semilla(`${seasonId}:${casa}`)));
+
+export interface PreguntasDelDia {
+  manada: PreguntaManada;
+  amor: PreguntaAbierta[];
+  picante: PreguntaAbierta[];
+}
+
+/**
+ * Preguntas nuevas del día `dia` (1..N) para una temporada. Cada temporada tiene su propio
+ * orden (mezcla con semilla) y el día elige la siguiente tanda: así nadie ve repetidas
+ * mientras alcance el banco (30 días de La manada, 25 de Amor y de Picante con 2 por día).
+ */
+export function preguntasDelDia(seasonId: string, dia: number): PreguntasDelDia {
+  const d = Math.max(1, Math.floor(dia)) - 1;
+  const m = orden(PREGUNTAS_MANADA, seasonId, "manada");
+  const a = orden(PREGUNTAS_AMOR, seasonId, "amor");
+  const p = orden(PREGUNTAS_PICANTE, seasonId, "picante");
+  const par = <T>(l: T[]) => [l[(d * 2) % l.length], l[(d * 2 + 1) % l.length]];
+  return { manada: m[d % m.length], amor: par(a), picante: par(p) };
+}
+
+/** Sorteo: cada uno le regala al siguiente de una ronda mezclada (nadie se regala a sí mismo). */
+export function sortear(ids: readonly string[], azar: () => number): { giver: string; receiver: string }[] {
+  if (ids.length < 2) return [];
+  const ronda = mezclar(ids, azar);
+  return ronda.map((giver, i) => ({ giver, receiver: ronda[(i + 1) % ronda.length] }));
+}
+
+/** Alias libre al azar ("Agente <plato>"); si se acaban los platos, agrega un número. */
+export function aliasLibre(usados: ReadonlySet<string>, azar: () => number) {
+  const libres = PLATOS.map((p) => `Agente ${p}`).filter((a) => !usados.has(a));
+  if (libres.length) return libres[Math.floor(azar() * libres.length)];
+  for (let n = 2; ; n++) {
+    const a = `Agente ${PLATOS[Math.floor(azar() * PLATOS.length)]} ${n}`;
+    if (!usados.has(a)) return a;
+  }
+}
+
+// ------------------------------------------------------------------ ficha de inscripción
+
+export const DATOS_FICHA = [
+  { id: "genero", label: "Género", opciones: ["Hombre", "Mujer", "Prefiero no decir"] },
+  { id: "lentes", label: "¿Usas lentes?", opciones: ["Sí", "No"] },
+  { id: "estatura", label: "Estatura", opciones: ["Alto", "Medio", "Bajo"] },
+  { id: "cabello", label: "Cabello", opciones: ["Corto", "Largo", "Sin cabello"] },
+] as const;
+
+export interface Ficha {
+  regalos: string[];
+  datos: Record<string, string>;
+}
+
+const limpio = (v: unknown, max: number) => (typeof v === "string" ? v.trim().replace(/\s+/g, " ").slice(0, max) : "");
+
+/** Valida la ficha que manda el navegador. 3 o 4 regalos, los 4 datos y un rasgo opcional. */
+export function validarFicha(regalosIn: unknown, datosIn: unknown): { ok: true; ficha: Ficha } | { ok: false; error: string } {
+  const regalos = (Array.isArray(regalosIn) ? regalosIn : []).map((r) => limpio(r, 60)).filter(Boolean);
+  if (regalos.length < 3 || regalos.length > 4) return { ok: false, error: "Escribe 3 o 4 opciones de regalo." };
+  if (regalos.some((r) => r.length < 3)) return { ok: false, error: "Cada opción de regalo necesita al menos 3 letras." };
+  const d = datosIn && typeof datosIn === "object" ? (datosIn as Record<string, unknown>) : {};
+  const datos: Record<string, string> = {};
+  for (const campo of DATOS_FICHA) {
+    const v = limpio(d[campo.id], 30);
+    if (!(campo.opciones as readonly string[]).includes(v)) return { ok: false, error: `Elige una opción en "${campo.label}".` };
+    datos[campo.id] = v;
+  }
+  const rasgo = limpio(d.rasgo, 60);
+  if (rasgo) datos.rasgo = rasgo;
+  return { ok: true, ficha: { regalos, datos } };
+}
+
+// ------------------------------------------------------------------ respuestas
+
+/** Valida una respuesta según la casa. Devuelve el texto a guardar o un error. */
+export function validarRespuesta(casa: 2 | 3 | 4, valor: unknown, opciones?: readonly string[]): { ok: true; texto: string } | { ok: false; error: string } {
+  if (casa === 2) {
+    const i = typeof valor === "number" ? valor : Number.NaN;
+    if (!Number.isInteger(i) || !opciones || i < 0 || i >= opciones.length) return { ok: false, error: "Elige una de las opciones." };
+    return { ok: true, texto: String(i) };
+  }
+  if (casa === 4) {
+    if (valor !== "Sí" && valor !== "No") return { ok: false, error: "Responde Sí o No." };
+    return { ok: true, texto: valor };
+  }
+  const t = limpio(valor, 40);
+  if (t.length < 1) return { ok: false, error: "Escribe una respuesta corta." };
+  return { ok: true, texto: t };
+}
+
+/** Para comparar respuestas de texto ("3", " tres "): minúsculas, sin tildes ni espacios extra. */
+export function normalizar(t: string) {
+  return t
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9ñ ]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Opciones ganadoras de La manada (todas las empatadas en el máximo). */
+export function mayoria(respuestas: readonly string[]): Set<string> {
+  const c = new Map<string, number>();
+  for (const r of respuestas) c.set(r, (c.get(r) ?? 0) + 1);
+  const max = Math.max(0, ...c.values());
+  return new Set([...c].filter(([, n]) => n === max && max > 0).map(([r]) => r));
+}
+
+/** Qué parte del grupo dio la misma respuesta que `mia` (0..1). */
+export function igualQue(mia: string, todas: readonly string[]) {
+  if (!todas.length) return 0.5;
+  const m = normalizar(mia);
+  return todas.filter((t) => normalizar(t) === m).length / todas.length;
+}
