@@ -80,6 +80,19 @@ async function Aldea() {
     <>
       <BarraAgente yo={yo} puesto={e.yo.puesto} agentes={agentesReales(e)} stages={stages} />
       <main>
+        {e.capsula.abierta && e.capsula.recibida && (
+          <Link href="/diseno/capsula" className="clay relative z-[2] mx-auto mt-3 flex max-w-[560px] items-center gap-3 !rounded-[18px] px-4 py-3 font-bold">
+            <span className="text-[1.6rem]" aria-hidden>
+              💌
+            </span>
+            Tu amigo secreto te dejó un mensaje en la cápsula del tiempo. ¡Ábrelo!
+          </Link>
+        )}
+        {!e.capsula.abierta && e.yo.tieneAmigo && !e.capsula.escrita && (
+          <Link href="/diseno/capsula" className="relative z-[2] mx-auto mt-3 flex max-w-[560px] items-center gap-2 px-4 text-[0.9rem] font-bold text-[var(--hielo)] underline">
+            💌 Déjale un mensaje a tu amigo secreto en la cápsula del tiempo (se abre el día {e.capsula.abreDia})
+          </Link>
+        )}
         <AvisoFisgoneo veces={e.fisgoneosHoy} />
         <AldeaStages
           stages={stages}

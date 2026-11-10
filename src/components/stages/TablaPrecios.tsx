@@ -23,7 +23,7 @@ export function TablaPrecios() {
     ["La manada", `${GANANCIAS.manadaResponder} + ${GANANCIAS.manadaCoincidir} si coincides`],
     ["Amor", `${GANANCIAS.amor} por pregunta · ${POR_DIA[3]} al día`],
     ["Picante", `${GANANCIAS.picante} por pregunta · ${POR_DIA[4]} al día`],
-    ["Juicio final", `${GANANCIAS.juicio} por reto`],
+    ["Juicio final", `${GANANCIAS.juicioResponder} + ${GANANCIAS.juicioCoincidir} si coincides con el jurado`],
     ["Votar en el Tablón", `${GANANCIAS.voto}`],
     ["Bono: al día en todas las casas", `${GANANCIAS.bonoAlDia}`],
   ];

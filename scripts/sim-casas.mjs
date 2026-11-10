@@ -119,6 +119,24 @@ antes = (await js[2].estado()).yo.monedas;
 r = await js[2].pedir("/api/casas", { accion: "pasar", pregunta: es[2].amor[1].id });
 check(r.ok && r.estado.yo.monedas === antes - 40 && r.estado.pases[3] === 1, "pasar en Amor cuesta 40 y gasta 1 pase");
 
+console.log("\n— Juicio final");
+const caso = es[0].juicio;
+check(caso && es.every((x) => x.juicio?.id === caso.id), "todos tienen el mismo caso del día");
+check((await js[0].pedir("/api/casas", { accion: "responder", pregunta: caso.id, valor: "Tal vez" })).status === 400, "el Juicio solo acepta Culpable o Inocente");
+check((await js[0].pedir("/api/casas", { accion: "pasar", pregunta: caso.id })).status === 409, "el Juicio no tiene Paso");
+for (let i = 0; i < 4; i++) {
+  r = await js[i].pedir("/api/casas", { accion: "responder", pregunta: caso.id, valor: i < 3 ? "Culpable" : "Inocente" });
+  check(r.ok && r.estado.juicio.estado === "respondida", `agente ${i} da su veredicto`);
+}
+
+console.log("\n— Cápsula del tiempo");
+check((await js[0].pedir("/api/casas", { accion: "capsula", mensaje: "llámame al 987654321" })).status === 400, "la cápsula no acepta teléfonos");
+r = await js[0].pedir("/api/casas", { accion: "capsula", mensaje: "Feliz Navidad, agente. Te conozco mejor de lo que crees." });
+check(r.ok, "agente 0 deja su mensaje");
+const recibe0 = es.findIndex((x) => x.yo.alias === amigos[0].alias);
+let cap = (await js[recibe0].pedir("/api/casas/capsula")).capsula;
+check(cap && cap.abierta === false && cap.recibido === null, "el mensaje no se lee antes del último día");
+
 console.log("\n— Fisgonear");
 let f = (await js[3].pedir("/api/casas/amigo")).ficha;
 const cerrados = f.respuestas.filter((x) => !x.abierta);
@@ -141,12 +159,25 @@ const saldos = await Promise.all(js.map((j) => j.estado().then((x) => x.yo.moned
 check((await admin.pedir("/api/admin", { accion: "simularDia", dia: 2 })).ok, "simular el día 2");
 const es2 = await Promise.all(js.map((j) => j.estado()));
 check(es2[0].dia === 2 && es2[0].manada.id !== m.id, "salen preguntas nuevas");
-// agente 3: respondió La manada (minoría) y 1 de Amor → 1 de Amor vencida (−40, gasta pase).
+// agente 3: minoría en La manada y en el Juicio (+0) y 1 de Amor vencida (−40, gasta pase).
 check(es2[3].yo.monedas === saldos[3] - 40 && es2[3].pases[3] === 1, `vencida en Amor cuesta como pasar (${saldos[3]} → ${es2[3].yo.monedas})`);
-// agente 1: coincidió con la mayoría (+15) y dejó vencer 1 de Amor (−40).
-check(es2[1].yo.monedas === saldos[1] + 15 - 40, `La manada paga +15 por coincidir (${saldos[1]} → ${es2[1].yo.monedas})`);
+// agente 1: coincidió en La manada (+15) y en el Juicio (+15), y dejó vencer 1 de Amor (−40).
+check(es2[1].yo.monedas === saldos[1] + 15 + 15 - 40, `coincidir paga +15 en La manada y +15 en el Juicio (${saldos[1]} → ${es2[1].yo.monedas})`);
+check(es2[1].juicioAyer && es2[1].juicioAyer.veredicto === "Culpable" && es2[1].juicioAyer.culpable === 3, "se ve el veredicto de ayer");
 const otra = await Promise.all(js.map((j) => j.estado().then((x) => x.yo.monedas)));
 check(otra.every((v, i) => v === es2[i].yo.monedas), "volver a entrar no cobra dos veces");
+
+console.log("\n— Último día");
+const total = es2[0].totalDias;
+check((await admin.pedir("/api/admin", { accion: "simularDia", dia: total })).ok, `simular el último día (${total})`);
+cap = (await js[recibe0].pedir("/api/casas/capsula")).capsula;
+check(cap.abierta && /Feliz Navidad/.test(cap.recibido ?? ""), "el último día se lee el mensaje de la cápsula");
+check((await js[0].pedir("/api/casas", { accion: "capsula", mensaje: "otro" })).status === 409, "abierta, ya no se puede cambiar");
+const ult = await js[0].estado();
+r = await js[0].pedir("/api/casas", { accion: "responder", pregunta: ult.juicio.id, valor: "Inocente" });
+check(r.ok && r.estado.juicio.estado === "respondida", "una pregunta que se repite (banco agotado) se puede responder ese día");
+const pr = (await js[0].pedir("/api/casas/juicio")).premios;
+check(Array.isArray(pr) && pr.some((x) => x.titulo === "El más chismoso") && pr.every((x) => x.ganadores.every((g) => /^Agente /.test(g))), `premios con alias (${pr?.map((x) => x.titulo).join(", ")})`);
 
 console.log(fallos.length ? `\n✗ ${fallos.length} fallo(s):\n- ${fallos.join("\n- ")}` : "\n✓ Todo OK");
 process.exit(fallos.length ? 1 : 0);

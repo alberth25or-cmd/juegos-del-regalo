@@ -55,7 +55,12 @@ export function casasReales(e: EstadoCasas): Stage[] {
       accion: { texto: "Responder las de hoy", href: "/diseno/amor" },
     },
     picante,
-    { n: 5, nombre: "Juicio final", corto: "Juicio", icono: "star", papel: "azul", descripcion: "El último reto de la temporada. Lo estamos preparando.", estado: "cerrada", porDia: 0, hechasHoy: 0, unidad: "reto", abre: "Próximamente" },
+    {
+      n: 5, nombre: "Juicio final", corto: "Juicio", icono: "star", papel: "azul",
+      descripcion: e.fichaAbierta ? "¡Veredicto final! Mira los premios de la temporada." : "Un caso absurdo por día: ¿culpable o inocente? Si coincides con el jurado, mañana te llegan +15.",
+      estado: est(1, e.juicio?.estado ? 1 : 0), porDia: 1, hechasHoy: e.juicio?.estado ? 1 : 0, unidad: "reto",
+      accion: { texto: "Dar mi veredicto", href: "/diseno/juicio" },
+    },
     e.yo.tieneAmigo
       ? {
           n: 6, nombre: "Tu amigo secreto", corto: "Ficha", icono: "chest", papel: "verde",

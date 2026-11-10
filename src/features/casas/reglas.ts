@@ -2,7 +2,7 @@
  * Reglas puras del juego de las casas (sin base de datos; las usa el servidor y los tests).
  */
 import { crearAzar, mezclar } from "../azar.ts";
-import { PLATOS, PREGUNTAS_AMOR, PREGUNTAS_MANADA, PREGUNTAS_PICANTE, type PreguntaAbierta, type PreguntaManada } from "../contenido/casas.ts";
+import { CASOS_JUICIO, PLATOS, PREGUNTAS_AMOR, PREGUNTAS_MANADA, PREGUNTAS_PICANTE, VEREDICTOS, type PreguntaAbierta, type PreguntaManada } from "../contenido/casas.ts";
 
 /** Semilla estable a partir de un texto (FNV-1a). */
 export function semilla(texto: string) {
@@ -20,6 +20,7 @@ export interface PreguntasDelDia {
   manada: PreguntaManada;
   amor: PreguntaAbierta[];
   picante: PreguntaAbierta[];
+  juicio: { id: string; texto: string };
 }
 
 /**
@@ -32,8 +33,9 @@ export function preguntasDelDia(seasonId: string, dia: number): PreguntasDelDia 
   const m = orden(PREGUNTAS_MANADA, seasonId, "manada");
   const a = orden(PREGUNTAS_AMOR, seasonId, "amor");
   const p = orden(PREGUNTAS_PICANTE, seasonId, "picante");
+  const j = orden(CASOS_JUICIO, seasonId, "juicio");
   const par = <T>(l: T[]) => [l[(d * 2) % l.length], l[(d * 2 + 1) % l.length]];
-  return { manada: m[d % m.length], amor: par(a), picante: par(p) };
+  return { manada: m[d % m.length], amor: par(a), picante: par(p), juicio: j[d % j.length] };
 }
 
 /** Sorteo: cada uno le regala al siguiente de una ronda mezclada (nadie se regala a sí mismo). */
@@ -89,7 +91,11 @@ export function validarFicha(regalosIn: unknown, datosIn: unknown): { ok: true; 
 // ------------------------------------------------------------------ respuestas
 
 /** Valida una respuesta según la casa. Devuelve el texto a guardar o un error. */
-export function validarRespuesta(casa: 2 | 3 | 4, valor: unknown, opciones?: readonly string[]): { ok: true; texto: string } | { ok: false; error: string } {
+export function validarRespuesta(casa: 2 | 3 | 4 | 5, valor: unknown, opciones?: readonly string[]): { ok: true; texto: string } | { ok: false; error: string } {
+  if (casa === 5) {
+    if (!(VEREDICTOS as readonly unknown[]).includes(valor)) return { ok: false, error: "Elige Culpable o Inocente." };
+    return { ok: true, texto: valor as string };
+  }
   if (casa === 2) {
     const i = typeof valor === "number" ? valor : Number.NaN;
     if (!Number.isInteger(i) || !opciones || i < 0 || i >= opciones.length) return { ok: false, error: "Elige una de las opciones." };

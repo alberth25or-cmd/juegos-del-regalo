@@ -62,12 +62,13 @@ function normalizar(t: string) {
 
 export type ResultadoFiltro = { ok: true; texto: string } | { ok: false; motivo: string };
 
-export function filtrarChat(entrada: string): ResultadoFiltro {
+/** `max`: largo permitido (el chat usa MAX_CHAT; la cápsula del tiempo, más). */
+export function filtrarChat(entrada: string, max: number = MAX_CHAT): ResultadoFiltro {
   const texto = entrada
     .replace(/[\u0000-\u001f\u007f]/g, "")
     .replace(/\s+/g, " ")
     .trim()
-    .slice(0, MAX_CHAT);
+    .slice(0, max);
   if (!texto) return { ok: false, motivo: "Escribe algo." };
   const n = normalizar(texto);
   if (BLOQUEADAS.some((b) => n.includes(b))) return { ok: false, motivo: "Ese mensaje no va: humor sí, ataques no." };

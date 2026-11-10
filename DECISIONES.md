@@ -1,5 +1,22 @@
 # Decisiones del proyecto
 
+## Juicio final, Ranking de la vergüenza y Cápsula del tiempo (2026-11-10, pedido de Luis)
+
+- **Juicio final (casa 5):** un caso navideño absurdo por día (`CASOS_JUICIO`, 30 casos).
+  ¿Culpable o inocente? Votar da 15 monedas y coincidir con la mayoría del jurado, 15 más (se paga al
+  día siguiente, como La manada). Sin "Paso"; dejarlo vencer cuesta 15. Se muestra el veredicto de ayer.
+  No va en la ficha del amigo secreto (es opinión, no dato personal).
+- **Ranking de la vergüenza:** en la misma casa, premios por alias (más chismoso, más fisgoneado, el que
+  más pasó, el más olvidadizo, valiente del Picante, siempre al día, pensamiento de manada, rebelde del
+  jurado). Se ve durante la temporada y desde el día de la ficha se titula "Veredicto final".
+- **Cápsula del tiempo:** cada agente le deja un mensaje (hasta 400 caracteres, filtrado) a su amigo
+  secreto; se puede cambiar hasta el último día de la temporada, que es cuando se abre (el día del
+  intercambio, 24 dic). Solo lo lee quien lo recibe (migración `007_capsula.sql`).
+- **Arreglo:** si la temporada dura más que el banco de preguntas, se repiten; cada respuesta ahora
+  queda atada a su día (`008_respuestas_por_dia.sql`). Antes una pregunta repetida no se podía responder.
+
+---
+
 ## El juego de las casas ya es real (2026-11-09, pedido de Luis: "que ya sea para poder jugar")
 
 Conectado a la base de datos (migración `006_casas.sql`, servidor en `src/lib/server/casas.ts`,

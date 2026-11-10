@@ -1,14 +1,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { crearAzar } from "../src/features/azar.ts";
-import { PLATOS, PREGUNTAS_AMOR, PREGUNTAS_MANADA, PREGUNTAS_PICANTE } from "../src/features/contenido/casas.ts";
+import { CASOS_JUICIO, PLATOS, PREGUNTAS_AMOR, PREGUNTAS_MANADA, PREGUNTAS_PICANTE } from "../src/features/contenido/casas.ts";
 import { aliasLibre, igualQue, mayoria, preguntasDelDia, sortear, validarFicha, validarRespuesta } from "../src/features/casas/reglas.ts";
 
 test("bancos: ids únicos y suficientes para la temporada", () => {
-  for (const banco of [PREGUNTAS_MANADA, PREGUNTAS_AMOR, PREGUNTAS_PICANTE]) {
+  for (const banco of [PREGUNTAS_MANADA, PREGUNTAS_AMOR, PREGUNTAS_PICANTE, CASOS_JUICIO]) {
     assert.equal(new Set(banco.map((p) => p.id)).size, banco.length);
   }
-  assert.ok(PREGUNTAS_MANADA.length >= 30);
+  assert.ok(PREGUNTAS_MANADA.length >= 30 && CASOS_JUICIO.length >= 30);
   assert.ok(PREGUNTAS_AMOR.length >= 50 && PREGUNTAS_PICANTE.length >= 50, "2 por día durante 25 días");
   assert.ok(PREGUNTAS_MANADA.every((p) => p.opciones.length === 4));
   assert.ok(PLATOS.length >= 40);
@@ -21,7 +21,7 @@ test("preguntas del día: estables, distintas cada día y sin repetir en 25 día
   const vistas = new Set<string>();
   for (let d = 1; d <= 25; d++) {
     const q = preguntasDelDia("temporada-x", d);
-    for (const p of [q.manada, ...q.amor, ...q.picante]) {
+    for (const p of [q.manada, ...q.amor, ...q.picante, q.juicio]) {
       assert.ok(!vistas.has(p.id), `repetida ${p.id} el día ${d}`);
       vistas.add(p.id);
     }
@@ -64,6 +64,8 @@ test("respuestas: cada casa valida lo suyo", () => {
   assert.equal(validarRespuesta(4, "Sí").ok, true);
   assert.equal(validarRespuesta(4, "Tal vez").ok, false);
   assert.equal(validarRespuesta(3, "   ").ok, false);
+  assert.equal(validarRespuesta(5, "Culpable").ok, true);
+  assert.equal(validarRespuesta(5, "Tal vez").ok, false);
 });
 
 test("manada: empates cuentan como mayoría; rareza compara sin tildes", () => {

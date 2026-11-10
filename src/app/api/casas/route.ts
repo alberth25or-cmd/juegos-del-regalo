@@ -1,5 +1,5 @@
 import { cuerpo, ErrorDeUsuario, exigirJugador, manejador, ok, texto } from "@/lib/server/api";
-import { decidirPicante, estadoCasas, guardarFicha, responder } from "@/lib/server/casas";
+import { decidirPicante, escribirCapsula, estadoCasas, guardarFicha, responder } from "@/lib/server/casas";
 import { permitir } from "@/lib/server/limites";
 
 /** Estado del juego de las casas para el jugador de esta sesión. */
@@ -8,7 +8,7 @@ export const GET = manejador(async () => {
   return ok({ estado: await estadoCasas(yo) });
 });
 
-/** Acciones: responder · pasar · picante · ficha. */
+/** Acciones: responder · pasar · picante · ficha · capsula. */
 export const POST = manejador(async (req) => {
   const yo = await exigirJugador({ activo: true });
   if (!(await permitir(`casas:${yo.id}`, 60, 60))) throw new ErrorDeUsuario("Vas muy rápido. Espera un momento.", 429);
@@ -22,6 +22,8 @@ export const POST = manejador(async (req) => {
       return ok({ estado: await decidirPicante(yo, b.acepta === true) });
     case "ficha":
       return ok({ estado: await guardarFicha(yo, b.regalos, b.datos) });
+    case "capsula":
+      return ok(await escribirCapsula(yo, b.mensaje));
     default:
       throw new ErrorDeUsuario("Acción desconocida.");
   }

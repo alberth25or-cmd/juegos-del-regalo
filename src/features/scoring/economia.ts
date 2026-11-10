@@ -24,8 +24,9 @@ export const GANANCIAS = {
   /** Por cada pregunta respondida. */
   amor: 20,
   picante: 30,
-  /** Reto diario del Juicio final. */
-  juicio: 30,
+  /** Juicio final: por dar tu veredicto, y extra si coincides con el jurado (al cierre del día). */
+  juicioResponder: 15,
+  juicioCoincidir: 15,
   /** Bono por terminar todo lo del día en todas las casas. */
   bonoAlDia: 30,
 } as const;
@@ -69,7 +70,7 @@ export function costoVencida(casa: Casa, pasesUsados: number) {
 
 /** Ganancia por responder una pregunta de cada casa (sin contar el extra de la manada). */
 export function gananciaPorRespuesta(casa: Casa) {
-  return { 1: 0, 2: GANANCIAS.manadaResponder, 3: GANANCIAS.amor, 4: GANANCIAS.picante, 5: GANANCIAS.juicio }[casa];
+  return { 1: 0, 2: GANANCIAS.manadaResponder, 3: GANANCIAS.amor, 4: GANANCIAS.picante, 5: GANANCIAS.juicioResponder }[casa];
 }
 
 export interface PerfilDia {
@@ -88,7 +89,8 @@ export function gananciaDiaria({ rendimiento, coincide, juegaPicante }: PerfilDi
   const manada = GANANCIAS.manadaResponder + Math.round(GANANCIAS.manadaCoincidir * coincide);
   const amor = POR_DIA[3] * GANANCIAS.amor;
   const picante = juegaPicante ? POR_DIA[4] * GANANCIAS.picante : 0;
-  return minijuegos + GANANCIAS.voto + manada + amor + picante + GANANCIAS.juicio + GANANCIAS.bonoAlDia;
+  const juicio = GANANCIAS.juicioResponder + Math.round(GANANCIAS.juicioCoincidir * coincide);
+  return minijuegos + GANANCIAS.voto + manada + amor + picante + juicio + GANANCIAS.bonoAlDia;
 }
 
 /** Jugador "promedio" que se usa para equilibrar precios y para mostrar ejemplos. */

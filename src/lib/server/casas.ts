@@ -61,8 +61,9 @@ async function movimiento(tx: Tx, yo: Jugador, tipo: string, fuente: string, mon
 /** Preguntas del día con su casa, según si el jugador juega Picante. */
 function idsDelDia(seasonId: string, dia: number, juegaPicante: boolean | null) {
   const q = preguntasDelDia(seasonId, dia);
-  const lista: { id: string; casa: 2 | 3 | 4 }[] = [{ id: q.manada.id, casa: 2 }, ...q.amor.map((p) => ({ id: p.id, casa: 3 as const }))];
+  const lista: { id: string; casa: 2 | 3 | 4 | 5 }[] = [{ id: q.manada.id, casa: 2 }, ...q.amor.map((p) => ({ id: p.id, casa: 3 as const }))];
   if (juegaPicante === true) lista.push(...q.picante.map((p) => ({ id: p.id, casa: 4 as const })));
+  lista.push({ id: q.juicio.id, casa: 5 });
   return lista;
 }
 
@@ -80,31 +81,43 @@ async function liquidar(tx: Tx, yo: Jugador, cfg: ConfigCasas, hoy: number, jueg
   const desde = cfg.diaInicio;
   const hasta = Math.min(hoy - 1, desde + 89);
   const tengo = new Set(
-    (await tx`select pregunta_id from cc.respuestas where player_id = ${yo.id} and dia between ${desde} and ${hasta}`).map((r) => r.pregunta_id as string),
+    (await tx`select pregunta_id, dia from cc.respuestas where player_id = ${yo.id} and dia between ${desde} and ${hasta}`).map((r) => `${r.dia}:${r.pregunta_id}`),
   );
   for (let d = desde; d <= hasta; d++) {
     for (const q of idsDelDia(yo.seasonId, d, juegaPicante)) {
-      if (tengo.has(q.id)) continue;
-      const usados = q.casa === 2 ? 0 : await pasesUsados(tx, yo.id, q.casa);
+      if (tengo.has(`${d}:${q.id}`)) continue;
+      const usados = q.casa === 3 || q.casa === 4 ? await pasesUsados(tx, yo.id, q.casa) : 0;
       const c = costoVencida(q.casa, usados);
       const [r] = await tx`
         insert into cc.respuestas (season_id, player_id, casa, pregunta_id, dia, estado)
         values (${yo.seasonId}, ${yo.id}, ${q.casa}, ${q.id}, ${d}, 'vencida')
-        on conflict (player_id, pregunta_id) do nothing returning id
+        on conflict (player_id, dia, pregunta_id) do nothing returning id
       `;
-      if (r && c.monedas > 0) await movimiento(tx, yo, "casa-vencida", q.id, -c.monedas, "Pregunta sin responder a tiempo", clave("vencida", yo.seasonId, q.id, yo.id));
+      if (r && c.monedas > 0) await movimiento(tx, yo, "casa-vencida", q.id, -c.monedas, "Pregunta sin responder a tiempo", clave("vencida", yo.seasonId, q.id, yo.id, String(d)));
     }
   }
-  // La manada: el extra por coincidir se decide al cierre del día.
-  const pendientes = await tx`
-    select r.pregunta_id, r.respuesta from cc.respuestas r
-    where r.player_id = ${yo.id} and r.casa = 2 and r.estado = 'respondida' and r.dia < ${hoy}
-      and not exists (select 1 from cc.score_ledger l where l.idempotency_key = 'manada:' || ${yo.seasonId} || ':' || r.pregunta_id || ':' || ${yo.id})
-  `;
-  for (const p of pendientes) {
-    const todas = (await tx`select respuesta from cc.respuestas where season_id = ${yo.seasonId} and pregunta_id = ${p.pregunta_id} and estado = 'respondida'`).map((x) => x.respuesta as string);
-    const gano = mayoria(todas).has(p.respuesta as string);
-    await movimiento(tx, yo, "manada-coincide", p.pregunta_id, gano ? GANANCIAS.manadaCoincidir : 0, gano ? "La manada: coincidiste con la mayoría" : "La manada: esta vez no coincidiste", clave("manada", yo.seasonId, p.pregunta_id, yo.id));
+  // La manada y el Juicio: el extra por coincidir con la mayoría se decide al cierre del día.
+  const MAYORIA = [
+    { casa: 2, pref: "manada", tipo: "manada-coincide", extra: GANANCIAS.manadaCoincidir, si: "La manada: coincidiste con la mayoría", no: "La manada: esta vez no coincidiste" },
+    { casa: 5, pref: "juicio", tipo: "juicio-coincide", extra: GANANCIAS.juicioCoincidir, si: "Juicio: votaste con el jurado", no: "Juicio: votaste contra el jurado" },
+  ] as const;
+  for (const m of MAYORIA) {
+    const pendientes = await tx`
+      select r.pregunta_id, r.dia, r.respuesta from cc.respuestas r
+      where r.player_id = ${yo.id} and r.casa = ${m.casa} and r.estado = 'respondida' and r.dia < ${hoy}
+        and not exists (
+          select 1 from cc.score_ledger l
+          where l.idempotency_key in (
+            ${m.pref} || ':' || ${yo.seasonId} || ':' || r.pregunta_id || ':' || ${yo.id},
+            ${m.pref} || ':' || ${yo.seasonId} || ':' || r.pregunta_id || ':' || ${yo.id} || ':' || r.dia
+          )
+        )
+    `;
+    for (const p of pendientes) {
+      const todas = (await tx`select respuesta from cc.respuestas where season_id = ${yo.seasonId} and pregunta_id = ${p.pregunta_id} and dia = ${p.dia} and estado = 'respondida'`).map((x) => x.respuesta as string);
+      const gano = mayoria(todas).has(p.respuesta as string);
+      await movimiento(tx, yo, m.tipo, p.pregunta_id, gano ? m.extra : 0, gano ? m.si : m.no, clave(m.pref, yo.seasonId, p.pregunta_id, yo.id, String(p.dia)));
+    }
   }
 }
 
@@ -130,7 +143,7 @@ async function juegosDeHoy(sql: Tx | ReturnType<typeof db>, playerId: string) {
 /** Bono por terminar todo lo del día en todas las casas (una vez por día). */
 async function bonoSiCorresponde(tx: Tx, yo: Jugador, hoy: number, juegaPicante: boolean | null) {
   const ids = idsDelDia(yo.seasonId, hoy, juegaPicante).map((q) => q.id);
-  const [r] = await tx`select count(*)::int as n from cc.respuestas where player_id = ${yo.id} and pregunta_id = any(${ids}) and estado <> 'vencida'`;
+  const [r] = await tx`select count(*)::int as n from cc.respuestas where player_id = ${yo.id} and dia = ${hoy} and pregunta_id = any(${ids}) and estado <> 'vencida'`;
   const juegos = await juegosDeHoy(tx, yo.id);
   if ((r.n as number) >= ids.length && JUEGOS_CALENTAMIENTO.every((j) => juegos.has(j))) {
     await movimiento(tx, yo, "bono-dia", String(hoy), GANANCIAS.bonoAlDia, "Al día en todas las casas", clave("bono", yo.seasonId, String(hoy), yo.id));
@@ -156,6 +169,11 @@ export interface EstadoCasas {
   pases: { 3: number; 4: number };
   fisgoneosHoy: number;
   arbol: { inscritos: { alias: string; avatar: unknown; yo: boolean }[]; capacidad: number };
+  juicio: { id: string; texto: string; mia: string | null; estado: string | null } | null;
+  /** Veredicto del caso de ayer (si hubo). */
+  juicioAyer: { texto: string; culpable: number; inocente: number; veredicto: string; mia: string | null } | null;
+  /** Cápsula del tiempo: se abre el último día de la temporada. */
+  capsula: { abreDia: number; abierta: boolean; escrita: boolean; recibida: boolean };
 }
 
 export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
@@ -182,7 +200,16 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
   );
 
   const q = empezado ? preguntasDelDia(yo.seasonId, dia) : null;
-  const idsHoy = q ? [q.manada.id, ...q.amor.map((p) => p.id), ...q.picante.map((p) => p.id)] : [];
+  const idsHoy = q ? [q.manada.id, ...q.amor.map((p) => p.id), ...q.picante.map((p) => p.id), q.juicio.id] : [];
+  const ayer = empezado && dia - 1 >= cfg!.diaInicio ? preguntasDelDia(yo.seasonId, dia - 1).juicio : null;
+
+  const [[votosAyer], [miAyer], [caps]] = await Promise.all([
+    ayer
+      ? conTope(() => sql`select count(*) filter (where respuesta = 'Culpable')::int as culpable, count(*) filter (where respuesta = 'Inocente')::int as inocente from cc.respuestas where season_id = ${yo.seasonId} and pregunta_id = ${ayer.id} and dia = ${dia - 1} and estado = 'respondida'`)
+      : Promise.resolve([null]),
+    ayer ? conTope(() => sql`select respuesta from cc.respuestas where player_id = ${yo.id} and pregunta_id = ${ayer.id} and dia = ${dia - 1}`) : Promise.resolve([null]),
+    conTope(() => sql`select exists (select 1 from cc.capsulas where giver_id = ${yo.id}) as escrita, exists (select 1 from cc.capsulas where receiver_id = ${yo.id}) as recibida`),
+  ]);
 
   const [ranking, misHoy, alDiaRows, ficha, amigo, fisg, juegos, inscritos, pas] = await Promise.all([
     conTope(() => sql`
@@ -191,11 +218,11 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
       where p.season_id = ${yo.seasonId} and p.status = 'active' and p.alias is not null
       order by monedas desc, p.alias asc
     `),
-    idsHoy.length ? conTope(() => sql`select pregunta_id, estado, respuesta from cc.respuestas where player_id = ${yo.id} and pregunta_id = any(${idsHoy})`) : Promise.resolve([]),
+    idsHoy.length ? conTope(() => sql`select pregunta_id, estado, respuesta from cc.respuestas where player_id = ${yo.id} and dia = ${dia} and pregunta_id = any(${idsHoy})`) : Promise.resolve([]),
     idsHoy.length
       ? conTope(() => sql`
           select p.alias, r.casa, count(*)::int as n from cc.respuestas r join cc.players p on p.id = r.player_id
-          where r.season_id = ${yo.seasonId} and r.pregunta_id = any(${idsHoy}) and r.estado <> 'vencida' and p.alias is not null
+          where r.season_id = ${yo.seasonId} and r.dia = ${dia} and r.pregunta_id = any(${idsHoy}) and r.estado <> 'vencida' and p.alias is not null
           group by p.alias, r.casa
         `)
       : Promise.resolve([]),
@@ -217,7 +244,7 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
   const alDia: Record<number, string[]> = { 1: [], 2: [], 3: [], 4: [], 5: [] };
   for (const r of alDiaRows) {
     const casa = r.casa as number;
-    if (r.n >= (casa === 2 ? 1 : 2)) alDia[casa].push(r.alias as string);
+    if (r.n >= (casa === 2 || casa === 5 ? 1 : 2)) alDia[casa].push(r.alias as string);
   }
   const pases = { 3: 0, 4: 0 } as { 3: number; 4: number };
   for (const r of pas) if (r.casa === 3 || r.casa === 4) pases[r.casa as 3 | 4] = r.n as number;
@@ -254,6 +281,18 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
       inscritos: inscritos.map((r) => ({ alias: (r.alias as string) || "Agente sin nombre", avatar: avatarDeAlias((r.alias as string) || (r.id as string)), yo: r.id === yo.id })),
       capacidad: typeof t.settings.capacidad === "number" ? t.settings.capacidad : 40,
     },
+    juicio: q ? dePregunta(q.juicio.id, q.juicio.texto) : null,
+    juicioAyer:
+      ayer && votosAyer && (votosAyer.culpable > 0 || votosAyer.inocente > 0)
+        ? {
+            texto: ayer.texto,
+            culpable: votosAyer.culpable as number,
+            inocente: votosAyer.inocente as number,
+            veredicto: votosAyer.culpable === votosAyer.inocente ? "Empate" : votosAyer.culpable > votosAyer.inocente ? "Culpable" : "Inocente",
+            mia: (miAyer?.respuesta as string | null) ?? null,
+          }
+        : null,
+    capsula: { abreDia: totalDias, abierta: totalDias > 0 && dia >= totalDias, escrita: caps?.escrita === true, recibida: caps?.recibida === true },
   };
 }
 
@@ -271,7 +310,7 @@ export async function responder(yo: Jugador, preguntaId: string, valor: unknown,
   const dp = datosPregunta(preguntaId);
   if (!dp) throw new ErrorDeUsuario("Pregunta no encontrada.", 404);
   const hoy = preguntasDelDia(yo.seasonId, dia);
-  const deHoy = [hoy.manada.id, ...hoy.amor.map((p) => p.id), ...hoy.picante.map((p) => p.id)];
+  const deHoy = [hoy.manada.id, ...hoy.amor.map((p) => p.id), ...hoy.picante.map((p) => p.id), hoy.juicio.id];
   if (!deHoy.includes(preguntaId)) throw new ErrorDeUsuario("Esa pregunta ya no está abierta. Mira las de hoy.", 409);
 
   await conTope(
@@ -300,15 +339,15 @@ export async function responder(yo: Jugador, preguntaId: string, valor: unknown,
           if (!f.ok) throw new ErrorDeUsuario(f.motivo);
           texto = f.texto;
         } else texto = v.texto;
-        monedas = dp.casa === 2 ? GANANCIAS.manadaResponder : dp.casa === 3 ? GANANCIAS.amor : GANANCIAS.picante;
+        monedas = { 2: GANANCIAS.manadaResponder, 3: GANANCIAS.amor, 4: GANANCIAS.picante, 5: GANANCIAS.juicioResponder }[dp.casa];
       }
       const [r] = await tx`
         insert into cc.respuestas (season_id, player_id, casa, pregunta_id, dia, estado, respuesta)
         values (${yo.seasonId}, ${yo.id}, ${dp.casa}, ${preguntaId}, ${dia}, ${estado}, ${texto})
-        on conflict (player_id, pregunta_id) do nothing returning id
+        on conflict (player_id, dia, pregunta_id) do nothing returning id
       `;
       if (!r) throw new ErrorDeUsuario("Ya respondiste esta pregunta.", 409);
-      await movimiento(tx, yo, pasar ? "casa-paso" : "casa-respuesta", preguntaId, monedas, pasar ? "Pasó una pregunta" : "Respondió una pregunta", clave(pasar ? "paso" : "casa", yo.seasonId, preguntaId, yo.id));
+      await movimiento(tx, yo, pasar ? "casa-paso" : "casa-respuesta", preguntaId, monedas, pasar ? "Pasó una pregunta" : "Respondió una pregunta", clave(pasar ? "paso" : "casa", yo.seasonId, preguntaId, yo.id, String(dia)));
       await bonoSiCorresponde(tx, yo, dia, jp);
     }),
     10_000,
@@ -392,7 +431,7 @@ export async function fichaAmigo(yo: Jugador): Promise<FichaAmigo | null> {
   const base: (RespuestaFicha & { estado: string; dbAbierta: boolean })[] = [];
   for (const r of resp) {
     const dp = datosPregunta(r.pregunta_id as string);
-    if (!dp) continue;
+    if (!dp || dp.casa === 5) continue; // el Juicio es opinión, no va en la ficha
     const texto = r.respuesta === null ? null : dp.opciones ? dp.opciones[Number(r.respuesta)] ?? null : (r.respuesta as string);
     base.push({
       id: r.id as string,
@@ -535,3 +574,92 @@ export async function cambiarDiaFicha(adminId: string, seasonId: string, fichaDi
 }
 
 export const CASAS = CASAS_CON_PREGUNTAS;
+
+// ======================================================================= premios
+
+export interface Premio {
+  titulo: string;
+  emoji: string;
+  detalle: string;
+  ganadores: string[];
+  valor: number;
+}
+
+/**
+ * Ranking de la vergüenza (se ve en el Juicio final): premios absurdos, siempre por alias.
+ * Ninguno revela quién le regala a quién ni qué respondió alguien.
+ */
+export async function premios(seasonId: string): Promise<Premio[]> {
+  const sql = db();
+  const filas = await conTope(() => sql`
+    with base as (select id, alias from cc.players where season_id = ${seasonId} and status = 'active' and alias is not null)
+    select 'chismoso' as k, b.alias, count(*)::int as n from cc.fisgoneos f join base b on b.id = f.buyer_id group by b.alias
+    union all
+    select 'fisgoneado', b.alias, count(*)::int from cc.fisgoneos f join cc.respuestas r on r.id = f.respuesta_id join base b on b.id = r.player_id group by b.alias
+    union all
+    select 'paso', b.alias, count(*)::int from cc.respuestas r join base b on b.id = r.player_id where r.estado = 'paso' group by b.alias
+    union all
+    select 'olvido', b.alias, count(*)::int from cc.respuestas r join base b on b.id = r.player_id where r.estado = 'vencida' group by b.alias
+    union all
+    select 'picante', b.alias, count(*)::int from cc.respuestas r join base b on b.id = r.player_id where r.casa = 4 and r.estado = 'respondida' group by b.alias
+    union all
+    select 'aldia', b.alias, count(*)::int from cc.score_ledger l join base b on b.id = l.player_id where l.source_type = 'bono-dia' group by b.alias
+    union all
+    select 'manada', b.alias, count(*)::int from cc.score_ledger l join base b on b.id = l.player_id where l.source_type = 'manada-coincide' and l.coins > 0 group by b.alias
+    union all
+    select 'rebelde', b.alias, count(*)::int from cc.score_ledger l join base b on b.id = l.player_id where l.source_type = 'juicio-coincide' and l.coins = 0 group by b.alias
+  `);
+  const DEF: Record<string, { titulo: string; emoji: string; detalle: (n: number) => string }> = {
+    chismoso: { titulo: "El más chismoso", emoji: "👀", detalle: (n) => `Abrió ${n} sobres de su amigo secreto` },
+    fisgoneado: { titulo: "El más fisgoneado", emoji: "🔍", detalle: (n) => `Le abrieron ${n} sobres` },
+    paso: { titulo: "El que más pasó", emoji: "🙈", detalle: (n) => `Pasó ${n} preguntas` },
+    olvido: { titulo: "El más olvidadizo", emoji: "⏰", detalle: (n) => `Dejó vencer ${n} preguntas` },
+    picante: { titulo: "Valiente del Picante", emoji: "🌶️", detalle: (n) => `Respondió ${n} preguntas picantes` },
+    aldia: { titulo: "Siempre al día", emoji: "📅", detalle: (n) => `${n} días con todo completo` },
+    manada: { titulo: "Pensamiento de manada", emoji: "🐑", detalle: (n) => `Coincidió ${n} veces con la mayoría` },
+    rebelde: { titulo: "El rebelde del jurado", emoji: "⚖️", detalle: (n) => `Votó ${n} veces contra el jurado` },
+  };
+  const out: Premio[] = [];
+  for (const [k, d] of Object.entries(DEF)) {
+    const de = filas.filter((f) => f.k === k);
+    const max = Math.max(0, ...de.map((f) => f.n as number));
+    if (max <= 0) continue;
+    const ganadores = de.filter((f) => f.n === max).map((f) => f.alias as string).sort();
+    out.push({ titulo: d.titulo, emoji: d.emoji, detalle: d.detalle(max), ganadores: ganadores.slice(0, 3), valor: max });
+  }
+  return out;
+}
+
+// ======================================================================= cápsula del tiempo
+
+/** Escribe (o reescribe) el mensaje para tu amigo secreto. Se puede cambiar hasta que se abre. */
+export async function escribirCapsula(yo: Jugador, mensajeIn: unknown) {
+  const { dia, totalDias } = diaDe(yo);
+  const t = await temporada(yo.seasonId);
+  exigirEmpezado(t.casas, dia);
+  if (totalDias > 0 && dia >= totalDias) throw new ErrorDeUsuario("La cápsula ya se abrió: ya no se puede cambiar.", 409);
+  const bruto = typeof mensajeIn === "string" ? mensajeIn : "";
+  const f = filtrarChat(bruto, 400);
+  if (!f.ok) throw new ErrorDeUsuario(f.motivo);
+  const sql = db();
+  const [par] = await conTope(() => sql`select receiver_id from cc.amigo_secreto where giver_id = ${yo.id}`);
+  if (!par) throw new ErrorDeUsuario("No tienes amigo secreto (no entraste al sorteo).", 409);
+  await conTope(sql`
+    insert into cc.capsulas (season_id, giver_id, receiver_id, mensaje)
+    values (${yo.seasonId}, ${yo.id}, ${par.receiver_id}, ${f.texto})
+    on conflict (season_id, giver_id) do update set mensaje = excluded.mensaje, updated_at = now()
+  `);
+  return { mensaje: f.texto };
+}
+
+/** Tu propio mensaje (para editarlo) y, si ya se abrió, el que te dejaron a ti. */
+export async function capsulas(yo: Jugador) {
+  const { dia, totalDias } = diaDe(yo);
+  const sql = db();
+  const abierta = totalDias > 0 && dia >= totalDias;
+  const [[mio], [recibido]] = await Promise.all([
+    conTope(() => sql`select mensaje from cc.capsulas where giver_id = ${yo.id}`),
+    abierta ? conTope(() => sql`select mensaje from cc.capsulas where receiver_id = ${yo.id}`) : Promise.resolve([undefined]),
+  ]);
+  return { abreDia: totalDias, dia, abierta, mio: (mio?.mensaje as string | undefined) ?? null, recibido: abierta ? ((recibido?.mensaje as string | undefined) ?? null) : null };
+}

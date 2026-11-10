@@ -163,6 +163,42 @@ export const PREGUNTAS_PICANTE: PreguntaAbierta[] = [
   { id: "p50", texto: "¿Le confesarías a tu amigo secreto un secreto el 24?", picor: 2 },
 ];
 
+/** Juicio final: un caso absurdo por día. ¿Culpable o inocente? Gana quien coincide con el jurado. */
+export const CASOS_JUICIO: { id: string; texto: string }[] = [
+  { id: "j01", texto: "Alguien se comió el último panetón y le echó la culpa al perro." },
+  { id: "j02", texto: "El tío regaló el mismo perfume que le regalaron el año pasado." },
+  { id: "j03", texto: "Un invitado llegó a la cena justo cuando ya habían servido." },
+  { id: "j04", texto: "Alguien abrió su regalo antes de las 12 \"para ver si era el suyo\"." },
+  { id: "j05", texto: "El organizador del amigo secreto se puso el presupuesto más alto para él." },
+  { id: "j06", texto: "Alguien desconectó las luces del árbol para cargar su celular." },
+  { id: "j07", texto: "Un primo se llevó táper con comida de la cena sin preguntar." },
+  { id: "j08", texto: "Alguien respondió \"feliz Navidad\" con un sticker a un audio de 3 minutos." },
+  { id: "j09", texto: "El que puso la música solo puso reguetón en Nochebuena." },
+  { id: "j10", texto: "Alguien dijo que no comería pavo y repitió dos veces." },
+  { id: "j11", texto: "Un invitado se quedó dormido en el sofá antes de los regalos." },
+  { id: "j12", texto: "Alguien envolvió el regalo con papel de periódico \"por el planeta\"." },
+  { id: "j13", texto: "El encargado del hielo llegó sin hielo y con excusa." },
+  { id: "j14", texto: "Alguien sacó fotos de todos comiendo y las subió sin filtro." },
+  { id: "j15", texto: "Un amigo regaló una tarjeta de regalo de S/ 10 \"con mucho cariño\"." },
+  { id: "j16", texto: "Alguien se fue del grupo de WhatsApp el 23 de diciembre." },
+  { id: "j17", texto: "El que cocinó dijo \"está simple\" y estaba buenísimo, buscando halagos." },
+  { id: "j18", texto: "Alguien cantó villancicos a las 3 de la mañana." },
+  { id: "j19", texto: "Un invitado trajo a un amigo que nadie conocía." },
+  { id: "j20", texto: "Alguien adivinó a su amigo secreto y lo dijo en voz alta." },
+  { id: "j21", texto: "El que tenía que traer el postre trajo galletas de la bodega." },
+  { id: "j22", texto: "Alguien usó el mismo suéter navideño cinco años seguidos." },
+  { id: "j23", texto: "Un amigo apostó que el regalo era para él y no lo era." },
+  { id: "j24", texto: "Alguien se sirvió el último trozo de lechón sin ofrecer." },
+  { id: "j25", texto: "El anfitrión escondió el chocolate bueno para después." },
+  { id: "j26", texto: "Alguien reenvió una cadena navideña a todo el grupo." },
+  { id: "j27", texto: "Un invitado criticó la decoración y no ayudó a armarla." },
+  { id: "j28", texto: "Alguien dijo \"es una tontería\" al recibir un regalo carísimo." },
+  { id: "j29", texto: "El que llegó tarde se llevó la mejor silla." },
+  { id: "j30", texto: "Alguien prometió \"este año sí ahorro\" y compró todo en oferta." },
+];
+
+export const VEREDICTOS = ["Culpable", "Inocente"] as const;
+
 /** Platos peruanos para los alias "Agente <plato>" (más que la capacidad máxima de 40). */
 export const PLATOS = [
   "Picarón", "Mazamorra", "Cau Cau", "Rocoto", "Anticucho", "Causa", "Lúcuma", "Chicha", "Tamal", "Papa Rellena",
@@ -176,10 +212,15 @@ export const pregunta = {
   manada: (id: string) => PREGUNTAS_MANADA.find((p) => p.id === id),
   amor: (id: string) => PREGUNTAS_AMOR.find((p) => p.id === id),
   picante: (id: string) => PREGUNTAS_PICANTE.find((p) => p.id === id),
+  juicio: (id: string) => CASOS_JUICIO.find((p) => p.id === id),
 };
 
 /** Texto y picor de cualquier pregunta por id (el prefijo dice la casa). */
-export function datosPregunta(id: string): { casa: 2 | 3 | 4; texto: string; picor: 1 | 2 | 3; opciones?: string[] } | null {
+export function datosPregunta(id: string): { casa: 2 | 3 | 4 | 5; texto: string; picor: 1 | 2 | 3; opciones?: string[] } | null {
+  if (id.startsWith("j")) {
+    const p = pregunta.juicio(id);
+    return p ? { casa: 5, texto: p.texto, picor: 1, opciones: [...VEREDICTOS] } : null;
+  }
   if (id.startsWith("m")) {
     const p = pregunta.manada(id);
     return p ? { casa: 2, texto: p.texto, picor: 1, opciones: p.opciones } : null;
