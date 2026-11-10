@@ -18,5 +18,5 @@ async function Contenido() {
   if (c.tipo === "demo") return <JuegoManada />;
   if (c.tipo !== "real" || !c.estado.empezado || !c.estado.manada) return <NoAbierta carga={c} />;
   const m = c.estado.manada;
-  return <JuegoManada real={{ dia: c.estado.dia, pregunta: { id: m.id, texto: m.texto, opciones: m.opciones }, mia: m.estado === "respondida" ? m.mia : null }} />;
+  return <JuegoManada real={{ dia: c.estado.dia, pregunta: { id: m.id, texto: m.texto, opciones: m.opciones }, mia: m.estado === "respondida" ? (m.mia ?? "-1") : null }} />;
 }

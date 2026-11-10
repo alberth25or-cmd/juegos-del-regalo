@@ -68,7 +68,7 @@ function ManadaConServidor({ real }: { real: ManadaReal }) {
               <PixelIcon name="check" size={30} />
             </span>
             <div>
-              <p className="f-titulo text-[1.3rem] font-semibold">Respondiste &quot;{op[Number(mia)]}&quot; · +10 monedas</p>
+              <p className="f-titulo text-[1.3rem] font-semibold">{op[Number(mia)] ? <>Respondiste &quot;{op[Number(mia)]}&quot; · +10 monedas</> : "Ya respondiste La manada de hoy"}</p>
               <p className="text-[0.9rem] text-[var(--tinta-suave)]">Mañana se revela qué eligió la mayoría. Si coincidiste, te llegan +15.</p>
             </div>
           </div>

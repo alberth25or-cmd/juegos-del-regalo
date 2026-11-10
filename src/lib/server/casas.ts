@@ -81,11 +81,15 @@ async function liquidar(tx: Tx, yo: Jugador, cfg: ConfigCasas, hoy: number, jueg
   const desde = cfg.diaInicio;
   const hasta = Math.min(hoy - 1, desde + 89);
   const tengo = new Set(
-    (await tx`select pregunta_id, dia from cc.respuestas where player_id = ${yo.id} and dia between ${desde} and ${hasta}`).map((r) => `${r.dia}:${r.pregunta_id}`),
+    (await tx`select pregunta_id, dia, casa from cc.respuestas where player_id = ${yo.id} and dia between ${desde} and ${hasta}`).flatMap((r) =>
+      // La manada cuenta por día, con cualquier id: si el banco de preguntas cambia a mitad de
+      // temporada, la respuesta de ese día (con el id viejo) sigue valiendo.
+      r.casa === 2 ? [`${r.dia}:${r.pregunta_id}`, `${r.dia}:manada`] : [`${r.dia}:${r.pregunta_id}`],
+    ),
   );
   for (let d = desde; d <= hasta; d++) {
     for (const q of idsDelDia(yo.seasonId, d, juegaPicante)) {
-      if (tengo.has(`${d}:${q.id}`)) continue;
+      if (tengo.has(`${d}:${q.id}`) || (q.casa === 2 && tengo.has(`${d}:manada`))) continue;
       const usados = q.casa === 3 || q.casa === 4 ? await pasesUsados(tx, yo.id, q.casa) : 0;
       const c = costoVencida(q.casa, usados);
       const [r] = await tx`
@@ -240,6 +244,10 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
   ]);
 
   const mias = new Map(misHoy.map((r) => [r.pregunta_id as string, r]));
+  if (q && !mias.has(q.manada.id)) {
+    const [otra] = await conTope(() => sql`select estado, respuesta from cc.respuestas where player_id = ${yo.id} and casa = 2 and dia = ${dia} limit 1`);
+    if (otra) mias.set(q.manada.id, { pregunta_id: q.manada.id, estado: otra.estado, respuesta: null } as never);
+  }
   const yoFila = ranking.findIndex((r) => r.id === yo.id);
   const alDia: Record<number, string[]> = { 1: [], 2: [], 3: [], 4: [], 5: [] };
   for (const r of alDiaRows) {
@@ -319,6 +327,10 @@ export async function responder(yo: Jugador, preguntaId: string, valor: unknown,
       const [p] = await tx`select juega_picante from cc.players where id = ${yo.id}`;
       const jp = (p?.juega_picante ?? null) as boolean | null;
       if (dp.casa === 4 && jp !== true) throw new ErrorDeUsuario("Primero confirma si juegas Picante.", 409);
+      if (dp.casa === 2) {
+        const [ya] = await tx`select 1 from cc.respuestas where player_id = ${yo.id} and casa = 2 and dia = ${dia}`;
+        if (ya) throw new ErrorDeUsuario("Ya respondiste La manada de hoy.", 409);
+      }
       await liquidar(tx, yo, t.casas!, dia, jp);
 
       let estado: "respondida" | "paso" = "respondida";

@@ -1,5 +1,15 @@
 # Decisiones del proyecto
 
+## La manada más atrevida (2026-11-10, pedido de Luis)
+
+Luis vio las 30 preguntas de La manada "demasiado inocentes". Se reemplazaron por 45 nuevas (citas,
+ex, crushes, apps, fiestas, celos), aprobadas por él, con ids `m31`–`m75` (alcanzan para 45 días). Las
+viejas (`m01`–`m30`) ya no salen, pero se conservan para leer respuestas guardadas. Si una temporada ya
+había empezado, la respuesta de La manada de cada día cuenta aunque sea de una pregunta vieja (no se
+cobra como vencida ni se puede responder dos veces el mismo día).
+
+---
+
 ## Juicio final, Ranking de la vergüenza y Cápsula del tiempo (2026-11-10, pedido de Luis)
 
 - **Juicio final (casa 5):** un caso navideño absurdo por día (`CASOS_JUICIO`, 30 casos).

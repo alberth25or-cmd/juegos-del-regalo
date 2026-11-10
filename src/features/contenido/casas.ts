@@ -21,8 +21,60 @@ export interface PreguntaAbierta {
   picor: 1 | 2 | 3;
 }
 
-/** La manada: adivina lo que eligió la mayoría (1 por día). */
+/** La manada: adivina lo que eligió la mayoría (1 por día). Versión atrevida (2026-11-10, aprobada por Luis). */
 export const PREGUNTAS_MANADA: PreguntaManada[] = [
+  { id: "m31", texto: "¿Qué es lo peor que se puede hacer en una primera cita?", opciones: ["Llegar tarde", "Hablar del ex", "Revisar el celular", "Pedir pagar a medias"] },
+  { id: "m32", texto: "¿Cuántas veces al mes revisa la mayoría el perfil de su ex?", opciones: ["Nunca", "1 o 2", "Cada semana", "Ya ni cuento"] },
+  { id: "m33", texto: "¿Qué es más imperdonable?", opciones: ["Que te dejen en visto", "Que te ghosteen", "Que te cancelen 10 min antes", "Que lleguen con otra persona"] },
+  { id: "m34", texto: "¿Dónde se conocen hoy la mayoría de parejas?", opciones: ["Apps", "Trabajo o estudios", "Fiestas", "Amigos en común"] },
+  { id: "m35", texto: "Tu ex te escribe el 24 a medianoche. ¿Qué hace la mayoría?", opciones: ["Responde al toque", "Lo deja en visto", "Manda captura al grupo", "Bloquea"] },
+  { id: "m36", texto: "¿Qué red flag perdona más la gente?", opciones: ["Celos", "Impuntualidad", "Que no conteste", "Que sea tacaño"] },
+  { id: "m37", texto: "¿Qué se miente más en una app de citas?", opciones: ["La edad", "La estatura", "Las fotos", "\"Busco algo serio\""] },
+  { id: "m38", texto: "¿Qué pasa más en la fiesta de fin de año de la oficina?", opciones: ["Alguien se le declara a alguien", "Alguien llora", "Alguien baila sobre la mesa", "Alguien renuncia"] },
+  { id: "m39", texto: "¿Con quién es peor equivocarse de chat?", opciones: ["El jefe", "La mamá", "El ex", "El grupo de la familia"] },
+  { id: "m40", texto: "¿Qué haría la mayoría por S/ 1 000?", opciones: ["Besar a un desconocido", "Raparse", "Mostrar su historial de búsqueda", "Llamar a su ex en altavoz"] },
+  { id: "m41", texto: "¿Qué hace la mayoría justo después de una ruptura?", opciones: ["Llora con canciones", "Sale de fiesta", "Se baja apps", "Le escribe al ex"] },
+  { id: "m42", texto: "¿Qué es lo más atrevido que haría el grupo en Nochebuena?", opciones: ["Escaparse a una fiesta", "Besar a su crush", "Confesar un secreto", "Nada, todos santos"] },
+  { id: "m43", texto: "¿Cuánto tarda la mayoría en contestarle a alguien que le gusta?", opciones: ["Al toque", "10 minutos", "1 hora", "Al día siguiente, para hacerse el difícil"] },
+  { id: "m44", texto: "¿Qué delata más que alguien está enamorado?", opciones: ["Le sonríe al celular", "Se arregla más", "Desaparece del grupo", "Habla de esa persona todo el rato"] },
+  { id: "m45", texto: "¿Qué es peor que tu pareja vea?", opciones: ["Tu historial", "Tus chats", "Tus fotos ocultas", "Tus audios"] },
+  { id: "m46", texto: "¿Qué haría la mayoría si su amigo secreto resulta ser su crush?", opciones: ["Regalarle algo carísimo", "Declararse en el intercambio", "Hacerse el loco", "Pedir cambio"] },
+  { id: "m47", texto: "¿Cuál es la peor forma de terminar?", opciones: ["Por mensaje", "Por audio", "En público", "Desapareciendo"] },
+  { id: "m48", texto: "¿Qué es más común en el grupo?", opciones: ["Stalkear al ex", "Stalkear al crush", "Stalkear al ex del crush", "Todas las anteriores"] },
+  { id: "m49", texto: "¿Qué preferiría la mayoría?", opciones: ["Leer los chats de su crush", "Saber quién lo stalkea", "Borrar un mensaje ya leído", "Saber quién es su amigo secreto"] },
+  { id: "m50", texto: "¿Qué es lo más vergonzoso que te pueden encontrar en el celular?", opciones: ["Las búsquedas", "Las fotos", "Los audios", "Las conversaciones archivadas"] },
+  { id: "m51", texto: "¿Qué hace la mayoría para impresionar en una primera cita?", opciones: ["Exagera su trabajo", "Finge gustos", "Paga todo", "Saca su mejor outfit"] },
+  { id: "m52", texto: "¿Qué celos son los más comunes?", opciones: ["Del ex", "Del mejor amigo", "Del compañero de trabajo", "De las redes"] },
+  { id: "m53", texto: "¿Cuántas veces ha vuelto la mayoría con un ex?", opciones: ["Nunca", "1 vez", "2 o 3", "Mejor no hablemos de eso"] },
+  { id: "m54", texto: "Si dos del grupo se besan en la fiesta de Navidad, ¿qué hace el resto?", opciones: ["Lo graba", "Aplaude", "Se hace el loco", "Lo cuenta en el grupo al día siguiente"] },
+  { id: "m55", texto: "¿Cómo tiene guardado la mayoría a su ex en el celular?", opciones: ["\"No contestar\"", "Con un emoji", "Con su nombre normal", "Ya lo borró"] },
+  { id: "m56", texto: "¿Qué es lo que más se finge en una relación?", opciones: ["Que te gusta su música", "Que no estás celoso", "Que no te importa", "Que ya estás llegando"] },
+  { id: "m57", texto: "¿Qué pregunta incomoda más en la cena familiar?", opciones: ["¿Y el novio o la novia?", "¿Cuándo te casas?", "¿Para cuándo los hijos?", "¿Y el trabajo?"] },
+  { id: "m58", texto: "¿A quién le escribe la mayoría con unos tragos de más?", opciones: ["Al ex", "Al crush", "Al grupo", "A la mamá"] },
+  { id: "m59", texto: "¿Cuánto tarda el grupo en olvidar un crush?", opciones: ["1 semana", "1 mes", "Nunca", "Hasta el siguiente crush"] },
+  { id: "m60", texto: "¿Qué es lo más atrevido que ha hecho la mayoría en una app de citas?", opciones: ["Mandar el primer mensaje", "Hacer match con un conocido", "Mentir en el perfil", "Salir con dos a la vez"] },
+  { id: "m61", texto: "Tu crush te deja en visto. ¿Qué hace la mayoría?", opciones: ["Espera", "Manda otro mensaje", "Sube una historia \"casual\"", "Bloquea"] },
+  { id: "m62", texto: "Según la mayoría, ¿qué delata más a un infiel?", opciones: ["El celular boca abajo", "Contraseñas nuevas", "\"Estoy en el gimnasio\"", "Se baña apenas llega"] },
+  { id: "m63", texto: "¿Qué es más difícil de perdonar?", opciones: ["Una mentira", "Olvidar el aniversario", "Hablar a escondidas con el ex", "Que lea tus chats"] },
+  { id: "m64", texto: "¿Qué hace la mayoría en una cita a ciegas aburrida?", opciones: ["Inventa una emergencia", "Aguanta hasta el final", "Pide la cuenta", "Llama a un amigo para que la rescate"] },
+  { id: "m65", texto: "En verdad o reto, ¿qué confiesa primero el grupo?", opciones: ["Un crush", "Un beso secreto", "Una mentira a un amigo", "Un stalkeo"] },
+  { id: "m66", texto: "¿Qué se vuelve chisme al día siguiente de una fiesta?", opciones: ["Quién se fue con quién", "Quién lloró", "Quién bailó", "Quién se quedó dormido"] },
+  { id: "m67", texto: "¿Qué mentira se dice más en Navidad?", opciones: ["\"Me encanta el regalo\"", "\"Ya estoy llegando\"", "\"Comí poco\"", "\"No tomo más\""] },
+  { id: "m68", texto: "¿Qué le da más miedo a la mayoría que vea su amigo secreto?", opciones: ["Sus respuestas de Picante", "Su ficha", "Lo que fisgoneó", "Su mensaje de la cápsula"] },
+  { id: "m69", texto: "Con una noche libre y sin consecuencias, ¿qué haría la mayoría?", opciones: ["Fiesta hasta el amanecer", "Escribirle al crush", "Viajar de improviso", "Dormir 12 horas"] },
+  { id: "m70", texto: "¿Qué es más tentador?", opciones: ["El ex que vuelve", "El crush prohibido", "El compañero de trabajo", "El desconocido de la fiesta"] },
+  { id: "m71", texto: "¿Cuántos crushes tuvo la mayoría este año?", opciones: ["Ninguno", "1", "2 o 3", "Perdí la cuenta"] },
+  { id: "m72", texto: "¿Qué es lo que más pasa en un after?", opciones: ["Confesiones", "Llamadas al ex", "Karaoke", "Planes que nadie cumple"] },
+  { id: "m73", texto: "¿Quién preferiría la mayoría que vea sus historias?", opciones: ["Su ex", "Su crush", "Nadie", "Su mamá"] },
+  { id: "m74", texto: "¿Qué hace la mayoría si su pareja le pide la contraseña del celular?", opciones: ["Se la da", "Le da una falsa", "Pregunta \"¿para qué?\"", "Termina la relación"] },
+  { id: "m75", texto: "¿Cuál es el plan más peligroso de diciembre?", opciones: ["La fiesta de la oficina", "La reunión de exalumnos", "El after del amigo secreto", "La cena con la familia de la pareja"] },
+];
+
+/**
+ * Primera versión de La manada (retirada el 2026-11-10: Luis las vio demasiado inocentes).
+ * Ya NO salen en el juego; quedan solo para leer respuestas guardadas con estos ids.
+ */
+const PREGUNTAS_MANADA_RETIRADAS: PreguntaManada[] = [
   { id: "m01", texto: "¿Qué es lo primero que se acaba en una fiesta navideña?", opciones: ["El panetón", "El chocolate caliente", "La paciencia", "El hielo"] },
   { id: "m02", texto: "¿Cuál es el peor regalo de todos?", opciones: ["Medias", "Un perfume barato", "Una taza con frase", "Nada"] },
   { id: "m03", texto: "¿Quién se duerme primero en Navidad?", opciones: ["El abuelo", "El tío que tomó", "Los niños", "Nadie: todos aguantan"] },
@@ -209,7 +261,7 @@ export const PLATOS = [
 ];
 
 export const pregunta = {
-  manada: (id: string) => PREGUNTAS_MANADA.find((p) => p.id === id),
+  manada: (id: string) => PREGUNTAS_MANADA.find((p) => p.id === id) ?? PREGUNTAS_MANADA_RETIRADAS.find((p) => p.id === id),
   amor: (id: string) => PREGUNTAS_AMOR.find((p) => p.id === id),
   picante: (id: string) => PREGUNTAS_PICANTE.find((p) => p.id === id),
   juicio: (id: string) => CASOS_JUICIO.find((p) => p.id === id),

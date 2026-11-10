@@ -8,7 +8,8 @@ test("bancos: ids únicos y suficientes para la temporada", () => {
   for (const banco of [PREGUNTAS_MANADA, PREGUNTAS_AMOR, PREGUNTAS_PICANTE, CASOS_JUICIO]) {
     assert.equal(new Set(banco.map((p) => p.id)).size, banco.length);
   }
-  assert.ok(PREGUNTAS_MANADA.length >= 30 && CASOS_JUICIO.length >= 30);
+  assert.ok(PREGUNTAS_MANADA.length >= 45 && CASOS_JUICIO.length >= 30);
+  assert.ok(PREGUNTAS_MANADA.every((p) => Number(p.id.slice(1)) > 30), "los ids viejos (m01–m30) no se reusan");
   assert.ok(PREGUNTAS_AMOR.length >= 50 && PREGUNTAS_PICANTE.length >= 50, "2 por día durante 25 días");
   assert.ok(PREGUNTAS_MANADA.every((p) => p.opciones.length === 4));
   assert.ok(PLATOS.length >= 40);
