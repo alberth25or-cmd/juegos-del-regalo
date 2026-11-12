@@ -8,6 +8,7 @@ export type Carga =
   | { tipo: "demo" }
   | { tipo: "pendiente"; yo: Jugador }
   | { tipo: "error" }
+  | { tipo: "terminos"; yo: Jugador; alias: string }
   | { tipo: "real"; yo: Jugador; estado: EstadoCasas };
 
 /**
@@ -21,7 +22,10 @@ export async function cargarCasas(): Promise<Carga> {
     const yo = await jugadorActual();
     if (!yo) return { tipo: "demo" };
     if (yo.status !== "active") return { tipo: "pendiente", yo };
-    return { tipo: "real", yo, estado: await estadoCasas(yo) };
+    const estado = await estadoCasas(yo);
+    // Pantalla de inicio: mayor de edad + reglas, una sola vez, antes de cualquier casa.
+    if (!estado.yo.aceptoTerminos) return { tipo: "terminos", yo, alias: estado.yo.alias };
+    return { tipo: "real", yo, estado };
   } catch (e) {
     unstable_rethrow(e);
     console.error("[casas]", e);

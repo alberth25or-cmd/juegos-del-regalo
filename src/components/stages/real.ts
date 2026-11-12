@@ -22,15 +22,12 @@ export function casasReales(e: EstadoCasas): Stage[] {
   const amorHechas = e.amor.filter((p) => p.estado).length;
   const picHechas = e.picante.filter((p) => p.estado).length;
   const juegos = e.calentamiento.hechos;
-  const picante: Stage =
-    e.yo.juegaPicante === false
-      ? { n: 4, nombre: "Picante", corto: "Picante", icono: "chili", papel: "rojo", descripcion: "Elegiste no jugar Picante: aquí no ganas ni pierdes monedas.", estado: "aldia", porDia: 0, hechasHoy: 0, unidad: "pregunta" }
-      : {
-          n: 4, nombre: "Picante", corto: "Picante", icono: "chili", papel: "rojo",
-          descripcion: e.yo.juegaPicante === null ? "Preguntas de solo sí o no, para mayores de edad. Al entrar decides si juegas." : "Preguntas nuevas cada día, solo sí o no.",
-          estado: e.yo.juegaPicante === null ? "nuevas" : est(2, picHechas), porDia: 2, hechasHoy: picHechas, unidad: "pregunta", pasesUsados: e.pases[4],
-          accion: { texto: e.yo.juegaPicante === null ? "Entrar a Picante" : "Responder las de hoy", href: "/diseno/picante" },
-        };
+  const picante: Stage = {
+    n: 4, nombre: "Picante", corto: "Picante", icono: "chili", papel: "rojo",
+    descripcion: "Preguntas nuevas cada día, solo sí o no. Puedes pasar, pero cuesta monedas y los pases son pocos.",
+    estado: est(2, picHechas), porDia: 2, hechasHoy: picHechas, unidad: "pregunta", pasesUsados: e.pases[4],
+    accion: { texto: "Responder las de hoy", href: "/diseno/picante" },
+  };
   return [
     {
       n: 1, nombre: "Calentamiento", corto: "Calentar", icono: "mission", papel: "verde",

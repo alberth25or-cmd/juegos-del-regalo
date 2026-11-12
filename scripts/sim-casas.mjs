@@ -62,6 +62,13 @@ check(e && e.empezado === false && e.manada === null, "las casas están cerradas
 check((await admin.pedir("/api/casas", { accion: "responder", pregunta: "m01", valor: 0 })).status === 409, "no se puede responder antes de Empezar");
 check((await admin.pedir("/api/admin", { accion: "empezarCasas" })).status === 400, "Empezar pide al menos 2 fichas");
 const datos = { genero: "Mujer", lentes: "No", estatura: "Medio", cabello: "Largo" };
+r = await js[1].pedir("/api/casas", { accion: "ficha", regalos: ["Taza 1", "Libro", "Chocolates"], datos });
+check(r.status === 409 && /pantalla de inicio/.test(r.error), "sin la pantalla de inicio no se puede llenar la ficha");
+check((await js[1].pedir("/api/casas", { accion: "aceptar", mayorDeEdad: false })).status === 400, "hay que confirmar la mayoría de edad");
+for (const [i, j] of js.entries()) {
+  r = await j.pedir("/api/casas", { accion: "aceptar", mayorDeEdad: true });
+  check(r.ok && r.estado.yo.aceptoTerminos, `agente ${i} confirma mayoría de edad y reglas (una sola vez)`);
+}
 check((await js[1].pedir("/api/casas", { accion: "ficha", regalos: ["Taza"], datos })).status === 400, "ficha incompleta se rechaza");
 for (const [i, j] of js.entries()) {
   r = await j.pedir("/api/casas", { accion: "ficha", regalos: [`Taza ${i}`, "Libro de cocina", "Chocolates"], datos: { ...datos, rasgo: `Rasgo ${i}` } });
@@ -89,7 +96,7 @@ r = await new C(`${red}.9`).pedir("/api/unirse", { codigo, username: `tarde_${su
 check(r.status === 400 && /puerta/.test(r.error), "la puerta se cerró");
 
 const es = await Promise.all(js.map((j) => j.estado()));
-check(es.every((x) => x.empezado && x.manada && x.amor.length === 2 && x.picante.length === 0), "todas las casas abiertas con sus preguntas del día");
+check(es.every((x) => x.empezado && x.manada && x.amor.length === 2 && x.picante.length === 2), "todas las casas abiertas para todos, Picante incluida");
 check(new Set(es.map((x) => x.yo.alias)).size === 4 && es.every((x) => /^Agente /.test(x.yo.alias)), "4 alias anónimos distintos");
 check(es.every((x) => x.yo.tieneAmigo), "todos tienen amigo secreto");
 
@@ -111,15 +118,12 @@ for (let i = 0; i < 4; i++) {
   r = await js[i].pedir("/api/casas", { accion: "responder", pregunta: es[i].amor[0].id, valor: `${i + 2}` });
   check(r.ok, `agente ${i} responde Amor`);
 }
-r = await js[0].pedir("/api/casas", { accion: "picante", acepta: true });
-check(r.ok && r.estado.picante.length === 2, "agente 0 juega Picante");
 r = await js[1].pedir("/api/casas", { accion: "picante", acepta: false });
-check(r.ok && r.estado.picante.length === 0 && r.estado.yo.juegaPicante === false, "agente 1 no juega Picante");
-r = await js[0].pedir("/api/casas", { accion: "responder", pregunta: r.estado.manada.id, valor: 0 });
+check(r.status === 400, "ya no existe la opción de no jugar Picante");
 const pic = (await js[0].estado()).picante;
 check((await js[0].pedir("/api/casas", { accion: "responder", pregunta: pic[0].id, valor: "Tal vez" })).status === 400, "Picante solo acepta Sí o No");
 check((await js[0].pedir("/api/casas", { accion: "responder", pregunta: pic[0].id, valor: "Sí" })).ok, "agente 0 responde Picante");
-check((await js[1].pedir("/api/casas", { accion: "responder", pregunta: pic[1].id, valor: "Sí" })).status === 409, "quien no juega Picante no responde Picante");
+check((await js[1].pedir("/api/casas", { accion: "responder", pregunta: pic[1].id, valor: "Sí" })).ok, "todos responden Picante");
 
 console.log("\n— Pasar");
 const yo2 = (await js[2].pedir("/api/yo")).yo;
@@ -171,9 +175,11 @@ check((await admin.pedir("/api/admin", { accion: "simularDia", dia: 2 })).ok, "s
 const es2 = await Promise.all(js.map((j) => j.estado()));
 check(es2[0].dia === 2 && es2[0].manada.id !== m.id, "salen preguntas nuevas");
 // agente 3: minoría en La manada y en el Juicio (+0) y 1 de Amor vencida (−40, gasta pase).
-check(es2[3].yo.monedas === saldos[3] - 40 && es2[3].pases[3] === 1, `vencida en Amor cuesta como pasar (${saldos[3]} → ${es2[3].yo.monedas})`);
+// agente 3: 1 de Amor vencida (−40) y las 2 de Picante vencidas (−60 c/u); cada una gasta un pase.
+check(es2[3].yo.monedas === saldos[3] - 40 - 120 && es2[3].pases[3] === 1 && es2[3].pases[4] === 2, `vencidas cuestan como pasar (${saldos[3]} → ${es2[3].yo.monedas})`);
 // agente 1: coincidió en La manada (+15) y en el Juicio (+15), y dejó vencer 1 de Amor (−40).
-check(es2[1].yo.monedas === saldos[1] + 15 + 15 - 40, `coincidir paga +15 en La manada y +15 en el Juicio (${saldos[1]} → ${es2[1].yo.monedas})`);
+// agente 1: +15 La manada, +15 Juicio, −40 Amor vencida, −60 por la 1 de Picante que no respondió.
+check(es2[1].yo.monedas === saldos[1] + 15 + 15 - 40 - 60, `coincidir paga +15 en La manada y +15 en el Juicio (${saldos[1]} → ${es2[1].yo.monedas})`);
 check(es2[1].juicioAyer && es2[1].juicioAyer.veredicto === "Culpable" && es2[1].juicioAyer.culpable === 3, "se ve el veredicto de ayer");
 const otra = await Promise.all(js.map((j) => j.estado().then((x) => x.yo.monedas)));
 check(otra.every((v, i) => v === es2[i].yo.monedas), "volver a entrar no cobra dos veces");

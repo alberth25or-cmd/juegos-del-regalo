@@ -112,7 +112,7 @@ export const STAGES: Stage[] = [
   },
   {
     n: 4, nombre: "Picante", corto: "Picante", icono: "chili", papel: "rojo",
-    descripcion: "Preguntas nuevas cada día, solo sí o no. La primera vez confirmas que eres mayor de edad (o eliges no jugarla).",
+    descripcion: "Preguntas nuevas cada día, solo sí o no. Puedes pasar, pero cuesta monedas.",
     estado: "nuevas", porDia: 2, hechasHoy: 0, unidad: "pregunta", monedas: 20, pasesUsados: 5,
     accion: { texto: "Responder las de hoy", href: "/diseno/picante" },
   },

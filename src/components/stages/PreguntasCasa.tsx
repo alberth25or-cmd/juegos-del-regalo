@@ -16,7 +16,8 @@ const CASA = {
 
 /**
  * Preguntas de HOY de Amor (respuesta corta) o Picante (sí o no), conectadas al servidor.
- * Responder da monedas; pasar cuesta y gasta un pase; Picante pide decidir si juegas.
+ * Responder da monedas; pasar cuesta y gasta un pase. Todos juegan todas las casas (la mayoría de
+ * edad y las reglas se aceptan una vez, en la pantalla de inicio).
  */
 export function PreguntasCasa({ casa, inicial }: { casa: 3 | 4; inicial: EstadoCasas }) {
   const c = CASA[casa];
@@ -58,34 +59,7 @@ export function PreguntasCasa({ casa, inicial }: { casa: 3 | 4; inicial: EstadoC
           </span>
         </div>
 
-        {casa === 4 && e.yo.juegaPicante === null && (
-          <div className="mt-5">
-            <h1 className="f-titulo text-[1.8rem] font-semibold leading-tight">Antes de entrar a Picante</h1>
-            <ul className="mt-3 flex flex-col gap-2 text-[0.95rem]">
-              <li>• Son preguntas de solo sí o no, para mayores de edad.</li>
-              <li>• Quien te regala puede comprar tus respuestas durante la temporada, sin saber quién eres.</li>
-              <li>• Puedes pasar, pero cuesta monedas y tienes {PASES_POR_CASA} pases en esta casa.</li>
-              <li>• Lo que decidas aquí queda fijo para toda la temporada.</li>
-            </ul>
-            <div className="mt-5 grid gap-2.5">
-              <button type="button" className="boton w-full" disabled={ocupado} onClick={() => enviar({ accion: "picante", acepta: true })}>
-                Soy mayor de edad y quiero jugar
-              </button>
-              <button type="button" className="boton claro w-full" disabled={ocupado} onClick={() => enviar({ accion: "picante", acepta: false })}>
-                No juego Picante
-              </button>
-            </div>
-          </div>
-        )}
-
-        {casa === 4 && e.yo.juegaPicante === false && (
-          <div className="mt-5" role="status">
-            <h1 className="f-titulo text-[1.6rem] font-semibold leading-tight">No juegas Picante</h1>
-            <p className="mt-2 text-[var(--tinta-suave)]">No te llegan sus preguntas: aquí no ganas ni pierdes monedas. Quien te regala verá &quot;No juega Picante&quot; en tu ficha.</p>
-          </div>
-        )}
-
-        {(casa === 3 || e.yo.juegaPicante === true) && (
+        {(
           <>
             <h1 className="f-titulo mt-5 text-[1.6rem] font-semibold leading-tight">Preguntas de hoy</h1>
             <p className="mt-1 text-[0.88rem] text-[var(--tinta-suave)]">Responder da +{c.gana} monedas. Vencen a las 23:59.</p>
@@ -166,7 +140,6 @@ export function PreguntasCasa({ casa, inicial }: { casa: 3 | 4; inicial: EstadoC
             </p>
           </>
         )}
-        {error && casa === 4 && e.yo.juegaPicante === null && <p className="error mt-3" role="alert">{error}</p>}
       </section>
     </div>
   );

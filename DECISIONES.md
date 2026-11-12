@@ -1,5 +1,20 @@
 # Decisiones del proyecto
 
+## Todos juegan todo · confirmación única al inicio (2026-11-12, pedido de Luis)
+
+- **Se quitó la opción de no jugar Picante** (y cualquier "no participo" por casa). La idea de Luis: que
+  todos participen en todas las casas.
+- **Pantalla de inicio, una sola vez:** antes de llenar la ficha o jugar, cada agente confirma que es
+  mayor de edad (18+) y acepta las reglas (hay preguntas de contenido sexual de sí o no, todos juegan
+  todo, pasar cuesta monedas, quien te regala puede leer tus respuestas). Sin eso no puede jugar.
+  Migración `009_terminos.sql` (`acepta_terminos_at`).
+- **Se mantiene "Paso"** (Amor y Picante, con costo y 6 por casa) porque es parte de la economía que
+  pidió Luis; no es una forma de no participar.
+- Temporadas en curso: a quien antes había elegido no jugar Picante se le cuentan sus preguntas desde el
+  día en que acepta las reglas (`picante_desde`), sin cobrarle días anteriores.
+
+---
+
 ## Presupuesto, premio y capacidad configurables · Amor y Picante para 30 días (2026-11-12, pedido de Luis)
 
 - **Panel del organizador** (`/diseno/organizador`): presupuesto del regalo, premio final y capacidad

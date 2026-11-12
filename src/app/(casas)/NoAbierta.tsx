@@ -8,7 +8,9 @@ export function NoAbierta({ carga, texto }: { carga: Carga; texto?: string }) {
     texto ??
     (carga.tipo === "error"
       ? "El servidor está ocupado. Recarga en unos segundos."
-      : carga.tipo === "pendiente"
+      : carga.tipo === "terminos"
+        ? "Primero entra a la pantalla principal y confirma que eres mayor de edad."
+        : carga.tipo === "pendiente"
         ? "El organizador todavía tiene que aprobar tu ingreso."
         : 'Las casas se abren cuando el organizador aprieta "Empezar".');
   return (

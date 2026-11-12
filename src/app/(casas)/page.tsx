@@ -8,6 +8,7 @@ import { AGENTES, DIA, faltanHoy, FISGONEOS_HOY, PUESTO, STAGES, YO, type Agente
 import { agentesReales, casasReales } from "@/components/stages/real";
 import { PixelIcon } from "@/components/ui/PixelIcon";
 import { textoPremio, textoPresupuesto } from "@/components/stages/textosSala";
+import { PantallaInicio } from "@/components/stages/PantallaInicio";
 import { cargarCasas } from "./cargar";
 
 /** Pantalla principal: la aldea de casas (datos reales con sesión; ejemplo sin sesión). */
@@ -22,6 +23,7 @@ export default function PantallaPrincipal() {
 async function Aldea() {
   const c = await cargarCasas();
 
+  if (c.tipo === "terminos") return <PantallaInicio alias={c.alias} />;
   if (c.tipo === "error") return <Aviso titulo="No pudimos cargar tus casas" texto="El servidor está ocupado. Recarga la página en unos segundos." />;
   if (c.tipo === "pendiente")
     return <Aviso titulo={`Hola, ${c.yo.displayName}`} texto="El organizador todavía tiene que aprobar tu ingreso. Apenas lo haga, aquí verás tus casas." />;

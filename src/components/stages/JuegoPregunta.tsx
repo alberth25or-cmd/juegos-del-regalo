@@ -18,12 +18,11 @@ const CASA = {
  * Preguntas del día de Amor (respuesta corta) o Picante (sí o no).
  *  - Responder da monedas. Pasar cuesta monedas y gasta uno de tus pases de la casa.
  *  - Dejarla vencer cuenta como pase; sin pases, cuesta el doble (economia.ts).
- *  - Picante: la primera vez confirmas que eres mayor de edad, o eliges no jugar esa casa.
  * shortcut: vista de diseño con estado local; el Frente 4 lo conecta al servidor.
  */
 export function JuegoPregunta({ casa, preguntas, pasesUsadosInicial, saldoInicial }: { casa: 3 | 4; preguntas: Pregunta[]; pasesUsadosInicial: number; saldoInicial: number }) {
   const c = CASA[casa];
-  const [acepta, setAcepta] = useState<boolean | null>(casa === 3 ? true : null);
+  const acepta = true; // Todos juegan todo: la mayoría de edad se confirma en la pantalla de inicio.
   const [i, setI] = useState(0);
   const [texto, setTexto] = useState("");
   const [pasesUsados, setPasesUsados] = useState(pasesUsadosInicial);
@@ -60,32 +59,6 @@ export function JuegoPregunta({ casa, preguntas, pasesUsadosInicial, saldoInicia
             <PixelIcon name="coin" size={16} /> {saldo}
           </span>
         </div>
-
-        {acepta === null && (
-          <div className="mt-5">
-            <h1 className="f-titulo text-[1.8rem] font-semibold leading-tight">Antes de entrar a Picante</h1>
-            <ul className="mt-3 flex flex-col gap-2 text-[0.95rem]">
-              <li>• Son preguntas de solo sí o no, para mayores de edad.</li>
-              <li>• Quien te regala puede comprar tus respuestas durante la temporada, sin saber quién eres.</li>
-              <li>• Puedes pasar, pero cuesta monedas y tienes {PASES_POR_CASA} pases en esta casa.</li>
-            </ul>
-            <div className="mt-5 grid gap-2.5">
-              <button type="button" className="boton w-full" onClick={() => setAcepta(true)}>
-                Soy mayor de edad y quiero jugar
-              </button>
-              <button type="button" className="boton claro w-full" onClick={() => setAcepta(false)}>
-                No juego Picante
-              </button>
-            </div>
-          </div>
-        )}
-
-        {acepta === false && (
-          <div className="mt-5" role="status">
-            <h1 className="f-titulo text-[1.6rem] font-semibold leading-tight">Listo, no juegas Picante</h1>
-            <p className="mt-2 text-[var(--tinta-suave)]">No te llegan sus preguntas: ahí no ganas ni pierdes monedas. Quien te regala verá &quot;No juega Picante&quot; en tu ficha.</p>
-          </div>
-        )}
 
         {acepta && !terminado && (
           <>

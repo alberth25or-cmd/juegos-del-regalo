@@ -78,10 +78,20 @@ async function movimiento(tx: Tx, yo: Jugador, tipo: string, fuente: string, mon
 }
 
 /** Preguntas del día con su casa, según si el jugador juega Picante. */
-function idsDelDia(seasonId: string, dia: number, juegaPicante: boolean | null) {
+/**
+ * Desde qué día le toca Picante a un jugador (null = todavía no aceptó las reglas). Todos juegan
+ * todo; `picante_desde` solo existe para no cobrar días viejos a quien antes eligió no jugarla.
+ */
+type PicanteDesde = number | null;
+function picanteDesdeDe(p: { juega_picante?: unknown; picante_desde?: unknown } | undefined): PicanteDesde {
+  if (p?.juega_picante !== true) return null;
+  return typeof p.picante_desde === "number" ? p.picante_desde : 0;
+}
+
+function idsDelDia(seasonId: string, dia: number, picanteDesde: PicanteDesde) {
   const q = preguntasDelDia(seasonId, dia);
   const lista: { id: string; casa: 2 | 3 | 4 | 5 }[] = [{ id: q.manada.id, casa: 2 }, ...q.amor.map((p) => ({ id: p.id, casa: 3 as const }))];
-  if (juegaPicante === true) lista.push(...q.picante.map((p) => ({ id: p.id, casa: 4 as const })));
+  if (picanteDesde !== null && dia >= picanteDesde) lista.push(...q.picante.map((p) => ({ id: p.id, casa: 4 as const })));
   lista.push({ id: q.juicio.id, casa: 5 });
   return lista;
 }
@@ -95,7 +105,7 @@ async function pasesUsados(tx: Tx, playerId: string, casa: number) {
  * Cobra lo pendiente de días anteriores: preguntas vencidas y el extra de La manada
  * (coincidir con la mayoría). Idempotente.
  */
-async function liquidar(tx: Tx, yo: Jugador, cfg: ConfigCasas, hoy: number, juegaPicante: boolean | null) {
+async function liquidar(tx: Tx, yo: Jugador, cfg: ConfigCasas, hoy: number, juegaPicante: PicanteDesde) {
   if (hoy <= cfg.diaInicio) return;
   const desde = cfg.diaInicio;
   const hasta = Math.min(hoy - 1, desde + 89);
@@ -164,7 +174,7 @@ async function juegosDeHoy(sql: Tx | ReturnType<typeof db>, playerId: string) {
 }
 
 /** Bono por terminar todo lo del día en todas las casas (una vez por día). */
-async function bonoSiCorresponde(tx: Tx, yo: Jugador, hoy: number, juegaPicante: boolean | null) {
+async function bonoSiCorresponde(tx: Tx, yo: Jugador, hoy: number, juegaPicante: PicanteDesde) {
   const ids = idsDelDia(yo.seasonId, hoy, juegaPicante).map((q) => q.id);
   const [r] = await tx`select count(*)::int as n from cc.respuestas where player_id = ${yo.id} and dia = ${hoy} and pregunta_id = any(${ids}) and estado <> 'vencida'`;
   const juegos = await juegosDeHoy(tx, yo.id);
@@ -181,7 +191,7 @@ export interface EstadoCasas {
   totalDias: number;
   fichaDia: number | null;
   fichaAbierta: boolean;
-  yo: { alias: string; avatar: unknown; monedas: number; puesto: number; juegaPicante: boolean | null; tieneFicha: boolean; tieneAmigo: boolean; admin: boolean };
+  yo: { alias: string; avatar: unknown; monedas: number; puesto: number; aceptoTerminos: boolean; tieneFicha: boolean; tieneAmigo: boolean; admin: boolean };
   ranking: { alias: string; avatar: unknown; monedas: number; yo: boolean }[];
   /** Por casa: alias de quienes ya están al día hoy (para el riel). */
   alDia: Record<number, string[]>;
@@ -208,17 +218,18 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
   const cfg = t.casas;
   const empezado = !!cfg && dia > 0;
 
-  const { alias, juegaPicante } = await conTope(
+  const { alias, picanteDesde, aceptoTerminos } = await conTope(
     sql.begin(async (tx) => {
       await tx`select pg_advisory_xact_lock(hashtext(${"casas:" + yo.id}))`;
       const alias = yo.status === "active" ? await asegurarAlias(tx, yo) : "";
-      const [p] = await tx`select juega_picante from cc.players where id = ${yo.id}`;
-      const jp = (p?.juega_picante ?? null) as boolean | null;
-      if (empezado && yo.status === "active") {
+      const [p] = await tx`select juega_picante, picante_desde, acepta_terminos_at from cc.players where id = ${yo.id}`;
+      const jp = picanteDesdeDe(p);
+      const acepto = !!p?.acepta_terminos_at;
+      if (empezado && yo.status === "active" && acepto) {
         await liquidar(tx, yo, cfg!, dia, jp);
         await bonoSiCorresponde(tx, yo, dia, jp);
       }
-      return { alias, juegaPicante: jp };
+      return { alias, picanteDesde: jp, aceptoTerminos: acepto };
     }),
     12_000,
     "preparación de las casas",
@@ -293,7 +304,7 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
       avatar: avatarDeAlias(alias),
       monedas: yoFila >= 0 ? (ranking[yoFila].monedas as number) : 0,
       puesto: yoFila + 1,
-      juegaPicante,
+      aceptoTerminos,
       tieneFicha: ficha.length > 0,
       tieneAmigo: amigo.length > 0,
       admin: yo.role === "admin",
@@ -303,7 +314,7 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
     calentamiento: { hechos: JUEGOS_CALENTAMIENTO.filter((j) => juegos.has(j)) },
     manada: q ? { ...dePregunta(q.manada.id, q.manada.texto), opciones: q.manada.opciones } : null,
     amor: q ? q.amor.map((p) => dePregunta(p.id, p.texto)) : [],
-    picante: q && juegaPicante === true ? q.picante.map((p) => dePregunta(p.id, p.texto)) : [],
+    picante: q && picanteDesde !== null && dia >= picanteDesde ? q.picante.map((p) => dePregunta(p.id, p.texto)) : [],
     pases,
     fisgoneosHoy: (fisg[0]?.n as number) ?? 0,
     arbol: {
@@ -346,9 +357,10 @@ export async function responder(yo: Jugador, preguntaId: string, valor: unknown,
   await conTope(
     db().begin(async (tx) => {
       await tx`select pg_advisory_xact_lock(hashtext(${"casas:" + yo.id}))`;
-      const [p] = await tx`select juega_picante from cc.players where id = ${yo.id}`;
-      const jp = (p?.juega_picante ?? null) as boolean | null;
-      if (dp.casa === 4 && jp !== true) throw new ErrorDeUsuario("Primero confirma si juegas Picante.", 409);
+      const [p] = await tx`select juega_picante, picante_desde, acepta_terminos_at from cc.players where id = ${yo.id}`;
+      if (!p?.acepta_terminos_at) throw new ErrorDeUsuario(SIN_TERMINOS, 409);
+      const jp = picanteDesdeDe(p);
+      if (dp.casa === 4 && (jp === null || dia < jp)) throw new ErrorDeUsuario("Esta pregunta de Picante no es tuya hoy.", 409);
       if (dp.casa === 2) {
         const [ya] = await tx`select 1 from cc.respuestas where player_id = ${yo.id} and casa = 2 and dia = ${dia}`;
         if (ya) throw new ErrorDeUsuario("Ya respondiste La manada de hoy.", 409);
@@ -390,14 +402,32 @@ export async function responder(yo: Jugador, preguntaId: string, valor: unknown,
   return estadoCasas(yo);
 }
 
-/** Picante: juega (mayor de edad) o no. Se decide una vez. */
-export async function decidirPicante(yo: Jugador, acepta: boolean) {
-  await conTope(db()`update cc.players set juega_picante = ${acepta} where id = ${yo.id} and juega_picante is null`);
+const SIN_TERMINOS = "Primero confirma en la pantalla de inicio que eres mayor de edad y aceptas las reglas.";
+
+async function exigirTerminos(playerId: string) {
+  const [p] = await conTope(() => db()`select acepta_terminos_at from cc.players where id = ${playerId}`);
+  if (!p?.acepta_terminos_at) throw new ErrorDeUsuario(SIN_TERMINOS, 409);
+}
+
+/**
+ * Pantalla de inicio (una sola vez): mayor de edad + reglas. Desde ahí juega TODAS las casas,
+ * Picante incluida. A quien antes había elegido no jugar Picante, se le cuenta desde hoy.
+ */
+export async function aceptarTerminos(yo: Jugador) {
+  const { dia } = diaDe(yo);
+  await conTope(db()`
+    update cc.players set
+      acepta_terminos_at = coalesce(acepta_terminos_at, now()),
+      picante_desde = case when juega_picante is true then picante_desde else ${dia} end,
+      juega_picante = true
+    where id = ${yo.id}
+  `);
   return estadoCasas(yo);
 }
 
 /** Guarda (o actualiza) la ficha de inscripción. */
 export async function guardarFicha(yo: Jugador, regalos: unknown, datos: unknown) {
+  await exigirTerminos(yo.id);
   const v = validarFicha(regalos, datos);
   if (!v.ok) throw new ErrorDeUsuario(v.error);
   for (const r of [...v.ficha.regalos, v.ficha.datos.rasgo ?? ""].filter(Boolean)) {
@@ -504,6 +534,7 @@ export async function fichaAmigo(yo: Jugador): Promise<FichaAmigo | null> {
 /** Abre un sobre de la ficha del amigo secreto: gratis (1 por día) o pagando monedas. */
 export async function fisgonear(yo: Jugador, respuestaId: string) {
   if (!/^[0-9a-f-]{36}$/i.test(respuestaId)) throw new ErrorDeUsuario("Sobre no encontrado.", 404);
+  await exigirTerminos(yo.id);
   const { dia } = diaDe(yo);
   await conTope(
     db().begin(async (tx) => {
@@ -693,6 +724,7 @@ export async function premios(seasonId: string): Promise<Premio[]> {
 
 /** Escribe (o reescribe) el mensaje para tu amigo secreto. Se puede cambiar hasta que se abre. */
 export async function escribirCapsula(yo: Jugador, mensajeIn: unknown) {
+  await exigirTerminos(yo.id);
   const { dia, totalDias } = diaDe(yo);
   const t = await temporada(yo.seasonId);
   exigirEmpezado(t.casas, dia);
