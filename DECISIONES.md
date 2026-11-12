@@ -12,7 +12,9 @@ cobra como vencida ni se puede responder dos veces el mismo día).
 
 ## Juicio final, Ranking de la vergüenza y Cápsula del tiempo (2026-11-10, pedido de Luis)
 
-- **Juicio final (casa 5):** un caso navideño absurdo por día (`CASOS_JUICIO`, 30 casos).
+- **Juicio final (casa 5):** un dilema por día (`CASOS_JUICIO`). El 2026-11-12 Luis cambió los 30 casos
+  navideños "inocentes" por 45 dilemas controversiales (infidelidad, ex, lealtad, código de amigos) que
+  dividen al grupo; ids `j31`–`j75`, alcanzan para 45 días.
   ¿Culpable o inocente? Votar da 15 monedas y coincidir con la mayoría del jurado, 15 más (se paga al
   día siguiente, como La manada). Sin "Paso"; dejarlo vencer cuesta 15. Se muestra el veredicto de ayer.
   No va en la ficha del amigo secreto (es opinión, no dato personal).
