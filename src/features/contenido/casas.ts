@@ -292,6 +292,44 @@ export const CASOS_JUICIO: { id: string; texto: string }[] = [
 
 export const VEREDICTOS = ["Culpable", "Inocente"] as const;
 
+/**
+ * Corazón: una pregunta bonita por día (de los bancos "Conocernos de verdad" y "Conocerte de verdad"
+ * que pasó Luis, 2026-11-12). Sobre uno mismo, de respuesta corta, sin temas tristes. Van a la ficha
+ * del amigo secreto: dicen qué regalarle y cómo describirlo.
+ */
+export const PREGUNTAS_CORAZON: { id: string; texto: string }[] = [
+  { id: "c01", texto: "¿Qué tres palabras te representan mejor?" },
+  { id: "c02", texto: "¿Qué cosa pequeña puede cambiarte completamente el día?" },
+  { id: "c03", texto: "¿Qué es algo que la gente suele malinterpretar de ti?" },
+  { id: "c04", texto: "¿Qué tipo de personas sacan tu mejor versión?" },
+  { id: "c05", texto: "¿Qué personaje de una película, libro o serie tiene algo de ti?" },
+  { id: "c06", texto: "¿Qué soñabas ser cuando eras pequeño?" },
+  { id: "c07", texto: "¿Qué olor, canción o lugar te transporta a tu infancia?" },
+  { id: "c08", texto: "¿Qué travesura de pequeño todavía recuerdas con una sonrisa?" },
+  { id: "c09", texto: "¿Qué costumbre de tu familia te gustaría conservar toda la vida?" },
+  { id: "c10", texto: "¿Qué experiencia te gustaría vivir al menos una vez en la vida?" },
+  { id: "c11", texto: "¿Qué harías si supieras que no puedes fracasar?" },
+  { id: "c12", texto: "¿Qué lugar del mundo sueñas con conocer?" },
+  { id: "c13", texto: "¿Qué te gustaría aprender antes de que termine este año?" },
+  { id: "c14", texto: "¿Qué actividad podrías hacer durante horas sin darte cuenta del tiempo?" },
+  { id: "c15", texto: "¿Qué habilidad te gustaría dominar por completo?" },
+  { id: "c16", texto: "¿Qué gesto pequeño te hace sentir profundamente querido?" },
+  { id: "c17", texto: "¿Cuál es el gesto más bonito que alguien ha tenido contigo?" },
+  { id: "c18", texto: "¿Qué es lo que más valoras en una amistad?" },
+  { id: "c19", texto: "¿Cuál ha sido el riesgo más grande que has tomado?" },
+  { id: "c20", texto: "¿Qué viaje te cambió la forma de ver el mundo?" },
+  { id: "c21", texto: "¿Qué es algo que hiciste por primera vez y nunca olvidaste?" },
+  { id: "c22", texto: "¿Qué canción te devuelve inmediatamente a un momento feliz?" },
+  { id: "c23", texto: "¿Qué comida te recuerda a alguien especial?" },
+  { id: "c24", texto: "¿Qué plan sencillo te hace inmensamente feliz?" },
+  { id: "c25", texto: "¿Qué pequeño lujo disfrutas sin sentir culpa?" },
+  { id: "c26", texto: "¿Qué harías un domingo perfecto sin ninguna obligación?" },
+  { id: "c27", texto: "¿Qué recuerdo te hace sonreír incluso en un mal día?" },
+  { id: "c28", texto: "¿Cuál es tu manera favorita de celebrar un logro?" },
+  { id: "c29", texto: "¿Qué es lo que más disfrutas de estar con tus amigos?" },
+  { id: "c30", texto: "¿Qué te gustaría que tus amigos nunca olvidaran de ti?" },
+];
+
 /** Platos peruanos para los alias "Agente <plato>" (más que la capacidad máxima de 40). */
 export const PLATOS = [
   "Picarón", "Mazamorra", "Cau Cau", "Rocoto", "Anticucho", "Causa", "Lúcuma", "Chicha", "Tamal", "Papa Rellena",
@@ -306,10 +344,15 @@ export const pregunta = {
   amor: (id: string) => PREGUNTAS_AMOR.find((p) => p.id === id),
   picante: (id: string) => PREGUNTAS_PICANTE.find((p) => p.id === id),
   juicio: (id: string) => CASOS_JUICIO.find((p) => p.id === id),
+  corazon: (id: string) => PREGUNTAS_CORAZON.find((p) => p.id === id),
 };
 
 /** Texto y picor de cualquier pregunta por id (el prefijo dice la casa). */
-export function datosPregunta(id: string): { casa: 2 | 3 | 4 | 5; texto: string; picor: 1 | 2 | 3; opciones?: string[] } | null {
+export function datosPregunta(id: string): { casa: 2 | 3 | 4 | 5 | 6; texto: string; picor: 1 | 2 | 3; opciones?: string[] } | null {
+  if (id.startsWith("c")) {
+    const p = pregunta.corazon(id);
+    return p ? { casa: 6, texto: p.texto, picor: 1 } : null;
+  }
   if (id.startsWith("j")) {
     const p = pregunta.juicio(id);
     return p ? { casa: 5, texto: p.texto, picor: 1, opciones: [...VEREDICTOS] } : null;

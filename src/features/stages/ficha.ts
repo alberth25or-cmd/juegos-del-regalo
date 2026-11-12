@@ -15,7 +15,7 @@
 import { FISGONEAR } from "../scoring/economia.ts";
 
 /** Casas con respuestas que se pueden fisgonear. */
-export type CasaConRespuestas = 2 | 3 | 4;
+export type CasaConRespuestas = 2 | 3 | 4 | 6;
 
 /** Precio en monedas de abrir un sobre, por casa (más íntimo = más caro). Vive en economia.ts. */
 export const PRECIO_FISGONEO: Record<CasaConRespuestas, number> = FISGONEAR;
@@ -53,10 +53,10 @@ export function puntajePicante(r: RespuestaFicha) {
   return r.picor * 2 + rareza * 2;
 }
 
-/** Las respuestas que destaca la ficha final, de la más picante a la menos. */
+/** Las respuestas que destaca la ficha final, de la más picante a la menos (Corazón no cuenta). */
 export function masPicantes(rs: RespuestaFicha[], n = DESTACADAS_FINAL) {
   return rs
-    .filter((r) => r.respuesta !== null)
+    .filter((r) => r.respuesta !== null && r.casa !== 6)
     .map((r, i) => ({ r, i, p: puntajePicante(r) }))
     .sort((a, b) => b.p - a.p || a.i - b.i)
     .slice(0, n)
@@ -66,4 +66,17 @@ export function masPicantes(rs: RespuestaFicha[], n = DESTACADAS_FINAL) {
 /** ¿Alcanza el saldo para abrir este sobre? */
 export function puedePagar(saldo: number, r: RespuestaFicha) {
   return saldo >= precio(r);
+}
+
+/**
+ * "Lo más bonito" de la ficha final: las respuestas de Corazón más completas (las más largas),
+ * que suelen ser las que más dicen de la persona.
+ */
+export function masBonitas(rs: RespuestaFicha[], n = DESTACADAS_FINAL) {
+  return rs
+    .filter((r) => r.casa === 6 && r.respuesta)
+    .map((r, i) => ({ r, i }))
+    .sort((a, b) => (b.r.respuesta ?? "").length - (a.r.respuesta ?? "").length || a.i - b.i)
+    .slice(0, n)
+    .map((x) => x.r);
 }

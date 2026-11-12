@@ -99,7 +99,7 @@ export function AldeaStages({ stages, titulo, subtitulo, yo }: { stages: Stage[]
             </svg>
 
             {stages.map((s, i) => {
-              const titulo = s.n === 6 ? s.nombre : `${s.n}. ${s.nombre}`;
+              const titulo = s.n === 6 ? s.nombre : `${s.numero ?? s.n}. ${s.nombre}`;
               return (
                 <div key={s.n} className="aldea-col" data-impar={i % 2 === 1}>
                   <button
@@ -119,7 +119,7 @@ export function AldeaStages({ stages, titulo, subtitulo, yo }: { stages: Stage[]
                   >
                     <CasaStage s={s} />
                     <span className="casa-nombre">
-                      <span className="f-titulo">{s.n === 6 ? "★" : s.n}</span> {s.corto}
+                      <span className="f-titulo">{s.n === 6 ? "★" : (s.numero ?? s.n)}</span> {s.corto}
                     </span>
                     <span className="casa-nota">{s.estado === "cerrada" ? s.abre : s.n === 6 ? "Ver ficha" : s.porDia === 0 ? "—" : s.estado === "nuevas" ? `${faltanHoy(s)} nueva${faltanHoy(s) === 1 ? "" : "s"}` : "✓ Al día"}</span>
                   </button>

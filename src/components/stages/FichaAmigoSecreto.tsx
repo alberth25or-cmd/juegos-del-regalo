@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { PixelIcon, type IconName } from "@/components/ui/PixelIcon";
-import { masPicantes, precio, puedePagar, SOBRES_GRATIS_POR_DIA, type CasaConRespuestas, type RespuestaFicha } from "@/features/stages/ficha";
+import { masBonitas, masPicantes, precio, puedePagar, SOBRES_GRATIS_POR_DIA, type CasaConRespuestas, type RespuestaFicha } from "@/features/stages/ficha";
 import { api } from "@/lib/cliente/api";
 import type { FichaAmigo } from "@/lib/server/casas";
 import { Cabeza } from "./Cabeza";
@@ -23,6 +23,7 @@ const CASAS: { n: CasaConRespuestas; titulo: string; icono: IconName }[] = [
   { n: 2, titulo: "La manada", icono: "sheep" },
   { n: 3, titulo: "Amor y relaciones", icono: "heart" },
   { n: 4, titulo: "Picante", icono: "chili" },
+  { n: 6, titulo: "Corazón", icono: "sparkle" },
 ];
 
 /**
@@ -37,6 +38,7 @@ export interface FichaReal {
   final: boolean;
   gratisHoy: number;
   destacadas: string[];
+  bonitas: string[];
   juegaPicante: boolean | null;
 }
 
@@ -54,7 +56,9 @@ export function FichaAmigoSecreto({ f: inicial, saldoInicial, dia, real, presupu
   const final = vista === "final";
   const idsDestacadas = r2 ? r2.destacadas : masPicantes(f.respuestas).map((r) => r.id);
   const destacadas = idsDestacadas.map((id) => f.respuestas.find((r) => r.id === id)).filter((r): r is DatosFicha["respuestas"][number] => !!r);
-  const abierta = (r: RespuestaFicha) => r.respuesta === null || abiertas.has(r.id) || (final && idsDestacadas.includes(r.id));
+  const idsBonitas = r2 ? r2.bonitas : masBonitas(f.respuestas).map((r) => r.id);
+  const bonitas = idsBonitas.map((id) => f.respuestas.find((r) => r.id === id)).filter((r): r is DatosFicha["respuestas"][number] => !!r);
+  const abierta = (r: RespuestaFicha) => r.respuesta === null || abiertas.has(r.id) || (final && (idsDestacadas.includes(r.id) || idsBonitas.includes(r.id)));
   const cerradas = f.respuestas.filter((r) => !abierta(r)).length;
   const pasadas = f.respuestas.filter((r) => r.respuesta === null).length;
 
@@ -72,7 +76,7 @@ export function FichaAmigoSecreto({ f: inicial, saldoInicial, dia, real, presupu
       setAbiertas(new Set(n.respuestas.filter((x) => x.abierta).map((x) => x.id)));
       setSaldo(n.monedas);
       setGratis(n.gratisHoy);
-      setR2({ final: n.final, gratisHoy: n.gratisHoy, destacadas: n.destacadas, juegaPicante: n.juegaPicante });
+      setR2({ final: n.final, gratisHoy: n.gratisHoy, destacadas: n.destacadas, bonitas: n.bonitas, juegaPicante: n.juegaPicante });
       return;
     }
     if (pagando) {
@@ -151,6 +155,23 @@ export function FichaAmigoSecreto({ f: inicial, saldoInicial, dia, real, presupu
                         {r.igualQue !== undefined && r.igualQue < 0.35 && <span>Solo el {Math.round(r.igualQue * 100)} % respondió lo mismo</span>}
                       </p>
                     </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
+
+          {final && bonitas.length > 0 && (
+            <section className="rounded-[20px] bg-[#fdf0f5] p-4 shadow-[0_0_0_2px_#f6c9da]">
+              <h2 className="f-titulo flex items-center gap-2 text-[1.4rem] font-semibold">
+                <PixelIcon name="sparkle" size={24} /> Lo más bonito
+              </h2>
+              <p className="mt-0.5 text-[0.88rem] text-[var(--tinta-suave)]">Sus respuestas más completas de Corazón: lo que lo hace único.</p>
+              <ol className="mt-3 flex flex-col gap-2.5">
+                {bonitas.map((r) => (
+                  <li key={r.id} className="rounded-[16px] bg-white px-3.5 py-3 shadow-[0_0_0_2px_#f6c9da]">
+                    <p className="text-[0.9rem] text-[var(--tinta-suave)]">{r.pregunta}</p>
+                    <p className="f-titulo text-[1.2rem] font-semibold text-[#b0306a]">{r.respuesta}</p>
                   </li>
                 ))}
               </ol>

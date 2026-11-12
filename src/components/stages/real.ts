@@ -13,7 +13,10 @@ export function agentesReales(e: EstadoCasas): Agente[] {
     avatar: r.avatar as Agente["avatar"],
     monedas: r.monedas,
     yo: r.yo,
-    hoy: [2, 3, 4].filter((c) => e.alDia[c]?.includes(r.alias)).concat(r.yo && e.calentamiento.hechos.length >= 3 ? [1] : []),
+    // Casas al día hoy (número de casa de la aldea; Corazón es la casa interna 6 pero n = 7).
+    hoy: [2, 3, 4, 5].filter((c) => e.alDia[c]?.includes(r.alias))
+      .concat(e.alDia[6]?.includes(r.alias) ? [7] : [])
+      .concat(r.yo && e.calentamiento.hechos.length >= 3 ? [1] : []),
   }));
 }
 
@@ -53,7 +56,13 @@ export function casasReales(e: EstadoCasas): Stage[] {
     },
     picante,
     {
-      n: 5, nombre: "Juicio final", corto: "Juicio", icono: "star", papel: "azul",
+      n: 7, numero: 5, nombre: "Corazón", corto: "Corazón", icono: "sparkle", papel: "rosa",
+      descripcion: "Una pregunta bonita por día. Lo que respondes le dice a quien te regala qué te hace feliz.",
+      estado: est(1, e.corazon?.estado ? 1 : 0), porDia: 1, hechasHoy: e.corazon?.estado ? 1 : 0, unidad: "pregunta",
+      accion: { texto: "Responder la de hoy", href: "/diseno/corazon" },
+    },
+    {
+      n: 5, numero: 6, nombre: "Juicio final", corto: "Juicio", icono: "star", papel: "azul",
       descripcion: e.fichaAbierta ? "¡Veredicto final! Mira los premios de la temporada." : "Un caso absurdo por día: ¿culpable o inocente? Si coincides con el jurado, mañana te llegan +15.",
       estado: est(1, e.juicio?.estado ? 1 : 0), porDia: 1, hechasHoy: e.juicio?.estado ? 1 : 0, unidad: "reto",
       accion: { texto: "Dar mi veredicto", href: "/diseno/juicio" },

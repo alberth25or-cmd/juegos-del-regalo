@@ -7,6 +7,7 @@ const TECHO: Record<Stage["papel"], [string, string]> = {
   verde: ["#1f7a4d", "#11532f"],
   azul: ["#2c4aa8", "#1b2f73"],
   morado: ["#6b3fa0", "#472870"],
+  rosa: ["#d6457a", "#9c2a55"],
 };
 
 /**

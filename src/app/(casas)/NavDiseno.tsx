@@ -9,6 +9,7 @@ const VISTAS = [
   ["/diseno/manada", "La manada"],
   ["/diseno/amor", "Amor"],
   ["/diseno/picante", "Picante"],
+  ["/diseno/corazon", "Corazón"],
   ["/diseno/juicio", "Juicio"],
   ["/diseno/capsula", "Cápsula"],
   ["/diseno/inscripcion", "Ficha"],

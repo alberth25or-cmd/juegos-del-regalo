@@ -43,7 +43,9 @@ export interface Stage {
   /** Solo la ficha (cerrada): cuándo se abre. */
   abre?: string;
   /** Color del techo de la casa. */
-  papel: "rojo" | "verde" | "azul" | "morado";
+  papel: "rojo" | "verde" | "azul" | "morado" | "rosa";
+  /** Número que se muestra en la casa (si no, `n`). Corazón tiene n = 7 pero va quinta. */
+  numero?: number;
   /** Monedas que llevas ganadas en esta casa. */
   monedas?: number;
   /** Solo Amor y Picante: pases que ya usaste en la temporada. */
@@ -117,9 +119,16 @@ export const STAGES: Stage[] = [
     accion: { texto: "Responder las de hoy", href: "/diseno/picante" },
   },
   {
-    n: 5, nombre: "Juicio final", corto: "Juicio", icono: "star", papel: "azul",
-    descripcion: "Un reto nuevo cada día. El último día cierra el ranking.",
+    n: 7, numero: 5, nombre: "Corazón", corto: "Corazón", icono: "sparkle", papel: "rosa",
+    descripcion: "Una pregunta bonita por día. Lo que respondes le dice a quien te regala qué te hace feliz.",
+    estado: "nuevas", porDia: 1, hechasHoy: 0, unidad: "pregunta", monedas: 40,
+    accion: { texto: "Responder la de hoy", href: "/diseno/corazon" },
+  },
+  {
+    n: 5, numero: 6, nombre: "Juicio final", corto: "Juicio", icono: "star", papel: "azul",
+    descripcion: "Un dilema por día: ¿culpable o inocente? El último día, los premios de la temporada.",
     estado: "nuevas", porDia: 1, hechasHoy: 0, unidad: "reto", monedas: 0,
+    accion: { texto: "Dar mi veredicto", href: "/diseno/juicio" },
   },
   {
     n: 6, nombre: "Tu amigo secreto", corto: "Ficha", icono: "chest", papel: "verde",

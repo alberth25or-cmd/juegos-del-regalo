@@ -5,7 +5,7 @@ import { datosPregunta } from "@/features/contenido/casas";
 import { filtrarChat } from "@/features/contenido/filtro";
 import { costoPasar, costoVencida, FISGONEAR, GANANCIAS, PASES_POR_CASA } from "@/features/scoring/economia";
 import { estadoConPrueba, diaLocal, inicioDelDia } from "@/features/season/calendario";
-import { masPicantes, type RespuestaFicha } from "@/features/stages/ficha";
+import { masBonitas, masPicantes, type RespuestaFicha } from "@/features/stages/ficha";
 import { avatarDeAlias } from "@/features/avatar";
 import { ErrorDeUsuario } from "./api";
 import { conTope, db, type Tx } from "./db";
@@ -90,9 +90,9 @@ function picanteDesdeDe(p: { juega_picante?: unknown; picante_desde?: unknown } 
 
 function idsDelDia(seasonId: string, dia: number, picanteDesde: PicanteDesde) {
   const q = preguntasDelDia(seasonId, dia);
-  const lista: { id: string; casa: 2 | 3 | 4 | 5 }[] = [{ id: q.manada.id, casa: 2 }, ...q.amor.map((p) => ({ id: p.id, casa: 3 as const }))];
+  const lista: { id: string; casa: 2 | 3 | 4 | 5 | 6 }[] = [{ id: q.manada.id, casa: 2 }, ...q.amor.map((p) => ({ id: p.id, casa: 3 as const }))];
   if (picanteDesde !== null && dia >= picanteDesde) lista.push(...q.picante.map((p) => ({ id: p.id, casa: 4 as const })));
-  lista.push({ id: q.juicio.id, casa: 5 });
+  lista.push({ id: q.juicio.id, casa: 5 }, { id: q.corazon.id, casa: 6 });
   return lista;
 }
 
@@ -205,6 +205,8 @@ export interface EstadoCasas {
   /** Presupuesto del regalo y premio final: null = "lo decide el grupo fuera del juego". */
   sala: Sala;
   juicio: { id: string; texto: string; mia: string | null; estado: string | null } | null;
+  /** Corazón: la pregunta bonita del día. */
+  corazon: { id: string; texto: string; mia: string | null; estado: string | null } | null;
   /** Veredicto del caso de ayer (si hubo). */
   juicioAyer: { texto: string; culpable: number; inocente: number; veredicto: string; mia: string | null } | null;
   /** Cápsula del tiempo: se abre el último día de la temporada. */
@@ -236,7 +238,7 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
   );
 
   const q = empezado ? preguntasDelDia(yo.seasonId, dia) : null;
-  const idsHoy = q ? [q.manada.id, ...q.amor.map((p) => p.id), ...q.picante.map((p) => p.id), q.juicio.id] : [];
+  const idsHoy = q ? [q.manada.id, ...q.amor.map((p) => p.id), ...q.picante.map((p) => p.id), q.juicio.id, q.corazon.id] : [];
   const ayer = empezado && dia - 1 >= cfg!.diaInicio ? preguntasDelDia(yo.seasonId, dia - 1).juicio : null;
 
   const [[votosAyer], [miAyer], [caps]] = await Promise.all([
@@ -281,10 +283,10 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
     if (otra) mias.set(q.manada.id, { pregunta_id: q.manada.id, estado: otra.estado, respuesta: null } as never);
   }
   const yoFila = ranking.findIndex((r) => r.id === yo.id);
-  const alDia: Record<number, string[]> = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+  const alDia: Record<number, string[]> = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
   for (const r of alDiaRows) {
     const casa = r.casa as number;
-    if (r.n >= (casa === 2 || casa === 5 ? 1 : 2)) alDia[casa].push(r.alias as string);
+    if (r.n >= (casa === 3 || casa === 4 ? 2 : 1)) alDia[casa].push(r.alias as string);
   }
   const pases = { 3: 0, 4: 0 } as { 3: number; 4: number };
   for (const r of pas) if (r.casa === 3 || r.casa === 4) pases[r.casa as 3 | 4] = r.n as number;
@@ -323,6 +325,7 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
     },
     sala: salaDe(t.settings),
     juicio: q ? dePregunta(q.juicio.id, q.juicio.texto) : null,
+    corazon: q ? dePregunta(q.corazon.id, q.corazon.texto) : null,
     juicioAyer:
       ayer && votosAyer && (votosAyer.culpable > 0 || votosAyer.inocente > 0)
         ? {
@@ -351,7 +354,7 @@ export async function responder(yo: Jugador, preguntaId: string, valor: unknown,
   const dp = datosPregunta(preguntaId);
   if (!dp) throw new ErrorDeUsuario("Pregunta no encontrada.", 404);
   const hoy = preguntasDelDia(yo.seasonId, dia);
-  const deHoy = [hoy.manada.id, ...hoy.amor.map((p) => p.id), ...hoy.picante.map((p) => p.id), hoy.juicio.id];
+  const deHoy = [hoy.manada.id, ...hoy.amor.map((p) => p.id), ...hoy.picante.map((p) => p.id), hoy.juicio.id, hoy.corazon.id];
   if (!deHoy.includes(preguntaId)) throw new ErrorDeUsuario("Esa pregunta ya no está abierta. Mira las de hoy.", 409);
 
   await conTope(
@@ -385,7 +388,7 @@ export async function responder(yo: Jugador, preguntaId: string, valor: unknown,
           if (!f.ok) throw new ErrorDeUsuario(f.motivo);
           texto = f.texto;
         } else texto = v.texto;
-        monedas = { 2: GANANCIAS.manadaResponder, 3: GANANCIAS.amor, 4: GANANCIAS.picante, 5: GANANCIAS.juicioResponder }[dp.casa];
+        monedas = { 2: GANANCIAS.manadaResponder, 3: GANANCIAS.amor, 4: GANANCIAS.picante, 5: GANANCIAS.juicioResponder, 6: GANANCIAS.corazon }[dp.casa];
       }
       const [r] = await tx`
         insert into cc.respuestas (season_id, player_id, casa, pregunta_id, dia, estado, respuesta)
@@ -457,6 +460,8 @@ export interface FichaAmigo {
   juegaPicante: boolean | null;
   respuestas: (RespuestaFicha & { estado: string; abierta: boolean })[];
   destacadas: string[];
+  /** "Lo más bonito": sus respuestas de Corazón más completas (se abren gratis en la ficha final). */
+  bonitas: string[];
   final: boolean;
   gratisHoy: number;
   monedas: number;
@@ -477,7 +482,7 @@ export async function fichaAmigo(yo: Jugador): Promise<FichaAmigo | null> {
   const [[a], [f], resp, abiertos, [gr], monedas] = await Promise.all([
     conTope(() => sql`select alias, avatar, juega_picante from cc.players where id = ${amigoId}`),
     conTope(() => sql`select regalos, datos from cc.fichas where player_id = ${amigoId}`),
-    conTope(() => sql`select id, casa, pregunta_id, estado, respuesta, dia from cc.respuestas where player_id = ${amigoId} and casa in (2, 3, 4) order by dia, created_at`),
+    conTope(() => sql`select id, casa, pregunta_id, estado, respuesta, dia from cc.respuestas where player_id = ${amigoId} and casa in (2, 3, 4, 6) order by dia, created_at`),
     conTope(() => sql`select respuesta_id from cc.fisgoneos where buyer_id = ${yo.id}`),
     conTope(() => sql`select count(*)::int as n from cc.fisgoneos where buyer_id = ${yo.id} and gratis and dia = ${dia}`),
     monedasDe(sql, yo.id),
@@ -509,6 +514,7 @@ export async function fichaAmigo(yo: Jugador): Promise<FichaAmigo | null> {
     });
   }
   const destacadas = final ? masPicantes(base).map((r) => r.id) : [];
+  const bonitas = final ? masBonitas(base).map((r) => r.id) : [];
   const datos = f ? Object.entries(f.datos as Record<string, string>).map(([k, v]) => ({ label: ETIQUETA[k] ?? k, valor: v })) : [];
 
   return {
@@ -519,10 +525,11 @@ export async function fichaAmigo(yo: Jugador): Promise<FichaAmigo | null> {
     juegaPicante: (a?.juega_picante ?? null) as boolean | null,
     // Lo cerrado NUNCA sale del servidor: sin texto de respuesta ni rareza.
     respuestas: base.map(({ dbAbierta, ...r }) => {
-      const abierta = r.estado !== "respondida" || dbAbierta || destacadas.includes(r.id);
+      const abierta = r.estado !== "respondida" || dbAbierta || destacadas.includes(r.id) || bonitas.includes(r.id);
       return abierta ? { ...r, abierta } : { ...r, respuesta: "", igualQue: undefined, abierta };
     }),
     destacadas,
+    bonitas,
     final,
     gratisHoy: Math.max(0, 1 - ((gr?.n as number) ?? 0)),
     monedas,

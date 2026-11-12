@@ -8,7 +8,7 @@ import { cuantas, faltanHoy, textoCerrada, type Stage } from "./datosEjemplo";
  * Todas las casas están abiertas; lo que cambia es si hoy te quedan preguntas nuevas.
  */
 export function DetalleStage({ s, id, etiqueta }: { s: Stage; id: string; etiqueta: string }) {
-  const titulo = s.n === 6 ? s.nombre : `${s.n}. ${s.nombre}`;
+  const titulo = s.n === 6 ? s.nombre : `${s.numero ?? s.n}. ${s.nombre}`;
   const cerrada = s.estado === "cerrada";
   const aldia = s.estado === "aldia";
   const faltan = faltanHoy(s);

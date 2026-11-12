@@ -23,6 +23,7 @@ export function TablaPrecios() {
     ["La manada", `${GANANCIAS.manadaResponder} + ${GANANCIAS.manadaCoincidir} si coincides`],
     ["Amor", `${GANANCIAS.amor} por pregunta · ${POR_DIA[3]} al día`],
     ["Picante", `${GANANCIAS.picante} por pregunta · ${POR_DIA[4]} al día`],
+    ["Corazón", `${GANANCIAS.corazon} por respuesta · ${POR_DIA[6]} al día`],
     ["Juicio final", `${GANANCIAS.juicioResponder} + ${GANANCIAS.juicioCoincidir} si coincides con el jurado`],
     ["Votar en el Tablón", `${GANANCIAS.voto}`],
     ["Bono: al día en todas las casas", `${GANANCIAS.bonoAlDia}`],
@@ -31,10 +32,11 @@ export function TablaPrecios() {
     ["Fisgonear un sobre de La manada", `${FISGONEAR[2]}`],
     ["Fisgonear un sobre de Amor", `${FISGONEAR[3]}`],
     ["Fisgonear un sobre de Picante", `${FISGONEAR[4]}`],
+    ["Fisgonear un sobre de Corazón", `${FISGONEAR[6]}`],
     ["Pasar en Amor", `${PASAR[3]} · ${PASES_POR_CASA} pases`],
     ["Pasar en Picante", `${PASAR[4]} · ${PASES_POR_CASA} pases`],
     ["Dejar vencer (Amor/Picante)", `como pasar; sin pases ×${MULTIPLICADOR_SIN_PASES}`],
-    ["Dejar vencer (Manada/Juicio)", `${VENCIDA_SIN_PASO[2]}`],
+    ["Dejar vencer (Manada/Corazón/Juicio)", `${VENCIDA_SIN_PASO[2]}`],
   ];
   return (
     <section className="clay mx-auto mt-6 max-w-5xl p-6" aria-labelledby="precios-t">

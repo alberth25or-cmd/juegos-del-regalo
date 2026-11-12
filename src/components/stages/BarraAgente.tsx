@@ -45,8 +45,9 @@ export function BarraAgente({ yo, puesto, agentes, stages }: { yo: Agente; puest
  * con marco rojo) y, en el círculo, ✓ si estás al día o cuántas te faltan.
  */
 function Riel({ agentes, stages }: { agentes: Agente[]; stages: Stage[] }) {
-  const pos = (n: number) => 9 + ((n - 1) / (stages.length - 1)) * 82;
-  const ultimaAbierta = stages.filter((s) => s.estado !== "cerrada").at(-1)?.n ?? 1;
+  // Posición por el orden de las casas en la aldea (no por su número interno).
+  const pos = (i: number) => 9 + (i / Math.max(1, stages.length - 1)) * 82;
+  const ultimaAbierta = stages.reduce((u, s, i) => (s.estado !== "cerrada" ? i : u), 0);
   const primeraPendiente = stages.find((s) => s.estado === "nuevas")?.n;
   const etiqueta = (s: Stage) =>
     s.estado === "cerrada"
@@ -60,7 +61,7 @@ function Riel({ agentes, stages }: { agentes: Agente[]; stages: Stage[] }) {
         className="absolute left-[9%] top-[40px] h-[8px] rounded-full"
         style={{ width: `${pos(ultimaAbierta) - 9}%`, background: "repeating-linear-gradient(-45deg, #fff 0 7px, #e8283c 7px 14px)" }}
       />
-      {stages.map((s) => {
+      {stages.map((s, i) => {
         const grupo = agentes.filter((a) => a.hoy.includes(s.n));
         const yo = grupo.find((a) => a.yo);
         const otros = grupo.filter((a) => !a.yo);
@@ -71,7 +72,7 @@ function Riel({ agentes, stages }: { agentes: Agente[]; stages: Stage[] }) {
         const mas = "ml-2 rounded-full bg-[rgb(255_255_255/0.16)] px-1.5 text-[0.7rem] font-extrabold";
         const fondo = s.estado === "aldia" ? "var(--verde-claro)" : s.estado === "nuevas" ? "var(--oro)" : "rgb(255 255 255 / 0.18)";
         return (
-          <div key={s.n} className="absolute top-0 flex -translate-x-1/2 flex-col items-center" style={{ left: `${pos(s.n)}%` }}>
+          <div key={s.n} className="absolute top-0 flex -translate-x-1/2 flex-col items-center" style={{ left: `${pos(i)}%` }}>
             <div className="flex h-[28px] items-end -space-x-1.5">
               {visibles.map((a, i) => (
                 <span key={a.alias} className={i === 0 && !yo ? "" : "hidden lg:block"}>

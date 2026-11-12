@@ -152,10 +152,21 @@ const recibe0 = es.findIndex((x) => x.yo.alias === amigos[0].alias);
 let cap = (await js[recibe0].pedir("/api/casas/capsula")).capsula;
 check(cap && cap.abierta === false && cap.recibido === null, "el mensaje no se lee antes del último día");
 
+console.log("\n— Corazón");
+const cor = es[0].corazon;
+check(cor && es.every((x) => x.corazon?.id === cor.id), "todos tienen la misma pregunta de Corazón");
+check((await js[0].pedir("/api/casas", { accion: "responder", pregunta: cor.id, valor: " " })).status === 400, "Corazón no acepta respuestas vacías");
+check((await js[0].pedir("/api/casas", { accion: "pasar", pregunta: cor.id })).status === 409, "Corazón no tiene Paso");
+for (let i = 0; i < 3; i++) {
+  r = await js[i].pedir("/api/casas", { accion: "responder", pregunta: cor.id, valor: `Viajar a Cusco con mis amigos ${i}` });
+  check(r.ok && r.estado.corazon.estado === "respondida", `agente ${i} responde Corazón`);
+}
+
 console.log("\n— Fisgonear");
 let f = (await js[3].pedir("/api/casas/amigo")).ficha;
 const cerrados = f.respuestas.filter((x) => !x.abierta);
 check(cerrados.length > 0 && cerrados.every((x) => x.respuesta === ""), "lo cerrado no viaja al navegador");
+check(amigos.length === 4 && (await Promise.all(js.slice(0, 3).map((j) => j.pedir("/api/casas/amigo")))).some((x) => x.ficha.respuestas.some((y) => y.casa === 6)), "las respuestas de Corazón llegan a la ficha del amigo secreto");
 r = await js[3].pedir("/api/casas/amigo", { respuesta: cerrados[0].id });
 check(r.ok && r.ficha.respuestas.find((x) => x.id === cerrados[0].id).abierta && r.ficha.gratisHoy === 0, "el primer sobre del día es gratis");
 if (cerrados[1]) {
@@ -176,7 +187,7 @@ const es2 = await Promise.all(js.map((j) => j.estado()));
 check(es2[0].dia === 2 && es2[0].manada.id !== m.id, "salen preguntas nuevas");
 // agente 3: minoría en La manada y en el Juicio (+0) y 1 de Amor vencida (−40, gasta pase).
 // agente 3: 1 de Amor vencida (−40) y las 2 de Picante vencidas (−60 c/u); cada una gasta un pase.
-check(es2[3].yo.monedas === saldos[3] - 40 - 120 && es2[3].pases[3] === 1 && es2[3].pases[4] === 2, `vencidas cuestan como pasar (${saldos[3]} → ${es2[3].yo.monedas})`);
+check(es2[3].yo.monedas === saldos[3] - 40 - 120 - 15 && es2[3].pases[3] === 1 && es2[3].pases[4] === 2, `vencidas: Amor y Picante como pasar, Corazón −15 (${saldos[3]} → ${es2[3].yo.monedas})`);
 // agente 1: coincidió en La manada (+15) y en el Juicio (+15), y dejó vencer 1 de Amor (−40).
 // agente 1: +15 La manada, +15 Juicio, −40 Amor vencida, −60 por la 1 de Picante que no respondió.
 check(es2[1].yo.monedas === saldos[1] + 15 + 15 - 40 - 60, `coincidir paga +15 en La manada y +15 en el Juicio (${saldos[1]} → ${es2[1].yo.monedas})`);
@@ -193,6 +204,8 @@ check((await js[0].pedir("/api/casas", { accion: "capsula", mensaje: "otro" })).
 const ult = await js[0].estado();
 r = await js[0].pedir("/api/casas", { accion: "responder", pregunta: ult.juicio.id, valor: "Inocente" });
 check(r.ok && r.estado.juicio.estado === "respondida", "una pregunta que se repite (banco agotado) se puede responder ese día");
+const fichasFin = await Promise.all(js.map((j) => j.pedir("/api/casas/amigo").then((x) => x.ficha)));
+check(fichasFin.some((f) => f.bonitas.length > 0 && f.bonitas.every((id) => f.respuestas.find((x) => x.id === id)?.abierta)), "la ficha final abre gratis 'Lo más bonito'");
 const pr = (await js[0].pedir("/api/casas/juicio")).premios;
 check(Array.isArray(pr) && pr.some((x) => x.titulo === "El más chismoso") && pr.every((x) => x.ganadores.every((g) => /^Agente /.test(g))), `premios con alias (${pr?.map((x) => x.titulo).join(", ")})`);
 

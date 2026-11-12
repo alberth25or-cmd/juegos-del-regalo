@@ -1,11 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { crearAzar } from "../src/features/azar.ts";
-import { CASOS_JUICIO, PLATOS, PREGUNTAS_AMOR, PREGUNTAS_MANADA, PREGUNTAS_PICANTE } from "../src/features/contenido/casas.ts";
+import { CASOS_JUICIO, PLATOS, PREGUNTAS_CORAZON, PREGUNTAS_AMOR, PREGUNTAS_MANADA, PREGUNTAS_PICANTE } from "../src/features/contenido/casas.ts";
 import { aliasLibre, igualQue, mayoria, preguntasDelDia, sortear, validarFicha, validarRespuesta } from "../src/features/casas/reglas.ts";
 
 test("bancos: ids únicos y suficientes para la temporada", () => {
-  for (const banco of [PREGUNTAS_MANADA, PREGUNTAS_AMOR, PREGUNTAS_PICANTE, CASOS_JUICIO]) {
+  for (const banco of [PREGUNTAS_MANADA, PREGUNTAS_AMOR, PREGUNTAS_PICANTE, CASOS_JUICIO, PREGUNTAS_CORAZON]) {
     assert.equal(new Set(banco.map((p) => p.id)).size, banco.length);
   }
   assert.ok(PREGUNTAS_MANADA.length >= 45 && CASOS_JUICIO.length >= 45);
@@ -22,7 +22,7 @@ test("preguntas del día: estables, distintas cada día y sin repetir en 30 día
   const vistas = new Set<string>();
   for (let d = 1; d <= 30; d++) {
     const q = preguntasDelDia("temporada-x", d);
-    for (const p of [q.manada, ...q.amor, ...q.picante, q.juicio]) {
+    for (const p of [q.manada, ...q.amor, ...q.picante, q.juicio, q.corazon]) {
       assert.ok(!vistas.has(p.id), `repetida ${p.id} el día ${d}`);
       vistas.add(p.id);
     }
@@ -67,6 +67,8 @@ test("respuestas: cada casa valida lo suyo", () => {
   assert.equal(validarRespuesta(3, "   ").ok, false);
   assert.equal(validarRespuesta(5, "Culpable").ok, true);
   assert.equal(validarRespuesta(5, "Tal vez").ok, false);
+  assert.equal(validarRespuesta(6, "Viajar a Cusco con mis amigos").ok, true);
+  assert.equal(validarRespuesta(6, " ").ok, false);
 });
 
 test("manada: empates cuentan como mayoría; rareza compara sin tildes", () => {

@@ -28,7 +28,7 @@ async function Contenido() {
       dia={f.dia}
       saldoInicial={f.monedas}
       presupuesto={c.estado.sala.presupuesto}
-      real={{ final: f.final, gratisHoy: f.gratisHoy, destacadas: f.destacadas, juegaPicante: f.juegaPicante }}
+      real={{ final: f.final, gratisHoy: f.gratisHoy, destacadas: f.destacadas, bonitas: f.bonitas, juegaPicante: f.juegaPicante }}
       f={{ alias: f.alias, avatar: f.avatar, regalos: f.regalos, datos: f.datos, respuestas: f.respuestas, abiertas: [] }}
     />
   );
@@ -51,6 +51,8 @@ function Ejemplo() {
           { label: "La delata", valor: "Siempre llega con café" },
         ],
         respuestas: [
+          { id: "c1", casa: 6, picor: 1, pregunta: "¿Qué lugar del mundo sueñas con conocer?", respuesta: "Japón en primavera, con los cerezos en flor" },
+          { id: "c2", casa: 6, picor: 1, pregunta: "¿Qué pequeño lujo disfrutas sin sentir culpa?", respuesta: "Un café de especialidad los domingos" },
           { id: "m1", casa: 2, picor: 1, pregunta: "¿Qué es lo primero que se acaba en una fiesta navideña?", respuesta: "La paciencia", igualQue: 0.3 },
           { id: "a1", casa: 3, picor: 2, pregunta: "¿Cuántas parejas has tenido?", respuesta: "3", igualQue: 0.25 },
           { id: "p1", casa: 4, picor: 2, pregunta: "¿Tuviste una cita esta semana?", respuesta: "No", igualQue: 0.75 },

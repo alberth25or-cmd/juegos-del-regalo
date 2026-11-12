@@ -1,5 +1,21 @@
 # Decisiones del proyecto
 
+## Casa Corazón (2026-11-12, pedido de Luis)
+
+- **Una pregunta bonita por día** (`PREGUNTAS_CORAZON`, 30 elegidas de los bancos "Conocernos de verdad" y
+  "Conocerte de verdad" que pasó Luis): sobre uno mismo, de respuesta corta (hasta 120 caracteres), sin
+  temas tristes (muerte, despedidas, heridas familiares, dinero). Se dejaron fuera las de "¿quién del
+  grupo…?" y "la persona a tu derecha", que son para jugar en persona.
+- Va quinta en la aldea (entre Picante y el Juicio); internamente es la casa 6 (respuestas) y la casa n = 7
+  de la aldea, porque n = 6 ya era la ficha del amigo secreto.
+- Economía: +20 por responder, sin "Paso", vencer cuesta 15, fisgonear un sobre de Corazón 80. Entra al
+  bono de estar al día. El equilibrio sigue (tests de economía).
+- **Ficha del amigo secreto:** sección Corazón con sus sobres, y en la ficha final **"Lo más bonito"**: sus
+  3 respuestas de Corazón más completas (las más largas), abiertas gratis, junto a "Lo más picante".
+- Migración `010_corazon.sql` (casa 6 permitida, respuestas hasta 160 caracteres).
+
+---
+
 ## Todos juegan todo · confirmación única al inicio (2026-11-12, pedido de Luis)
 
 - **Se quitó la opción de no jugar Picante** (y cualquier "no participo" por casa). La idea de Luis: que

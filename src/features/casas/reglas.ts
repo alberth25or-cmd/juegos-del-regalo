@@ -2,7 +2,7 @@
  * Reglas puras del juego de las casas (sin base de datos; las usa el servidor y los tests).
  */
 import { crearAzar, mezclar } from "../azar.ts";
-import { CASOS_JUICIO, PLATOS, PREGUNTAS_AMOR, PREGUNTAS_MANADA, PREGUNTAS_PICANTE, VEREDICTOS, type PreguntaAbierta, type PreguntaManada } from "../contenido/casas.ts";
+import { CASOS_JUICIO, PLATOS, PREGUNTAS_CORAZON, PREGUNTAS_AMOR, PREGUNTAS_MANADA, PREGUNTAS_PICANTE, VEREDICTOS, type PreguntaAbierta, type PreguntaManada } from "../contenido/casas.ts";
 
 /** Semilla estable a partir de un texto (FNV-1a). */
 export function semilla(texto: string) {
@@ -19,7 +19,7 @@ export function semilla(texto: string) {
  * los nuevos van después: así, agregar preguntas al final de un banco NO cambia las preguntas de
  * los días ya jugados de una temporada en curso. Al agregar un lote nuevo, sumar su corte aquí.
  */
-const LOTES: Record<string, number[]> = { manada: [45], amor: [50], picante: [50], juicio: [45] };
+const LOTES: Record<string, number[]> = { manada: [45], amor: [50], picante: [50], juicio: [45], corazon: [30] };
 
 function orden<T>(lista: readonly T[], seasonId: string, casa: string) {
   const cortes = [0, ...(LOTES[casa] ?? []).filter((c) => c < lista.length), lista.length];
@@ -36,6 +36,7 @@ export interface PreguntasDelDia {
   amor: PreguntaAbierta[];
   picante: PreguntaAbierta[];
   juicio: { id: string; texto: string };
+  corazon: { id: string; texto: string };
 }
 
 /**
@@ -49,8 +50,9 @@ export function preguntasDelDia(seasonId: string, dia: number): PreguntasDelDia 
   const a = orden(PREGUNTAS_AMOR, seasonId, "amor");
   const p = orden(PREGUNTAS_PICANTE, seasonId, "picante");
   const j = orden(CASOS_JUICIO, seasonId, "juicio");
+  const c = orden(PREGUNTAS_CORAZON, seasonId, "corazon");
   const par = <T>(l: T[]) => [l[(d * 2) % l.length], l[(d * 2 + 1) % l.length]];
-  return { manada: m[d % m.length], amor: par(a), picante: par(p), juicio: j[d % j.length] };
+  return { manada: m[d % m.length], amor: par(a), picante: par(p), juicio: j[d % j.length], corazon: c[d % c.length] };
 }
 
 /** Sorteo: cada uno le regala al siguiente de una ronda mezclada (nadie se regala a sí mismo). */
@@ -106,7 +108,12 @@ export function validarFicha(regalosIn: unknown, datosIn: unknown): { ok: true; 
 // ------------------------------------------------------------------ respuestas
 
 /** Valida una respuesta según la casa. Devuelve el texto a guardar o un error. */
-export function validarRespuesta(casa: 2 | 3 | 4 | 5, valor: unknown, opciones?: readonly string[]): { ok: true; texto: string } | { ok: false; error: string } {
+export function validarRespuesta(casa: 2 | 3 | 4 | 5 | 6, valor: unknown, opciones?: readonly string[]): { ok: true; texto: string } | { ok: false; error: string } {
+  if (casa === 6) {
+    const t = limpio(valor, 120);
+    if (t.length < 2) return { ok: false, error: "Escribe tu respuesta (hasta 2 líneas)." };
+    return { ok: true, texto: t };
+  }
   if (casa === 5) {
     if (!(VEREDICTOS as readonly unknown[]).includes(valor)) return { ok: false, error: "Elige Culpable o Inocente." };
     return { ok: true, texto: valor as string };
