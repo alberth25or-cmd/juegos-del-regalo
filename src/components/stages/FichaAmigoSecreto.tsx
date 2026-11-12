@@ -6,6 +6,7 @@ import { masPicantes, precio, puedePagar, SOBRES_GRATIS_POR_DIA, type CasaConRes
 import { api } from "@/lib/cliente/api";
 import type { FichaAmigo } from "@/lib/server/casas";
 import { Cabeza } from "./Cabeza";
+import { textoPresupuesto } from "./textosSala";
 
 export interface DatosFicha {
   alias: string;
@@ -39,7 +40,7 @@ export interface FichaReal {
   juegaPicante: boolean | null;
 }
 
-export function FichaAmigoSecreto({ f: inicial, saldoInicial, dia, real }: { f: DatosFicha; saldoInicial: number; dia: number; real?: FichaReal }) {
+export function FichaAmigoSecreto({ f: inicial, saldoInicial, dia, real, presupuesto = 40 }: { f: DatosFicha; saldoInicial: number; dia: number; real?: FichaReal; presupuesto?: number | null }) {
   const [f, setF] = useState(inicial);
   const [r2, setR2] = useState(real);
   const [vista, setVista] = useState<"temporada" | "final">(real?.final ? "final" : "temporada");
@@ -156,7 +157,7 @@ export function FichaAmigoSecreto({ f: inicial, saldoInicial, dia, real }: { f: 
             </section>
           )}
 
-          <Seccion icono="chest" titulo="Quiere uno de estos" nota="Gratis desde el sorteo, para que te dé tiempo de comprar.">
+          <Seccion icono="chest" titulo="Quiere uno de estos" nota={`Gratis desde el sorteo, para que te dé tiempo de comprar. Presupuesto: ${textoPresupuesto(presupuesto)}.`}>
             <ol className="grid gap-2.5 sm:grid-cols-2">
               {f.regalos.map((r, i) => (
                 <li key={r} className="flex items-center gap-3 rounded-[16px] bg-white px-3.5 py-3 font-bold shadow-[0_0_0_2px_#eee6f3]">

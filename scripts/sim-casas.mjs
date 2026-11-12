@@ -70,6 +70,17 @@ for (const [i, j] of js.entries()) {
 e = await admin.estado();
 check(e.arbol.inscritos.length === 4, "el árbol muestra 4 agentes");
 
+console.log("\n— Regalo, premio y capacidad");
+check((await js[1].pedir("/api/admin", { accion: "sala", presupuesto: 50, premio: "x", capacidad: 10 })).status === 403, "solo el organizador configura la sala");
+check((await admin.pedir("/api/admin", { accion: "sala", presupuesto: 50, premio: "Canasta navideña", capacidad: 3 })).status === 400, "la capacidad no puede ser menor que los inscritos");
+r = await admin.pedir("/api/admin", { accion: "sala", presupuesto: null, premio: "Canasta navideña", capacidad: 4 });
+e = await js[2].estado();
+check(r.ok && e.sala.presupuesto === null && e.sala.premio === "Canasta navideña" && e.sala.capacidad === 4, "presupuesto 'lo decide el grupo', premio y capacidad guardados");
+r = await new C(`${red}.8`).pedir("/api/unirse", { codigo, username: `lleno_${suf}`, displayName: "Lleno", avatar: av, pin: "4826", pin2: "4826" });
+check(r.status === 400 && /llena/.test(r.error), "con la capacidad llena ya no entra nadie");
+r = await admin.pedir("/api/admin", { accion: "sala", presupuesto: 40, premio: null, capacidad: 40 });
+check(r.ok && (await js[2].estado()).sala.premio === null, "el premio también puede quedar para que lo decida el grupo");
+
 console.log("\n— Empezar");
 r = await admin.pedir("/api/admin", { accion: "empezarCasas" });
 check(r.ok && r.resultado.agentes === 4, "Empezar: sorteo con 4 agentes");

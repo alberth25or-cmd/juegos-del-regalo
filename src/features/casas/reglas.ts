@@ -14,7 +14,22 @@ export function semilla(texto: string) {
   return h >>> 0;
 }
 
-const orden = <T>(lista: readonly T[], seasonId: string, casa: string) => mezclar(lista, crearAzar(semilla(`${seasonId}:${casa}`)));
+/**
+ * Primer lote de cada banco (lo que ya estaba cuando se publicó). Cada lote se mezcla aparte y
+ * los nuevos van después: así, agregar preguntas al final de un banco NO cambia las preguntas de
+ * los días ya jugados de una temporada en curso. Al agregar un lote nuevo, sumar su corte aquí.
+ */
+const LOTES: Record<string, number[]> = { manada: [45], amor: [50], picante: [50], juicio: [45] };
+
+function orden<T>(lista: readonly T[], seasonId: string, casa: string) {
+  const cortes = [0, ...(LOTES[casa] ?? []).filter((c) => c < lista.length), lista.length];
+  const out: T[] = [];
+  for (let i = 0; i + 1 < cortes.length; i++) {
+    const lote = lista.slice(cortes[i], cortes[i + 1]);
+    out.push(...mezclar(lote, crearAzar(semilla(i === 0 ? `${seasonId}:${casa}` : `${seasonId}:${casa}:${i}`))));
+  }
+  return out;
+}
 
 export interface PreguntasDelDia {
   manada: PreguntaManada;

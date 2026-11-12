@@ -105,11 +105,11 @@ export async function temporadaPorInvitacion(codigo: string) {
   const c = normalizeInviteCode(codigo);
   if (c.length < 6) return null;
   const [s] = await conTope(db()`
-    select s.id, s.name, s.status, s.starts_at, s.ends_at, (s.settings ? 'casas') as cerrada,
+    select s.id, s.name, s.status, s.starts_at, s.ends_at, (s.settings ? 'casas') as cerrada, s.settings->'capacidad' as capacidad,
            (select count(*)::int from cc.players p where p.season_id = s.id and p.status = 'active') as activos
     from cc.seasons s where s.invite_code = ${c}
   `);
-  return s ? { id: s.id as string, name: s.name as string, status: s.status as string, activos: s.activos as number, codigo: c, cerrada: s.cerrada === true } : null;
+  return s ? { id: s.id as string, name: s.name as string, status: s.status as string, activos: s.activos as number, codigo: c, cerrada: s.cerrada === true, capacidad: typeof s.capacidad === "number" ? Math.min(s.capacidad, MAX_JUGADORES) : MAX_JUGADORES } : null;
 }
 
 export async function unirse(input: { codigo: string; jugador: DatosJugador }) {
@@ -124,7 +124,7 @@ export async function unirse(input: { codigo: string; jugador: DatosJugador }) {
     return await conTope(
       sql.begin(async (tx) => {
         const [{ total }] = await tx`select count(*)::int as total from cc.players where season_id = ${s.id} and status <> 'rejected'`;
-        if (total >= MAX_JUGADORES) throw new ErrorDeUsuario("Esta temporada ya está llena.");
+        if (total >= s.capacidad) throw new ErrorDeUsuario("Esta temporada ya está llena: el organizador puso un máximo de agentes.");
         const [p] = await tx`
           insert into cc.players (season_id, username, display_name, avatar, pin_hash)
           values (${s.id}, ${j.username}, ${j.displayName}, ${tx.json(j.avatar)}, ${pinHash})

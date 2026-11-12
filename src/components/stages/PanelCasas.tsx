@@ -12,6 +12,7 @@ export interface EstadoOrganizador {
   fichaDia: number | null;
   activos: number;
   conFicha: number;
+  sala: { presupuesto: number | null; premio: string | null; capacidad: number };
 }
 
 /**
@@ -115,9 +116,91 @@ export function PanelCasas({ estado, dia }: { estado: EstadoOrganizador; dia: nu
         </p>
       )}
 
+      <SalaForm inicial={estado.sala} />
+
       <Link href="/admin" className="boton claro mt-5 w-full">
         Aprobar jugadores y reiniciar PIN
       </Link>
     </section>
+  );
+}
+
+/**
+ * Presupuesto del regalo, premio final y capacidad. Presupuesto y premio se pueden dejar para que
+ * "lo decida el grupo fuera del juego": la app solo muestra el texto, nunca maneja dinero.
+ */
+function SalaForm({ inicial }: { inicial: EstadoOrganizador["sala"] }) {
+  const router = useRouter();
+  const [grupoPresupuesto, setGrupoPresupuesto] = useState(inicial.presupuesto === null);
+  const [presupuesto, setPresupuesto] = useState(String(inicial.presupuesto ?? 40));
+  const [grupoPremio, setGrupoPremio] = useState(inicial.premio === null);
+  const [premio, setPremio] = useState(inicial.premio ?? "");
+  const [capacidad, setCapacidad] = useState(String(inicial.capacidad));
+  const [ocupado, setOcupado] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [error, setError] = useState("");
+
+  const guardar = async () => {
+    setOcupado(true);
+    setMsg("");
+    setError("");
+    const r = await api("/api/admin", {
+      body: { accion: "sala", presupuesto: grupoPresupuesto ? null : Number(presupuesto), premio: grupoPremio ? null : premio, capacidad: Number(capacidad) },
+    });
+    setOcupado(false);
+    if (!r.ok) return setError(r.error);
+    setMsg("Guardado. Todos los agentes ya lo ven.");
+    router.refresh();
+  };
+
+  return (
+    <form
+      className="mt-5 border-t-2 border-dashed border-[#e2dcea] pt-5"
+      onSubmit={(ev) => {
+        ev.preventDefault();
+        void guardar();
+      }}
+    >
+      <h3 className="f-titulo text-[1.25rem] font-semibold">Regalo, premio y capacidad</h3>
+
+      <label htmlFor="sala-pres" className="etiqueta mt-3">
+        Presupuesto del regalo (S/)
+      </label>
+      <input id="sala-pres" type="number" inputMode="numeric" min={5} max={2000} className="campo" value={presupuesto} disabled={grupoPresupuesto} onChange={(e) => setPresupuesto(e.target.value)} />
+      <label className="mt-2 flex min-h-11 items-center gap-2 text-[0.92rem] font-semibold">
+        <input type="checkbox" className="h-5 w-5 accent-[var(--verde)]" checked={grupoPresupuesto} onChange={(e) => setGrupoPresupuesto(e.target.checked)} />
+        Lo decide el grupo fuera del juego
+      </label>
+
+      <label htmlFor="sala-premio" className="etiqueta mt-3">
+        Premio final para el primer lugar
+      </label>
+      <input id="sala-premio" className="campo" maxLength={80} placeholder="Ej.: Canasta navideña" value={premio} disabled={grupoPremio} onChange={(e) => setPremio(e.target.value)} />
+      <label className="mt-2 flex min-h-11 items-center gap-2 text-[0.92rem] font-semibold">
+        <input type="checkbox" className="h-5 w-5 accent-[var(--verde)]" checked={grupoPremio} onChange={(e) => setGrupoPremio(e.target.checked)} />
+        Lo decide el grupo fuera del juego
+      </label>
+      <p className="ayuda">La app no maneja dinero: solo muestra el texto.</p>
+
+      <label htmlFor="sala-cap" className="etiqueta mt-3">
+        Capacidad máxima de agentes
+      </label>
+      <input id="sala-cap" type="number" inputMode="numeric" min={2} max={50} className="campo" value={capacidad} onChange={(e) => setCapacidad(e.target.value)} />
+      <p className="ayuda">Cuando se llena, el enlace de invitación ya no deja entrar a nadie más (hasta 50).</p>
+
+      {error && (
+        <p className="error mt-2" role="alert">
+          {error}
+        </p>
+      )}
+      {msg && (
+        <p className="mt-2 font-bold text-[var(--verde)]" role="status">
+          {msg}
+        </p>
+      )}
+      <button type="submit" className="boton verde mt-3 w-full" disabled={ocupado}>
+        {ocupado ? "Guardando…" : "Guardar"}
+      </button>
+    </form>
   );
 }

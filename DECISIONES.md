@@ -1,5 +1,20 @@
 # Decisiones del proyecto
 
+## Presupuesto, premio y capacidad configurables · Amor y Picante para 30 días (2026-11-12, pedido de Luis)
+
+- **Panel del organizador** (`/diseno/organizador`): presupuesto del regalo, premio final y capacidad
+  máxima. Presupuesto y premio pueden quedar en **"lo decide el grupo fuera del juego"** (se guardan como
+  null). Se muestran en la ficha de inscripción, la sala de espera, la aldea y la ficha del amigo secreto.
+  La capacidad se aplica al inscribirse (tope duro: 50) y no puede bajar de los ya inscritos.
+- **Amor y Picante: 60 preguntas cada uno** (30 días con 2 por día). Las 20 nuevas salen del banco de
+  300 que pasó Luis. Criterios al elegir: preguntas sobre uno mismo (no "¿quién de aquí…?" ni "señala a…",
+  que exponen a terceros y que Cesar ya había descartado), nada de delitos, apariencia, plata o salud, y
+  **lo sexual solo en Picante** (que pide confirmar mayoría de edad; Amor no).
+- **Orden por lotes** (`LOTES` en `features/casas/reglas.ts`): las preguntas agregadas al final se mezclan
+  aparte y van después, así una temporada en curso conserva las preguntas de los días ya jugados.
+
+---
+
 ## La manada más atrevida (2026-11-10, pedido de Luis)
 
 Luis vio las 30 preguntas de La manada "demasiado inocentes". Se reemplazaron por 45 nuevas (citas,

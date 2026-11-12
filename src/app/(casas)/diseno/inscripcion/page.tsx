@@ -19,5 +19,5 @@ async function Contenido() {
   const c = await cargarCasas();
   if (c.tipo === "demo") return <FichaInscripcion alias={YO.alias} presupuesto={SALA.presupuesto} />;
   if (c.tipo !== "real") return <NoAbierta carga={c} />;
-  return <FichaInscripcion alias={c.estado.yo.alias} presupuesto={SALA.presupuesto} real={{ inicial: await miFicha(c.yo) }} />;
+  return <FichaInscripcion alias={c.estado.yo.alias} presupuesto={c.estado.sala.presupuesto} real={{ inicial: await miFicha(c.yo) }} />;
 }

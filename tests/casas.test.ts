@@ -10,17 +10,17 @@ test("bancos: ids únicos y suficientes para la temporada", () => {
   }
   assert.ok(PREGUNTAS_MANADA.length >= 45 && CASOS_JUICIO.length >= 45);
   assert.ok(PREGUNTAS_MANADA.every((p) => Number(p.id.slice(1)) > 30), "los ids viejos (m01–m30) no se reusan");
-  assert.ok(PREGUNTAS_AMOR.length >= 50 && PREGUNTAS_PICANTE.length >= 50, "2 por día durante 25 días");
+  assert.ok(PREGUNTAS_AMOR.length >= 60 && PREGUNTAS_PICANTE.length >= 60, "2 por día durante 30 días");
   assert.ok(PREGUNTAS_MANADA.every((p) => p.opciones.length === 4));
   assert.ok(PLATOS.length >= 40);
 });
 
-test("preguntas del día: estables, distintas cada día y sin repetir en 25 días", () => {
+test("preguntas del día: estables, distintas cada día y sin repetir en 30 días", () => {
   const a = preguntasDelDia("temporada-x", 3);
   assert.deepEqual(a, preguntasDelDia("temporada-x", 3));
   assert.notEqual(preguntasDelDia("temporada-x", 4).manada.id, a.manada.id);
   const vistas = new Set<string>();
-  for (let d = 1; d <= 25; d++) {
+  for (let d = 1; d <= 30; d++) {
     const q = preguntasDelDia("temporada-x", d);
     for (const p of [q.manada, ...q.amor, ...q.picante, q.juicio]) {
       assert.ok(!vistas.has(p.id), `repetida ${p.id} el día ${d}`);
@@ -72,4 +72,14 @@ test("respuestas: cada casa valida lo suyo", () => {
 test("manada: empates cuentan como mayoría; rareza compara sin tildes", () => {
   assert.deepEqual([...mayoria(["0", "1", "1", "0", "2"])].sort(), ["0", "1"]);
   assert.equal(igualQue("Sí", ["si", "Sí", "No", "No"]), 0.5);
+});
+
+test("agregar preguntas al final no cambia las de los días ya jugados", () => {
+  // Con los primeros 50 de Amor, los días 1–25 deben ser los mismos que con el banco completo.
+  for (let d = 1; d <= 25; d++) {
+    const q = preguntasDelDia("temporada-y", d);
+    for (const p of [...q.amor, ...q.picante]) assert.ok(Number(p.id.slice(1)) <= 50, `día ${d}: ${p.id} es del lote nuevo`);
+  }
+  const d26 = preguntasDelDia("temporada-y", 26);
+  assert.ok([...d26.amor, ...d26.picante].every((p) => Number(p.id.slice(1)) > 50), "el día 26 usa el lote nuevo");
 });

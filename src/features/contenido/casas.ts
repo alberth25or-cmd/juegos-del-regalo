@@ -159,6 +159,17 @@ export const PREGUNTAS_AMOR: PreguntaAbierta[] = [
   { id: "a48", texto: "¿Qué es lo primero que haces después de una ruptura?", picor: 2 },
   { id: "a49", texto: "¿En qué lugar del mundo te gustaría que te propongan algo?", picor: 1 },
   { id: "a50", texto: "¿Cuál es tu frase para coquetear (si tienes)?", picor: 2 },
+  // Del banco de Luis (2026-11-12) para llegar a 30 días: más fuertes, sin sexo (Amor no pide confirmar edad).
+  { id: "a51", texto: "¿Cuál ha sido la excusa más absurda que usaste para terminar una relación?", picor: 2 },
+  { id: "a52", texto: "¿Cuál ha sido tu mayor humillación amorosa?", picor: 3 },
+  { id: "a53", texto: "¿Qué es lo peor que has hecho por celos?", picor: 3 },
+  { id: "a54", texto: "¿Qué es lo más cruel que has hecho durante una ruptura?", picor: 3 },
+  { id: "a55", texto: "¿Cuál es la mayor mentira que dijiste para conquistar a alguien?", picor: 3 },
+  { id: "a56", texto: "¿Qué secreto de tu vida sentimental podría arruinar tu reputación?", picor: 3 },
+  { id: "a57", texto: "Si pudieras cambiar una sola decisión sentimental, ¿cuál sería?", picor: 2 },
+  { id: "a58", texto: "¿Qué rechazo todavía te duele recordar (sin decir nombres)?", picor: 3 },
+  { id: "a59", texto: "¿Qué es lo más bajo que has hecho para llamar la atención de alguien?", picor: 3 },
+  { id: "a60", texto: "¿Qué persona de tu pasado podría arruinarte una reunión si apareciera (sin decir su nombre)?", picor: 3 },
 ];
 
 /** Picante: solo sí o no (2 por día). Para mayores de edad; se puede rechazar la casa. */
@@ -213,6 +224,17 @@ export const PREGUNTAS_PICANTE: PreguntaAbierta[] = [
   { id: "p48", texto: "¿Has tenido que esconderte de alguien en la calle?", picor: 2 },
   { id: "p49", texto: "¿Has besado a alguien de este grupo?", picor: 3 },
   { id: "p50", texto: "¿Le confesarías a tu amigo secreto un secreto el 24?", picor: 2 },
+  // Del banco de Luis (2026-11-12) para llegar a 30 días. Picante es solo para quien confirmó ser mayor de edad.
+  { id: "p51", texto: "¿Has sido infiel alguna vez?", picor: 3 },
+  { id: "p52", texto: "¿Has sido la tercera persona en una relación?", picor: 3 },
+  { id: "p53", texto: "¿Has besado a dos personas diferentes en una misma noche?", picor: 3 },
+  { id: "p54", texto: "¿Has enviado una foto subida de tono y luego te arrepentiste?", picor: 3 },
+  { id: "p55", texto: "¿Alguna vez has fingido un orgasmo?", picor: 3 },
+  { id: "p56", texto: "¿Has tenido intimidad con alguien que tenía pareja?", picor: 3 },
+  { id: "p57", texto: "¿Has tenido una relación exclusivamente sexual?", picor: 3 },
+  { id: "p58", texto: "¿Alguna vez has sido infiel emocionalmente?", picor: 3 },
+  { id: "p59", texto: "¿Has usado a alguien para olvidar a otra persona?", picor: 3 },
+  { id: "p60", texto: "¿Has mentido sobre la cantidad de personas con las que has tenido intimidad?", picor: 3 },
 ];
 
 /**

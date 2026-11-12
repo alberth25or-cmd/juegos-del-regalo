@@ -24,6 +24,25 @@ import { estadoDe, type Jugador } from "./sesion";
  */
 
 const CASAS_CON_PREGUNTAS = [2, 3, 4] as const;
+
+export const CAPACIDAD_MAX = 50;
+
+export interface Sala {
+  /** Soles. null = lo decide el grupo fuera del juego. */
+  presupuesto: number | null;
+  /** Texto del premio final. null = lo decide el grupo fuera del juego. */
+  premio: string | null;
+  capacidad: number;
+}
+
+/** Valores de la sala guardados en la temporada (con los de siempre si nadie los cambió). */
+export function salaDe(settings: Record<string, unknown>): Sala {
+  return {
+    presupuesto: settings.presupuesto === null ? null : typeof settings.presupuesto === "number" ? settings.presupuesto : 40,
+    premio: settings.premio === null ? null : typeof settings.premio === "string" ? settings.premio : null,
+    capacidad: typeof settings.capacidad === "number" ? settings.capacidad : 40,
+  };
+}
 const JUEGOS_CALENTAMIENTO = ["gift-catcher", "memory", "trivia"] as const;
 
 interface ConfigCasas {
@@ -173,6 +192,8 @@ export interface EstadoCasas {
   pases: { 3: number; 4: number };
   fisgoneosHoy: number;
   arbol: { inscritos: { alias: string; avatar: unknown; yo: boolean }[]; capacidad: number };
+  /** Presupuesto del regalo y premio final: null = "lo decide el grupo fuera del juego". */
+  sala: Sala;
   juicio: { id: string; texto: string; mia: string | null; estado: string | null } | null;
   /** Veredicto del caso de ayer (si hubo). */
   juicioAyer: { texto: string; culpable: number; inocente: number; veredicto: string; mia: string | null } | null;
@@ -287,8 +308,9 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
     fisgoneosHoy: (fisg[0]?.n as number) ?? 0,
     arbol: {
       inscritos: inscritos.map((r) => ({ alias: (r.alias as string) || "Agente sin nombre", avatar: avatarDeAlias((r.alias as string) || (r.id as string)), yo: r.id === yo.id })),
-      capacidad: typeof t.settings.capacidad === "number" ? t.settings.capacidad : 40,
+      capacidad: salaDe(t.settings).capacidad,
     },
+    sala: salaDe(t.settings),
     juicio: q ? dePregunta(q.juicio.id, q.juicio.texto) : null,
     juicioAyer:
       ayer && votosAyer && (votosAyer.culpable > 0 || votosAyer.inocente > 0)
@@ -518,7 +540,32 @@ export async function estadoOrganizador(seasonId: string) {
     from cc.players p left join cc.fichas f on f.player_id = p.id
     where p.season_id = ${seasonId}
   `);
-  return { empezado: !!t.casas, empezadoEn: t.casas?.empezadoEn ?? null, fichaDia: t.casas?.fichaDia ?? null, activos: r.activos as number, conFicha: r.con_ficha as number };
+  return { empezado: !!t.casas, empezadoEn: t.casas?.empezadoEn ?? null, fichaDia: t.casas?.fichaDia ?? null, activos: r.activos as number, conFicha: r.con_ficha as number, sala: salaDe(t.settings) };
+}
+
+/**
+ * Presupuesto, premio final y capacidad. Presupuesto y premio pueden quedar en null: "lo decide
+ * el grupo fuera del juego" (la app nunca maneja dinero, solo muestra el texto).
+ */
+export async function configurarSala(adminId: string, seasonId: string, b: Record<string, unknown>) {
+  const presupuesto = b.presupuesto === null ? null : Number(b.presupuesto);
+  if (presupuesto !== null && (!Number.isInteger(presupuesto) || presupuesto < 5 || presupuesto > 2000)) throw new ErrorDeUsuario("El presupuesto debe ser un número entre 5 y 2000 soles (o déjalo para que lo decida el grupo).");
+  let premio: string | null = null;
+  if (b.premio !== null) {
+    const f = filtrarChat(typeof b.premio === "string" ? b.premio : "", 80);
+    if (!f.ok) throw new ErrorDeUsuario(f.motivo === "Escribe algo." ? "Escribe el premio (o déjalo para que lo decida el grupo)." : f.motivo);
+    premio = f.texto;
+  }
+  const capacidad = Number(b.capacidad);
+  if (!Number.isInteger(capacidad) || capacidad < 2 || capacidad > CAPACIDAD_MAX) throw new ErrorDeUsuario(`La capacidad debe estar entre 2 y ${CAPACIDAD_MAX}.`);
+  return conTope(
+    db().begin(async (tx) => {
+      const [{ n }] = await tx`select count(*)::int as n from cc.players where season_id = ${seasonId} and status <> 'rejected'`;
+      if (capacidad < n) throw new ErrorDeUsuario(`Ya hay ${n} inscritos: la capacidad no puede ser menor.`);
+      await tx`update cc.seasons set settings = settings || ${tx.json({ presupuesto, premio, capacidad })} where id = ${seasonId}`;
+      await tx`insert into cc.admin_audit_log (season_id, actor_id, action, payload) values (${seasonId}, ${adminId}, 'configurar_sala', ${tx.json({ presupuesto, premio, capacidad })})`;
+    }),
+  );
 }
 
 /** "Empezar": alias para todos, sorteo secreto, se cierra la puerta y se abren las casas. */

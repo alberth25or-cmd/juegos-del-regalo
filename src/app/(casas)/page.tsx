@@ -7,6 +7,7 @@ import { BarraAgente } from "@/components/stages/BarraAgente";
 import { AGENTES, DIA, faltanHoy, FISGONEOS_HOY, PUESTO, STAGES, YO, type Agente } from "@/components/stages/datosEjemplo";
 import { agentesReales, casasReales } from "@/components/stages/real";
 import { PixelIcon } from "@/components/ui/PixelIcon";
+import { textoPremio, textoPresupuesto } from "@/components/stages/textosSala";
 import { cargarCasas } from "./cargar";
 
 /** Pantalla principal: la aldea de casas (datos reales con sesión; ejemplo sin sesión). */
@@ -61,6 +62,14 @@ async function Aldea() {
               ? `Van ${inscritos.length} agentes con ficha. Cuando el organizador apriete "Empezar" se hace el sorteo y se abren todas las casas.`
               : "Tus opciones de regalo y unas pistas para reconocerte. Sin ficha no entras al sorteo del amigo secreto."}
           </p>
+          <ul className="mt-4 flex flex-col gap-1.5 text-left text-[0.92rem]">
+            <li>
+              🎁 <b>Presupuesto del regalo:</b> {textoPresupuesto(e.sala.presupuesto)}
+            </li>
+            <li>
+              🏆 <b>Premio para el primer lugar:</b> {textoPremio(e.sala.premio)}
+            </li>
+          </ul>
           <Link href="/diseno/inscripcion" className={`boton mt-5 w-full ${e.yo.tieneFicha ? "claro" : ""}`}>
             {e.yo.tieneFicha ? "Editar mi ficha" : "Llenar mi ficha"}
           </Link>
@@ -94,6 +103,9 @@ async function Aldea() {
           </Link>
         )}
         <AvisoFisgoneo veces={e.fisgoneosHoy} />
+        <p className="relative z-[2] mx-auto mt-3 max-w-[560px] px-4 text-center text-[0.88rem] font-bold text-[var(--hielo)]">
+          🏆 Premio para quien termine con más monedas: <span className="text-[var(--oro)]">{textoPremio(e.sala.premio)}</span>
+        </p>
         <AldeaStages
           stages={stages}
           yo={yo}

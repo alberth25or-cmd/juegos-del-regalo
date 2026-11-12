@@ -1,6 +1,6 @@
 import { cuerpo, ErrorDeUsuario, exigirJugador, manejador, ok, texto } from "@/lib/server/api";
 import { LIMITES, permitir } from "@/lib/server/limites";
-import { cambiarDiaFicha, empezar } from "@/lib/server/casas";
+import { cambiarDiaFicha, configurarSala, empezar } from "@/lib/server/casas";
 import { ajustarPuntos, asignarEquipo, cambiarFechas, decidirJugador, reiniciarPin, renombrarEquipo, repartirAlAzar, simularDia } from "@/lib/server/temporada";
 
 /** Operaciones del organizador. El rol se comprueba aquí, en el servidor, en cada llamada. */
@@ -40,6 +40,9 @@ export const POST = manejador(async (req) => {
       break;
     case "empezarCasas":
       return ok({ resultado: await empezar(yo.id, yo.seasonId) });
+    case "sala":
+      await configurarSala(yo.id, yo.seasonId, b);
+      break;
     case "diaFicha":
       await cambiarDiaFicha(yo.id, yo.seasonId, Number(b.dia));
       break;

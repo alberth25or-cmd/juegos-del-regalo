@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { PixelIcon } from "@/components/ui/PixelIcon";
 import { api } from "@/lib/cliente/api";
+import { textoPresupuesto } from "./textosSala";
 
 const DATOS = [
   { id: "genero", label: "Género", opciones: ["Hombre", "Mujer", "Prefiero no decir"] },
@@ -18,7 +19,7 @@ type Errores = Record<string, string>;
  * Ficha de inscripción: el pase al árbol. Valida en el navegador y, con `real`, la guarda en el
  * servidor (que vuelve a validar). Sin `real` es la vista de ejemplo y no guarda nada.
  */
-export function FichaInscripcion({ alias, presupuesto, real }: { alias: string; presupuesto: number; real?: { inicial: { regalos: string[]; datos: Record<string, string> } | null } }) {
+export function FichaInscripcion({ alias, presupuesto, real }: { alias: string; presupuesto: number | null; real?: { inicial: { regalos: string[]; datos: Record<string, string> } | null } }) {
   const ini = real?.inicial;
   const [regalos, setRegalos] = useState(() => [0, 1, 2, 3].map((i) => ini?.regalos[i] ?? ""));
   const [datos, setDatos] = useState<Record<string, string>>(() => {
@@ -88,7 +89,7 @@ export function FichaInscripcion({ alias, presupuesto, real }: { alias: string; 
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] bg-[#ffe3e6]"><PixelIcon name="chest" size={26} /></span>
           <div>
             <p className="f-titulo text-[1.3rem] font-semibold leading-tight">¿Qué te gustaría recibir?</p>
-            <p className="ayuda">3 opciones obligatorias y 1 opcional. Presupuesto: <b className="text-[var(--rojo-boton)]">S/{presupuesto}</b></p>
+            <p className="ayuda">3 opciones obligatorias y 1 opcional. Presupuesto: <b className="text-[var(--rojo-boton)]">{textoPresupuesto(presupuesto)}</b></p>
           </div>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">

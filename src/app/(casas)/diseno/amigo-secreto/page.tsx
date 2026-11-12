@@ -27,6 +27,7 @@ async function Contenido() {
     <FichaAmigoSecreto
       dia={f.dia}
       saldoInicial={f.monedas}
+      presupuesto={c.estado.sala.presupuesto}
       real={{ final: f.final, gratisHoy: f.gratisHoy, destacadas: f.destacadas, juegaPicante: f.juegaPicante }}
       f={{ alias: f.alias, avatar: f.avatar, regalos: f.regalos, datos: f.datos, respuestas: f.respuestas, abiertas: [] }}
     />
