@@ -7,8 +7,8 @@ import { api } from "@/lib/cliente/api";
 
 const PREGUNTA = {
   dia: 7,
-  texto: "¿Qué es lo primero que se acaba en una fiesta navideña?",
-  opciones: ["El panetón", "El chocolate caliente", "La paciencia", "El hielo"],
+  texto: "Tu ex te escribe el 24 a medianoche. ¿Qué hace la mayoría?",
+  opciones: ["Responde al toque", "Lo deja en visto", "Manda captura al grupo", "Bloquea"],
   // shortcut: votos inventados para la vista de diseño; el Frente 4 los calcula en el servidor al cierre.
   votos: [7, 4, 6, 2],
 };

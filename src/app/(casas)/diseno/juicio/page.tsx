@@ -24,8 +24,8 @@ async function Contenido() {
 
 const EJEMPLO = {
   dia: 7,
-  caso: { id: "j01", texto: "Alguien se comió el último panetón y le echó la culpa al perro.", mia: null, estado: null },
-  ayer: { texto: "El tío regaló el mismo perfume que le regalaron el año pasado.", culpable: 13, inocente: 5, veredicto: "Culpable", mia: "Culpable" },
+  caso: { id: "j31", texto: "Alguien descubrió que la pareja de su mejor amigo le es infiel y decidió no decirle nada \"para no meterse\".", mia: null, estado: null },
+  ayer: { texto: "Alguien perdonó una infidelidad y volvió como si nada.", culpable: 8, inocente: 10, veredicto: "Inocente", mia: "Culpable" },
   premios: [
     { titulo: "El más chismoso", emoji: "👀", detalle: "Abrió 9 sobres de su amigo secreto", ganadores: ["Agente Picarón"], valor: 9 },
     { titulo: "El que más pasó", emoji: "🙈", detalle: "Pasó 4 preguntas", ganadores: ["Agente Cau Cau"], valor: 4 },
