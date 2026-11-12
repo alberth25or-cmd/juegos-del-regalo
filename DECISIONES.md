@@ -1,5 +1,23 @@
 # Decisiones del proyecto
 
+## Plan de temporada: Corazón 2 por día, recta final y duración variable (2026-11-12, pedido de Luis)
+
+- **Corazón pasa a 2 preguntas por día.** Se sumaron 20 ligeras (c31–c50) y 30 **profundas** (c51–c80,
+  sobre uno mismo y la amistad, sin temas tristes) para la recta final.
+- **Recta final** (~la cuarta parte del juego: 8 de 30 días; entre 3 y 10): menos picante y más corazón →
+  La manada 1 · Amor 1 · Picante 1 · Corazón 3 profundas · Juicio 1. Fase normal: 1 · 2 · 2 · 2 · 1.
+  La aldea y la casa Corazón avisan cuando empieza.
+- **Duración variable** (`planDe`, `conteos`, `cobertura` en `features/casas/reglas.ts`): el juego dura
+  desde el "Empezar" hasta el último día de la temporada. Si el banco alcanza, se usa lo deseado; si no
+  (temporadas largas), el banco se reparte entero a lo largo de los días, con al menos 1 por día y el peso
+  de cada fase. Hasta 45 días no se repite ninguna pregunta; con 60 se repetirían 15 de La manada y 15
+  del Juicio, y el panel del organizador lo avisa.
+- **Cambiar la duración a mitad del juego** (fechas en /admin): el reparto de los días que faltan se
+  recalcula y lo ya respondido se respeta, porque se cobra por día y por casa (no por id de pregunta).
+  La ficha final se abre a más tardar el último día aunque se acorte la temporada.
+
+---
+
 ## Casa Corazón (2026-11-12, pedido de Luis)
 
 - **Una pregunta bonita por día** (`PREGUNTAS_CORAZON`, 30 elegidas de los bancos "Conocernos de verdad" y

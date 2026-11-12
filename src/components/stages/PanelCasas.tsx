@@ -13,7 +13,10 @@ export interface EstadoOrganizador {
   activos: number;
   conFicha: number;
   sala: { presupuesto: number | null; premio: string | null; capacidad: number };
+  plan: { total: number; diasFinal: number; faltan: { banco: string; faltan: number }[] };
 }
+
+const NOMBRE_BANCO: Record<string, string> = { manada: "La manada", amor: "Amor", picante: "Picante", corazon: "Corazón", corazonProfundo: "Corazón (recta final)", juicio: "Juicio final" };
 
 /**
  * Panel real del organizador para el juego de las casas: "Empezar" (sorteo secreto + puerta
@@ -57,6 +60,24 @@ export function PanelCasas({ estado, dia }: { estado: EstadoOrganizador; dia: nu
           <dd className="f-titulo text-[1.8rem] font-semibold">{estado.conFicha}</dd>
         </div>
       </dl>
+
+      <div className="mt-4 rounded-[16px] bg-[#f3eef7] p-4 text-[0.92rem]" aria-label="Plan del juego">
+        <p className="font-extrabold">
+          Plan del juego: {estado.plan.total} días{estado.empezado ? "" : " (si empiezas hoy)"}
+        </p>
+        <ul className="mt-1.5 flex flex-col gap-1">
+          <li>• Cada día: La manada 1 · Amor 2 · Picante 2 · Corazón 2 · Juicio 1.</li>
+          <li>
+            • Recta final (últimos {estado.plan.diasFinal} días): Amor 1 · Picante 1 · Corazón 3 más profundas.
+          </li>
+          <li>
+            {estado.plan.faltan.length === 0
+              ? "• Las preguntas alcanzan: ninguna se repite."
+              : `• Para tantos días se repetirán algunas: ${estado.plan.faltan.map((f) => `${NOMBRE_BANCO[f.banco] ?? f.banco} (${f.faltan})`).join(", ")}.`}
+          </li>
+        </ul>
+        <p className="ayuda mt-2">La duración sale de las fechas de la temporada (cámbialas en /admin). Si la cambias a mitad del juego, el reparto de los días que faltan se ajusta solo.</p>
+      </div>
 
       {!estado.empezado ? (
         <div className="mt-5 border-t-2 border-dashed border-[#e2dcea] pt-5">

@@ -154,12 +154,12 @@ check(cap && cap.abierta === false && cap.recibido === null, "el mensaje no se l
 
 console.log("\n— Corazón");
 const cor = es[0].corazon;
-check(cor && es.every((x) => x.corazon?.id === cor.id), "todos tienen la misma pregunta de Corazón");
-check((await js[0].pedir("/api/casas", { accion: "responder", pregunta: cor.id, valor: " " })).status === 400, "Corazón no acepta respuestas vacías");
-check((await js[0].pedir("/api/casas", { accion: "pasar", pregunta: cor.id })).status === 409, "Corazón no tiene Paso");
+check(cor.length === 2 && es.every((x) => x.corazon.map((c) => c.id).join() === cor.map((c) => c.id).join()), "Corazón: 2 preguntas por día, las mismas para todos");
+check((await js[0].pedir("/api/casas", { accion: "responder", pregunta: cor[0].id, valor: " " })).status === 400, "Corazón no acepta respuestas vacías");
+check((await js[0].pedir("/api/casas", { accion: "pasar", pregunta: cor[0].id })).status === 409, "Corazón no tiene Paso");
 for (let i = 0; i < 3; i++) {
-  r = await js[i].pedir("/api/casas", { accion: "responder", pregunta: cor.id, valor: `Viajar a Cusco con mis amigos ${i}` });
-  check(r.ok && r.estado.corazon.estado === "respondida", `agente ${i} responde Corazón`);
+  for (const c of cor) r = await js[i].pedir("/api/casas", { accion: "responder", pregunta: c.id, valor: `Viajar a Cusco con mis amigos ${i}` });
+  check(r.ok && r.estado.corazon.every((c) => c.estado === "respondida"), `agente ${i} responde las 2 de Corazón`);
 }
 
 console.log("\n— Fisgonear");
@@ -187,19 +187,28 @@ const es2 = await Promise.all(js.map((j) => j.estado()));
 check(es2[0].dia === 2 && es2[0].manada.id !== m.id, "salen preguntas nuevas");
 // agente 3: minoría en La manada y en el Juicio (+0) y 1 de Amor vencida (−40, gasta pase).
 // agente 3: 1 de Amor vencida (−40) y las 2 de Picante vencidas (−60 c/u); cada una gasta un pase.
-check(es2[3].yo.monedas === saldos[3] - 40 - 120 - 15 && es2[3].pases[3] === 1 && es2[3].pases[4] === 2, `vencidas: Amor y Picante como pasar, Corazón −15 (${saldos[3]} → ${es2[3].yo.monedas})`);
+check(es2[3].yo.monedas === saldos[3] - 40 - 120 - 30 && es2[3].pases[3] === 1 && es2[3].pases[4] === 2, `vencidas: Amor y Picante como pasar, Corazón −15 c/u (${saldos[3]} → ${es2[3].yo.monedas})`);
 // agente 1: coincidió en La manada (+15) y en el Juicio (+15), y dejó vencer 1 de Amor (−40).
 // agente 1: +15 La manada, +15 Juicio, −40 Amor vencida, −60 por la 1 de Picante que no respondió.
 check(es2[1].yo.monedas === saldos[1] + 15 + 15 - 40 - 60, `coincidir paga +15 en La manada y +15 en el Juicio (${saldos[1]} → ${es2[1].yo.monedas})`);
 check(es2[1].juicioAyer && es2[1].juicioAyer.veredicto === "Culpable" && es2[1].juicioAyer.culpable === 3, "se ve el veredicto de ayer");
 const otra = await Promise.all(js.map((j) => j.estado().then((x) => x.yo.monedas)));
 check(otra.every((v, i) => v === es2[i].yo.monedas), "volver a entrar no cobra dos veces");
+// El organizador cambia la duración a mitad del juego: no se vuelve a cobrar lo ya liquidado.
+const limaHoy = new Date(Date.now() - 5 * 3600_000).toISOString().slice(0, 10);
+const limaFin = new Date(Date.now() - 5 * 3600_000 + 19 * 86_400_000).toISOString().slice(0, 10);
+const totalAntes = es2[0].totalDias;
+check((await admin.pedir("/api/admin", { accion: "fechas", desde: limaHoy, hasta: limaFin })).ok, "el organizador acorta la temporada a 20 días");
+const es3 = await Promise.all(js.map((j) => j.estado()));
+check(es3[0].totalDias !== totalAntes && es3.every((x, i) => x.yo.monedas === otra[i]), `cambiar la duración no cobra de nuevo (${totalAntes} → ${es3[0].totalDias} días)`);
 
 console.log("\n— Último día");
-const total = es2[0].totalDias;
+const total = (await js[0].estado()).totalDias;
 check((await admin.pedir("/api/admin", { accion: "simularDia", dia: total })).ok, `simular el último día (${total})`);
 cap = (await js[recibe0].pedir("/api/casas/capsula")).capsula;
 check(cap.abierta && /Feliz Navidad/.test(cap.recibido ?? ""), "el último día se lee el mensaje de la cápsula");
+const efin = await js[0].estado();
+check(efin.fase === "final" && efin.corazon.length === 3 && efin.amor.length === 1 && efin.picante.length === 1, "recta final: 3 de Corazón (profundas), 1 de Amor y 1 de Picante");
 check((await js[0].pedir("/api/casas", { accion: "capsula", mensaje: "otro" })).status === 409, "abierta, ya no se puede cambiar");
 const ult = await js[0].estado();
 r = await js[0].pedir("/api/casas", { accion: "responder", pregunta: ult.juicio.id, valor: "Inocente" });

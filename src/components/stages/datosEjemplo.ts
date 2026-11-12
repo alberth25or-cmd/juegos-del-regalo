@@ -120,9 +120,9 @@ export const STAGES: Stage[] = [
   },
   {
     n: 7, numero: 5, nombre: "Corazón", corto: "Corazón", icono: "sparkle", papel: "rosa",
-    descripcion: "Una pregunta bonita por día. Lo que respondes le dice a quien te regala qué te hace feliz.",
-    estado: "nuevas", porDia: 1, hechasHoy: 0, unidad: "pregunta", monedas: 40,
-    accion: { texto: "Responder la de hoy", href: "/diseno/corazon" },
+    descripcion: "Preguntas bonitas cada día. Lo que respondes le dice a quien te regala qué te hace feliz.",
+    estado: "nuevas", porDia: 2, hechasHoy: 0, unidad: "pregunta", monedas: 40,
+    accion: { texto: "Responder las de hoy", href: "/diseno/corazon" },
   },
   {
     n: 5, numero: 6, nombre: "Juicio final", corto: "Juicio", icono: "star", papel: "azul",

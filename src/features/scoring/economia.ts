@@ -34,7 +34,7 @@ export const GANANCIAS = {
 } as const;
 
 /** Preguntas (o retos) nuevos por día en cada casa. */
-export const POR_DIA: Record<Casa, number> = { 1: 3, 2: 1, 3: 2, 4: 2, 5: 1, 6: 1 };
+export const POR_DIA: Record<Casa, number> = { 1: 3, 2: 1, 3: 2, 4: 2, 5: 1, 6: 2 };
 
 /** Lo que CUESTA abrir un sobre de tu amigo secreto (más íntimo = más caro). */
 export const FISGONEAR: Record<2 | 3 | 4 | 6, number> = { 2: 50, 3: 100, 4: 150, 6: 80 };
@@ -100,6 +100,6 @@ export const DIA_TIPICO: PerfilDia = { rendimiento: 0.6, coincide: 0.5, juegaPic
 
 /** Lo que costaría abrir TODOS los sobres nuevos de un día de tu amigo (menos el gratis, el más caro). */
 export function costoFisgonearTodoElDia() {
-  const sobres = [FISGONEAR[2], FISGONEAR[3], FISGONEAR[3], FISGONEAR[4], FISGONEAR[4], FISGONEAR[6]];
+  const sobres = [FISGONEAR[2], FISGONEAR[3], FISGONEAR[3], FISGONEAR[4], FISGONEAR[4], FISGONEAR[6], FISGONEAR[6]];
   return sobres.reduce((a, b) => a + b, 0) - Math.max(...sobres);
 }

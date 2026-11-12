@@ -328,6 +328,64 @@ export const PREGUNTAS_CORAZON: { id: string; texto: string }[] = [
   { id: "c28", texto: "¿Cuál es tu manera favorita de celebrar un logro?" },
   { id: "c29", texto: "¿Qué es lo que más disfrutas de estar con tus amigos?" },
   { id: "c30", texto: "¿Qué te gustaría que tus amigos nunca olvidaran de ti?" },
+  // Segundo lote (2026-11-12): Corazón pasa a 2 preguntas por día.
+  { id: "c31", texto: "¿Qué te hace sentir orgulloso de la persona en la que te has convertido?" },
+  { id: "c32", texto: "¿Qué cualidad admiras en otras personas y te gustaría desarrollar?" },
+  { id: "c33", texto: "¿Qué es algo que nunca negociarías de tu forma de ser?" },
+  { id: "c34", texto: "¿Cuál era tu mayor ilusión cuando eras niño?" },
+  { id: "c35", texto: "¿Qué tradición te gustaría crear en tu propia familia?" },
+  { id: "c36", texto: "¿Cómo sería un día perfecto de tu vida dentro de diez años?" },
+  { id: "c37", texto: "¿Qué proyecto personal te gustaría comenzar algún día?" },
+  { id: "c38", texto: "¿Qué trabajo harías aunque no te pagaran?" },
+  { id: "c39", texto: "¿Qué país o ciudad te gustaría convertir en tu hogar por un tiempo?" },
+  { id: "c40", texto: "¿Qué aventura te gustaría repetir?" },
+  { id: "c41", texto: "¿Qué experiencia te hizo sentir verdaderamente libre?" },
+  { id: "c42", texto: "¿Cuál es tu manera favorita de desconectarte del mundo?" },
+  { id: "c43", texto: "¿Qué lugar te transmite tranquilidad?" },
+  { id: "c44", texto: "¿Qué actividad te gustaría recuperar porque antes te hacía feliz?" },
+  { id: "c45", texto: "¿Cuándo fue la última vez que te reíste hasta que te dolió el estómago?" },
+  { id: "c46", texto: "¿Prefieres una noche de conversaciones profundas o una aventura espontánea?" },
+  { id: "c47", texto: "¿Qué estación del año representa mejor tu personalidad?" },
+  { id: "c48", texto: "¿Qué lugar de tu ciudad tiene un significado especial para ti?" },
+  { id: "c49", texto: "¿Qué te gustaría hacer más seguido, pero siempre terminas postergando?" },
+  { id: "c50", texto: "¿Qué persona te ha enseñado a disfrutar de las cosas simples (sin decir su nombre)?" },
+];
+
+/**
+ * Corazón profundo: para la recta final de la temporada (pedido de Luis: "aumentar la intensidad" al
+ * final). Sobre uno mismo y sobre la amistad; sin temas tristes.
+ */
+export const PREGUNTAS_CORAZON_PROFUNDAS: { id: string; texto: string }[] = [
+  { id: "c51", texto: "¿Qué momento de tu vida te obligó a madurar?" },
+  { id: "c52", texto: "¿Qué decisión difícil terminó siendo una de las mejores de tu vida?" },
+  { id: "c53", texto: "¿Qué batalla personal ganaste sin que nadie se enterara?" },
+  { id: "c54", texto: "¿Qué es algo que te gustaría que alguien supiera de ti, aunque nunca lo hayas contado?" },
+  { id: "c55", texto: "¿Qué te cuesta expresar incluso a tus mejores amigos?" },
+  { id: "c56", texto: "¿Qué significa para ti tener un verdadero amigo?" },
+  { id: "c57", texto: "¿Qué gesto de amistad nunca olvidarás?" },
+  { id: "c58", texto: "¿Qué te gustaría que tus amigos comprendieran mejor de ti?" },
+  { id: "c59", texto: "¿Qué te gustaría que nunca cambiara de este grupo?" },
+  { id: "c60", texto: "¿Qué recuerdo con este grupo te gustaría repetir?" },
+  { id: "c61", texto: "¿Qué has aprendido de tus amigos desde que los conoces?" },
+  { id: "c62", texto: "¿Qué te gustaría vivir junto a este grupo antes de que pasen los años?" },
+  { id: "c63", texto: "¿Qué te gustaría agradecerle a la vida en este momento?" },
+  { id: "c64", texto: "¿Qué es algo que deberíamos decirnos más seguido como amigos?" },
+  { id: "c65", texto: "¿Qué te gustaría que dijeran de ti tus amigos cuando no estás?" },
+  { id: "c66", texto: "¿Qué parte de ti quisieras que tus amigos conocieran mejor?" },
+  { id: "c67", texto: "¿Qué has descubierto de ti gracias a tus amistades?" },
+  { id: "c68", texto: "¿Qué momento te hizo sentir que este grupo ya no eran conocidos, sino amigos?" },
+  { id: "c69", texto: "¿Qué te hace sentir verdaderamente comprendido?" },
+  { id: "c70", texto: "¿Qué es lo que más temes perder de tus amistades?" },
+  { id: "c71", texto: "¿Cuál ha sido el momento en que más orgulloso te has sentido de ti?" },
+  { id: "c72", texto: "¿Qué aprendiste de una etapa en la que te sentiste perdido?" },
+  { id: "c73", texto: "¿Qué miedo has tenido que aprender a enfrentar?" },
+  { id: "c74", texto: "¿Qué inseguridad has conseguido superar?" },
+  { id: "c75", texto: "¿Qué es algo que hoy puedes hacer y antes te parecía imposible?" },
+  { id: "c76", texto: "¿Qué versión de ti mismo estás intentando construir?" },
+  { id: "c77", texto: "¿Qué persona te conoce mejor de lo que tú crees (sin decir su nombre)?" },
+  { id: "c78", texto: "¿Qué es lo más bonito que alguien ha hecho por ti sin que se lo pidieras?" },
+  { id: "c79", texto: "¿Qué le dirías hoy a tu yo de hace cinco años?" },
+  { id: "c80", texto: "Si este fuera el último día del juego, ¿qué le dirías al grupo?" },
 ];
 
 /** Platos peruanos para los alias "Agente <plato>" (más que la capacidad máxima de 40). */
@@ -344,7 +402,7 @@ export const pregunta = {
   amor: (id: string) => PREGUNTAS_AMOR.find((p) => p.id === id),
   picante: (id: string) => PREGUNTAS_PICANTE.find((p) => p.id === id),
   juicio: (id: string) => CASOS_JUICIO.find((p) => p.id === id),
-  corazon: (id: string) => PREGUNTAS_CORAZON.find((p) => p.id === id),
+  corazon: (id: string) => PREGUNTAS_CORAZON.find((p) => p.id === id) ?? PREGUNTAS_CORAZON_PROFUNDAS.find((p) => p.id === id),
 };
 
 /** Texto y picor de cualquier pregunta por id (el prefijo dice la casa). */

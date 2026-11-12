@@ -28,7 +28,7 @@ export function casasReales(e: EstadoCasas): Stage[] {
   const picante: Stage = {
     n: 4, nombre: "Picante", corto: "Picante", icono: "chili", papel: "rojo",
     descripcion: "Preguntas nuevas cada día, solo sí o no. Puedes pasar, pero cuesta monedas y los pases son pocos.",
-    estado: est(2, picHechas), porDia: 2, hechasHoy: picHechas, unidad: "pregunta", pasesUsados: e.pases[4],
+    estado: est(e.picante.length, picHechas), porDia: e.picante.length, hechasHoy: picHechas, unidad: "pregunta", pasesUsados: e.pases[4],
     accion: { texto: "Responder las de hoy", href: "/diseno/picante" },
   };
   return [
@@ -51,15 +51,18 @@ export function casasReales(e: EstadoCasas): Stage[] {
     {
       n: 3, nombre: "Amor y relaciones", corto: "Amor", icono: "heart", papel: "morado",
       descripcion: "Preguntas de respuesta corta. Puedes pasar, pero cuesta monedas y los pases son pocos.",
-      estado: est(2, amorHechas), porDia: 2, hechasHoy: amorHechas, unidad: "pregunta", pasesUsados: e.pases[3],
+      estado: est(e.amor.length, amorHechas), porDia: e.amor.length, hechasHoy: amorHechas, unidad: "pregunta", pasesUsados: e.pases[3],
       accion: { texto: "Responder las de hoy", href: "/diseno/amor" },
     },
     picante,
     {
       n: 7, numero: 5, nombre: "Corazón", corto: "Corazón", icono: "sparkle", papel: "rosa",
-      descripcion: "Una pregunta bonita por día. Lo que respondes le dice a quien te regala qué te hace feliz.",
-      estado: est(1, e.corazon?.estado ? 1 : 0), porDia: 1, hechasHoy: e.corazon?.estado ? 1 : 0, unidad: "pregunta",
-      accion: { texto: "Responder la de hoy", href: "/diseno/corazon" },
+      descripcion:
+        e.fase === "final"
+          ? "Recta final: preguntas más profundas sobre ti y sobre la amistad. Es lo que más va a recordar quien te regala."
+          : "Preguntas bonitas cada día. Lo que respondes le dice a quien te regala qué te hace feliz.",
+      estado: est(e.corazon.length, e.corazon.filter((p) => p.estado).length), porDia: e.corazon.length, hechasHoy: e.corazon.filter((p) => p.estado).length, unidad: "pregunta",
+      accion: { texto: "Responder las de hoy", href: "/diseno/corazon" },
     },
     {
       n: 5, numero: 6, nombre: "Juicio final", corto: "Juicio", icono: "star", papel: "azul",

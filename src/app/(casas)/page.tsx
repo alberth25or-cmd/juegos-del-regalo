@@ -105,6 +105,11 @@ async function Aldea() {
           </Link>
         )}
         <AvisoFisgoneo veces={e.fisgoneosHoy} />
+        {e.fase === "final" && (
+          <p className="relative z-[2] mx-auto mt-3 max-w-[560px] px-4 text-center text-[0.95rem] font-extrabold text-[#ffb3cf]">
+            💛 Recta final: menos picante y más Corazón. Es lo que más va a quedar.
+          </p>
+        )}
         <p className="relative z-[2] mx-auto mt-3 max-w-[560px] px-4 text-center text-[0.88rem] font-bold text-[var(--hielo)]">
           🏆 Premio para quien termine con más monedas: <span className="text-[var(--oro)]">{textoPremio(e.sala.premio)}</span>
         </p>

@@ -1,6 +1,6 @@
 import "server-only";
 import { crearAzar } from "@/features/azar";
-import { aliasLibre, igualQue, mayoria, preguntasDelDia, semilla, sortear, validarFicha, validarRespuesta } from "@/features/casas/reglas";
+import { aliasLibre, cobertura, diasFinal, igualQue, mayoria, preguntasDelDia, semilla, sortear, validarFicha, validarRespuesta, type Fase, type Plan } from "@/features/casas/reglas";
 import { datosPregunta } from "@/features/contenido/casas";
 import { filtrarChat } from "@/features/contenido/filtro";
 import { costoPasar, costoVencida, FISGONEAR, GANANCIAS, PASES_POR_CASA } from "@/features/scoring/economia";
@@ -88,11 +88,26 @@ function picanteDesdeDe(p: { juega_picante?: unknown; picante_desde?: unknown } 
   return typeof p.picante_desde === "number" ? p.picante_desde : 0;
 }
 
-function idsDelDia(seasonId: string, dia: number, picanteDesde: PicanteDesde) {
-  const q = preguntasDelDia(seasonId, dia);
+/**
+ * Día en que se abre la ficha final. Si el organizador acortó la temporada y ese día quedó
+ * después del último, se abre el último día (nunca se queda sin abrir).
+ */
+function fichaDiaDe(cfg: ConfigCasas, totalDias: number) {
+  return totalDias > 0 ? Math.min(cfg.fichaDia, Math.max(totalDias, cfg.diaInicio + 1)) : cfg.fichaDia;
+}
+
+/** Plan del juego: desde el día del "Empezar" hasta el último día de la temporada. */
+function planDe(cfg: ConfigCasas, totalDias: number): Plan {
+  return { inicio: cfg.diaInicio, total: Math.max(1, totalDias - cfg.diaInicio + 1) };
+}
+
+const CASAS_PREGUNTA = [2, 3, 4, 5, 6] as const;
+
+function idsDelDia(seasonId: string, dia: number, plan: Plan, picanteDesde: PicanteDesde) {
+  const q = preguntasDelDia(seasonId, dia, plan);
   const lista: { id: string; casa: 2 | 3 | 4 | 5 | 6 }[] = [{ id: q.manada.id, casa: 2 }, ...q.amor.map((p) => ({ id: p.id, casa: 3 as const }))];
   if (picanteDesde !== null && dia >= picanteDesde) lista.push(...q.picante.map((p) => ({ id: p.id, casa: 4 as const })));
-  lista.push({ id: q.juicio.id, casa: 5 }, { id: q.corazon.id, casa: 6 });
+  lista.push({ id: q.juicio.id, casa: 5 }, ...q.corazon.map((p) => ({ id: p.id, casa: 6 as const })));
   return lista;
 }
 
@@ -105,20 +120,24 @@ async function pasesUsados(tx: Tx, playerId: string, casa: number) {
  * Cobra lo pendiente de días anteriores: preguntas vencidas y el extra de La manada
  * (coincidir con la mayoría). Idempotente.
  */
-async function liquidar(tx: Tx, yo: Jugador, cfg: ConfigCasas, hoy: number, juegaPicante: PicanteDesde) {
+async function liquidar(tx: Tx, yo: Jugador, cfg: ConfigCasas, hoy: number, plan: Plan, juegaPicante: PicanteDesde) {
   if (hoy <= cfg.diaInicio) return;
   const desde = cfg.diaInicio;
   const hasta = Math.min(hoy - 1, desde + 89);
-  const tengo = new Set(
-    (await tx`select pregunta_id, dia, casa from cc.respuestas where player_id = ${yo.id} and dia between ${desde} and ${hasta}`).flatMap((r) =>
-      // La manada cuenta por día, con cualquier id: si el banco de preguntas cambia a mitad de
-      // temporada, la respuesta de ese día (con el id viejo) sigue valiendo.
-      r.casa === 2 ? [`${r.dia}:${r.pregunta_id}`, `${r.dia}:manada`] : [`${r.dia}:${r.pregunta_id}`],
-    ),
-  );
+  // Se cuenta por día y por casa: si el banco o la duración cambian a mitad de temporada, las
+  // respuestas que ya dio ese día (aunque sean de otras preguntas) siguen valiendo.
+  const filas = await tx`select pregunta_id, dia, casa from cc.respuestas where player_id = ${yo.id} and dia between ${desde} and ${hasta}`;
+  const tengo = new Set(filas.map((r) => `${r.dia}:${r.pregunta_id}`));
+  const porCasa = new Map<string, number>();
+  for (const r of filas) porCasa.set(`${r.dia}:${r.casa}`, (porCasa.get(`${r.dia}:${r.casa}`) ?? 0) + 1);
   for (let d = desde; d <= hasta; d++) {
-    for (const q of idsDelDia(yo.seasonId, d, juegaPicante)) {
-      if (tengo.has(`${d}:${q.id}`) || (q.casa === 2 && tengo.has(`${d}:manada`))) continue;
+    const lista = idsDelDia(yo.seasonId, d, plan, juegaPicante);
+    const pendientes = CASAS_PREGUNTA.flatMap((casa) => {
+      const req = lista.filter((q) => q.casa === casa);
+      const faltan = req.length - (porCasa.get(`${d}:${casa}`) ?? 0);
+      return faltan > 0 ? req.filter((q) => !tengo.has(`${d}:${q.id}`)).slice(0, faltan) : [];
+    });
+    for (const q of pendientes) {
       const usados = q.casa === 3 || q.casa === 4 ? await pasesUsados(tx, yo.id, q.casa) : 0;
       const c = costoVencida(q.casa, usados);
       const [r] = await tx`
@@ -174,11 +193,14 @@ async function juegosDeHoy(sql: Tx | ReturnType<typeof db>, playerId: string) {
 }
 
 /** Bono por terminar todo lo del día en todas las casas (una vez por día). */
-async function bonoSiCorresponde(tx: Tx, yo: Jugador, hoy: number, juegaPicante: PicanteDesde) {
-  const ids = idsDelDia(yo.seasonId, hoy, juegaPicante).map((q) => q.id);
-  const [r] = await tx`select count(*)::int as n from cc.respuestas where player_id = ${yo.id} and dia = ${hoy} and pregunta_id = any(${ids}) and estado <> 'vencida'`;
+async function bonoSiCorresponde(tx: Tx, yo: Jugador, hoy: number, plan: Plan, juegaPicante: PicanteDesde) {
+  const lista = idsDelDia(yo.seasonId, hoy, plan, juegaPicante);
+  const hechas = new Map(
+    (await tx`select casa, count(*)::int as n from cc.respuestas where player_id = ${yo.id} and dia = ${hoy} and estado <> 'vencida' group by casa`).map((r) => [r.casa as number, r.n as number]),
+  );
+  const completo = CASAS_PREGUNTA.every((casa) => (hechas.get(casa) ?? 0) >= lista.filter((q) => q.casa === casa).length);
   const juegos = await juegosDeHoy(tx, yo.id);
-  if ((r.n as number) >= ids.length && JUEGOS_CALENTAMIENTO.every((j) => juegos.has(j))) {
+  if (completo && JUEGOS_CALENTAMIENTO.every((j) => juegos.has(j))) {
     await movimiento(tx, yo, "bono-dia", String(hoy), GANANCIAS.bonoAlDia, "Al día en todas las casas", clave("bono", yo.seasonId, String(hoy), yo.id));
   }
 }
@@ -205,8 +227,12 @@ export interface EstadoCasas {
   /** Presupuesto del regalo y premio final: null = "lo decide el grupo fuera del juego". */
   sala: Sala;
   juicio: { id: string; texto: string; mia: string | null; estado: string | null } | null;
-  /** Corazón: la pregunta bonita del día. */
-  corazon: { id: string; texto: string; mia: string | null; estado: string | null } | null;
+  /** Corazón: las preguntas bonitas del día (2; 3 profundas en la recta final). */
+  corazon: { id: string; texto: string; mia: string | null; estado: string | null }[];
+  /** Fase del juego: normal o recta final (más Corazón, menos picante). */
+  fase: Fase;
+  /** Día del juego en que empieza la recta final. */
+  finalDesde: number | null;
   /** Veredicto del caso de ayer (si hubo). */
   juicioAyer: { texto: string; culpable: number; inocente: number; veredicto: string; mia: string | null } | null;
   /** Cápsula del tiempo: se abre el último día de la temporada. */
@@ -219,6 +245,7 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
   const { dia, totalDias } = diaDe(yo);
   const cfg = t.casas;
   const empezado = !!cfg && dia > 0;
+  const plan = cfg ? planDe(cfg, totalDias) : null;
 
   const { alias, picanteDesde, aceptoTerminos } = await conTope(
     sql.begin(async (tx) => {
@@ -228,8 +255,8 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
       const jp = picanteDesdeDe(p);
       const acepto = !!p?.acepta_terminos_at;
       if (empezado && yo.status === "active" && acepto) {
-        await liquidar(tx, yo, cfg!, dia, jp);
-        await bonoSiCorresponde(tx, yo, dia, jp);
+        await liquidar(tx, yo, cfg!, dia, plan!, jp);
+        await bonoSiCorresponde(tx, yo, dia, plan!, jp);
       }
       return { alias, picanteDesde: jp, aceptoTerminos: acepto };
     }),
@@ -237,9 +264,9 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
     "preparación de las casas",
   );
 
-  const q = empezado ? preguntasDelDia(yo.seasonId, dia) : null;
-  const idsHoy = q ? [q.manada.id, ...q.amor.map((p) => p.id), ...q.picante.map((p) => p.id), q.juicio.id, q.corazon.id] : [];
-  const ayer = empezado && dia - 1 >= cfg!.diaInicio ? preguntasDelDia(yo.seasonId, dia - 1).juicio : null;
+  const q = empezado ? preguntasDelDia(yo.seasonId, dia, plan!) : null;
+  const idsHoy = q ? [q.manada.id, ...q.amor.map((p) => p.id), ...q.picante.map((p) => p.id), q.juicio.id, ...q.corazon.map((p) => p.id)] : [];
+  const ayer = empezado && dia - 1 >= cfg!.diaInicio ? preguntasDelDia(yo.seasonId, dia - 1, plan!).juicio : null;
 
   const [[votosAyer], [miAyer], [caps]] = await Promise.all([
     ayer
@@ -286,7 +313,8 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
   const alDia: Record<number, string[]> = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
   for (const r of alDiaRows) {
     const casa = r.casa as number;
-    if (r.n >= (casa === 3 || casa === 4 ? 2 : 1)) alDia[casa].push(r.alias as string);
+    const req = q ? { 2: 1, 3: q.amor.length, 4: q.picante.length, 5: 1, 6: q.corazon.length }[casa] ?? 1 : 1;
+    if (r.n >= req) alDia[casa].push(r.alias as string);
   }
   const pases = { 3: 0, 4: 0 } as { 3: number; 4: number };
   for (const r of pas) if (r.casa === 3 || r.casa === 4) pases[r.casa as 3 | 4] = r.n as number;
@@ -299,8 +327,8 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
     empezado,
     dia,
     totalDias,
-    fichaDia: cfg?.fichaDia ?? null,
-    fichaAbierta: !!cfg && dia >= cfg.fichaDia,
+    fichaDia: cfg ? fichaDiaDe(cfg, totalDias) : null,
+    fichaAbierta: !!cfg && dia >= fichaDiaDe(cfg, totalDias),
     yo: {
       alias,
       avatar: avatarDeAlias(alias),
@@ -325,7 +353,9 @@ export async function estadoCasas(yo: Jugador): Promise<EstadoCasas> {
     },
     sala: salaDe(t.settings),
     juicio: q ? dePregunta(q.juicio.id, q.juicio.texto) : null,
-    corazon: q ? dePregunta(q.corazon.id, q.corazon.texto) : null,
+    corazon: q ? q.corazon.map((p) => dePregunta(p.id, p.texto)) : [],
+    fase: q?.fase ?? "normal",
+    finalDesde: plan ? plan.inicio + plan.total - diasFinal(plan.total) : null,
     juicioAyer:
       ayer && votosAyer && (votosAyer.culpable > 0 || votosAyer.inocente > 0)
         ? {
@@ -349,12 +379,13 @@ function exigirEmpezado(cfg: ConfigCasas | null, dia: number) {
 /** Responder (o pasar) una pregunta de HOY. */
 export async function responder(yo: Jugador, preguntaId: string, valor: unknown, pasar: boolean) {
   const t = await temporada(yo.seasonId);
-  const { dia } = diaDe(yo);
+  const { dia, totalDias } = diaDe(yo);
   exigirEmpezado(t.casas, dia);
   const dp = datosPregunta(preguntaId);
   if (!dp) throw new ErrorDeUsuario("Pregunta no encontrada.", 404);
-  const hoy = preguntasDelDia(yo.seasonId, dia);
-  const deHoy = [hoy.manada.id, ...hoy.amor.map((p) => p.id), ...hoy.picante.map((p) => p.id), hoy.juicio.id, hoy.corazon.id];
+  const plan = planDe(t.casas!, totalDias);
+  const hoy = preguntasDelDia(yo.seasonId, dia, plan);
+  const deHoy = [hoy.manada.id, ...hoy.amor.map((p) => p.id), ...hoy.picante.map((p) => p.id), hoy.juicio.id, ...hoy.corazon.map((p) => p.id)];
   if (!deHoy.includes(preguntaId)) throw new ErrorDeUsuario("Esa pregunta ya no está abierta. Mira las de hoy.", 409);
 
   await conTope(
@@ -364,11 +395,11 @@ export async function responder(yo: Jugador, preguntaId: string, valor: unknown,
       if (!p?.acepta_terminos_at) throw new ErrorDeUsuario(SIN_TERMINOS, 409);
       const jp = picanteDesdeDe(p);
       if (dp.casa === 4 && (jp === null || dia < jp)) throw new ErrorDeUsuario("Esta pregunta de Picante no es tuya hoy.", 409);
-      if (dp.casa === 2) {
-        const [ya] = await tx`select 1 from cc.respuestas where player_id = ${yo.id} and casa = 2 and dia = ${dia}`;
-        if (ya) throw new ErrorDeUsuario("Ya respondiste La manada de hoy.", 409);
-      }
-      await liquidar(tx, yo, t.casas!, dia, jp);
+      // Tope por casa y día (por si el plan cambió durante el día y aparecieron preguntas nuevas).
+      const req = idsDelDia(yo.seasonId, dia, plan, jp).filter((x) => x.casa === dp.casa).length;
+      const [{ n }] = await tx`select count(*)::int as n from cc.respuestas where player_id = ${yo.id} and casa = ${dp.casa} and dia = ${dia}`;
+      if ((n as number) >= req) throw new ErrorDeUsuario("Ya respondiste todas las de hoy en esta casa.", 409);
+      await liquidar(tx, yo, t.casas!, dia, plan, jp);
 
       let estado: "respondida" | "paso" = "respondida";
       let texto: string | null = null;
@@ -397,7 +428,7 @@ export async function responder(yo: Jugador, preguntaId: string, valor: unknown,
       `;
       if (!r) throw new ErrorDeUsuario("Ya respondiste esta pregunta.", 409);
       await movimiento(tx, yo, pasar ? "casa-paso" : "casa-respuesta", preguntaId, monedas, pasar ? "Pasó una pregunta" : "Respondió una pregunta", clave(pasar ? "paso" : "casa", yo.seasonId, preguntaId, yo.id, String(dia)));
-      await bonoSiCorresponde(tx, yo, dia, jp);
+      await bonoSiCorresponde(tx, yo, dia, plan, jp);
     }),
     10_000,
     "respuesta",
@@ -478,7 +509,8 @@ export async function fichaAmigo(yo: Jugador): Promise<FichaAmigo | null> {
   const [par] = await conTope(() => sql`select receiver_id from cc.amigo_secreto where giver_id = ${yo.id}`);
   if (!par || !t.casas) return null;
   const amigoId = par.receiver_id as string;
-  const final = dia >= t.casas.fichaDia;
+  const fichaDia = fichaDiaDe(t.casas, diaDe(yo).totalDias);
+  const final = dia >= fichaDia;
   const [[a], [f], resp, abiertos, [gr], monedas] = await Promise.all([
     conTope(() => sql`select alias, avatar, juega_picante from cc.players where id = ${amigoId}`),
     conTope(() => sql`select regalos, datos from cc.fichas where player_id = ${amigoId}`),
@@ -534,7 +566,7 @@ export async function fichaAmigo(yo: Jugador): Promise<FichaAmigo | null> {
     gratisHoy: Math.max(0, 1 - ((gr?.n as number) ?? 0)),
     monedas,
     dia,
-    fichaDia: t.casas.fichaDia,
+    fichaDia,
   };
 }
 
@@ -578,7 +610,22 @@ export async function estadoOrganizador(seasonId: string) {
     from cc.players p left join cc.fichas f on f.player_id = p.id
     where p.season_id = ${seasonId}
   `);
-  return { empezado: !!t.casas, empezadoEn: t.casas?.empezadoEn ?? null, fichaDia: t.casas?.fichaDia ?? null, activos: r.activos as number, conFicha: r.con_ficha as number, sala: salaDe(t.settings) };
+  // Plan del juego: cuántos días dura (desde el Empezar, o desde hoy si todavía no empieza), la
+  // recta final y si alcanzan las preguntas de cada casa para esa duración.
+  const e = estadoConPrueba(new Date(), t.startsAt, t.endsAt, t.settings.prueba === true, typeof t.settings.diaSimulado === "number" ? t.settings.diaSimulado : null);
+  const totalTemporada = e.fase === "pretemporada" ? Math.max(1, Math.round((t.endsAt.getTime() + 1000 - t.startsAt.getTime()) / 86_400_000)) : e.totalDias;
+  const diaHoy = e.fase === "pretemporada" ? 1 : e.dia;
+  const total = Math.max(1, totalTemporada - (t.casas?.diaInicio ?? diaHoy) + 1);
+  const faltan = cobertura(total).filter((c) => c.faltan > 0).map((c) => ({ banco: c.banco, faltan: c.faltan }));
+  return {
+    empezado: !!t.casas,
+    empezadoEn: t.casas?.empezadoEn ?? null,
+    fichaDia: t.casas?.fichaDia ?? null,
+    activos: r.activos as number,
+    conFicha: r.con_ficha as number,
+    sala: salaDe(t.settings),
+    plan: { total, diasFinal: diasFinal(total), faltan },
+  };
 }
 
 /**

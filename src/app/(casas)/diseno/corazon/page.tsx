@@ -15,7 +15,19 @@ export default function CorazonPage() {
 
 async function Contenido() {
   const c = await cargarCasas();
-  if (c.tipo === "demo") return <JuegoCorazon datos={{ dia: 7, pregunta: { id: "c12", texto: "¿Qué lugar del mundo sueñas con conocer?", mia: null, estado: null } }} />;
+  if (c.tipo === "demo")
+    return (
+      <JuegoCorazon
+        datos={{
+          dia: 7,
+          fase: "normal",
+          preguntas: [
+            { id: "c12", texto: "¿Qué lugar del mundo sueñas con conocer?", mia: null, estado: null },
+            { id: "c25", texto: "¿Qué pequeño lujo disfrutas sin sentir culpa?", mia: null, estado: null },
+          ],
+        }}
+      />
+    );
   if (c.tipo !== "real" || !c.estado.empezado) return <NoAbierta carga={c} />;
-  return <JuegoCorazon real datos={{ dia: c.estado.dia, pregunta: c.estado.corazon }} />;
+  return <JuegoCorazon real datos={{ dia: c.estado.dia, fase: c.estado.fase, preguntas: c.estado.corazon }} />;
 }
